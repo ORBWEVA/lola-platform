@@ -15,9 +15,11 @@ interface Props {
 }
 
 type SessionState = 'connecting' | 'active' | 'ended'
+type ErrorKind = 'mic_denied' | 'no_credits' | 'connection_lost' | null
 
 export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props) {
   const [state, setState] = useState<SessionState>('connecting')
+  const [error, setError] = useState<ErrorKind>(null)
   const [credits, setCredits] = useState(15)
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([])
   const [speaking, setSpeaking] = useState<'user' | 'avatar' | 'idle'>('idle')
@@ -35,6 +37,7 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
   const creditIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const durationIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<number>(0)
+  const reconnectAttemptsRef = useRef<number>(0)
 
   const endSession = useCallback(async () => {
     if (state === 'ended') return
@@ -73,6 +76,20 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
 
     const connect = async () => {
       try {
+        // Request mic permission first
+        let stream: MediaStream
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        } catch (micErr: unknown) {
+          const name = micErr instanceof DOMException ? micErr.name : ''
+          if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
+            setError('mic_denied')
+          }
+          setState('ended')
+          return
+        }
+        streamRef.current = stream
+
         // Get ephemeral token
         const res = await fetch('/api/realtime', {
           method: 'POST',
@@ -97,6 +114,23 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         const pc = new RTCPeerConnection()
         pcRef.current = pc
 
+        // Handle connection state changes for reconnection
+        pc.onconnectionstatechange = () => {
+          if (pc.connectionState === 'disconnected' || pc.connectionState === 'failed') {
+            if (reconnectAttemptsRef.current < 2) {
+              reconnectAttemptsRef.current++
+              console.warn(`Connection ${pc.connectionState}, attempting reconnect (${reconnectAttemptsRef.current}/2)`)
+              // Clean up and retry
+              pc.close()
+              stream.getTracks().forEach(t => t.stop())
+              if (!cancelled) connect()
+            } else {
+              setError('connection_lost')
+              endSession()
+            }
+          }
+        }
+
         // Audio output
         const audioEl = document.createElement('audio')
         audioEl.autoplay = true
@@ -115,8 +149,6 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         }
 
         // Mic input
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-        streamRef.current = stream
         const audioTrack = stream.getAudioTracks()[0]
         pc.addTrack(audioTrack, stream)
 
@@ -223,19 +255,25 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
       }
     }
 
-    // Load user credits
-    const loadCredits = async () => {
+    // Load user credits and check before connecting
+    const init = async () => {
       try {
         const res = await fetch('/api/profile')
         if (res.ok) {
           const data = await res.json()
-          setCredits(data.credits ?? 15)
+          const userCredits = data.credits ?? 15
+          setCredits(userCredits)
+          if (userCredits <= 0) {
+            setError('no_credits')
+            setState('ended')
+            return
+          }
         }
       } catch {}
+      connect()
     }
 
-    loadCredits()
-    connect()
+    init()
 
     return () => {
       cancelled = true
@@ -250,6 +288,78 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
       track.enabled = !track.enabled
       setIsMuted(!track.enabled)
     }
+  }
+
+  if (error === 'mic_denied') {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background px-6">
+        <div className="glass rounded-2xl p-8 max-w-sm text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
+            <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 1a3 3 0 00-3 3v4a3 3 0 006 0V4a3 3 0 00-3-3z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold">Microphone Access Required</h2>
+          <p className="text-sm text-muted">LoLA needs your microphone for voice conversations. Please allow mic access in your browser settings and reload the page.</p>
+          <div className="glass rounded-xl p-3 text-xs text-muted text-left space-y-1">
+            <p className="font-medium text-foreground">How to enable:</p>
+            <p>1. Tap the lock/info icon in your browser address bar</p>
+            <p>2. Find &quot;Microphone&quot; and set it to &quot;Allow&quot;</p>
+            <p>3. Reload this page</p>
+          </div>
+          <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
+            Reload Page
+          </button>
+          <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
+            Back to profile
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  if (error === 'no_credits') {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background px-6">
+        <div className="glass rounded-2xl p-8 max-w-sm text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto">
+            <svg className="w-7 h-7 text-amber-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold">No Credits Remaining</h2>
+          <p className="text-sm text-muted">You need credits to start a voice session. Each minute of conversation costs 1 credit.</p>
+          <a href="/api/checkout?pack=starter" className="block w-full py-3 rounded-xl gradient-btn font-medium text-center">
+            Buy Credits
+          </a>
+          <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
+            Back to profile
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  if (error === 'connection_lost' || (state === 'ended' && error === 'connection_lost')) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background px-6">
+        <div className="glass rounded-2xl p-8 max-w-sm text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
+            <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636a9 9 0 11-12.728 0M12 9v4m0 4h.01" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold">Connection Lost</h2>
+          <p className="text-sm text-muted">The voice connection dropped after multiple reconnection attempts. This can happen with unstable networks.</p>
+          <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
+            Try Again
+          </button>
+          <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
+            Back to profile
+          </a>
+        </div>
+      </div>
+    )
   }
 
   if (state === 'ended') {

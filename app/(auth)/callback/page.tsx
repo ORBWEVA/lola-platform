@@ -21,21 +21,16 @@ function CallbackInner() {
         return
       }
 
-      // Check if profile exists, create if not
-      const { data: profile } = await supabase
+      // Ensure profile has LoLA fields set
+      const displayName = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User'
+      await supabase
         .from('profiles')
-        .select('id')
-        .eq('id', session.user.id)
-        .single()
-
-      if (!profile) {
-        await supabase.from('profiles').insert({
+        .upsert({
           id: session.user.id,
-          display_name: session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User',
+          display_name: displayName,
           role: 'learner',
           credits: 15,
-        })
-      }
+        }, { onConflict: 'id', ignoreDuplicates: false })
 
       router.push(next)
     }

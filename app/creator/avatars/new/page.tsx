@@ -18,6 +18,7 @@ export default function NewAvatarPage() {
   const supabase = createClient()
   const [step, setStep] = useState<Step>(1)
   const [loading, setLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
   // Form data
   const [name, setName] = useState('')
@@ -44,6 +45,7 @@ export default function NewAvatarPage() {
 
   const generateCandidates = async () => {
     setLoading(true)
+    setErrorMsg(null)
     try {
       const res = await fetch('/api/avatars/generate', {
         method: 'POST',
@@ -51,11 +53,17 @@ export default function NewAvatarPage() {
         body: JSON.stringify({ appearance, domain, name }),
       })
       const data = await res.json()
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Image generation failed. Please try again.')
+        setLoading(false)
+        return
+      }
       if (data.candidates) {
         setCandidates(data.candidates)
         setStep(4)
       }
     } catch (e) {
+      setErrorMsg('Network error — check your connection and try again.')
       console.error('Generation failed:', e)
     }
     setLoading(false)
@@ -63,6 +71,7 @@ export default function NewAvatarPage() {
 
   const generateScenes = async () => {
     setLoading(true)
+    setErrorMsg(null)
     try {
       const res = await fetch('/api/avatars/generate', {
         method: 'POST',
@@ -76,11 +85,17 @@ export default function NewAvatarPage() {
         }),
       })
       const data = await res.json()
+      if (!res.ok) {
+        setErrorMsg(data.error || 'Scene generation failed. Please try again.')
+        setLoading(false)
+        return
+      }
       if (data.scenes) {
         setSceneImages(data.scenes)
         setStep(6)
       }
     } catch (e) {
+      setErrorMsg('Network error — check your connection and try again.')
       console.error('Scene generation failed:', e)
     }
     setLoading(false)
@@ -88,9 +103,14 @@ export default function NewAvatarPage() {
 
   const publish = async () => {
     setLoading(true)
+    setErrorMsg(null)
     try {
       const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
+      if (!user) {
+        setErrorMsg('You must be logged in to publish. Please sign in and try again.')
+        setLoading(false)
+        return
+      }
 
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
@@ -110,6 +130,7 @@ export default function NewAvatarPage() {
       }).select('id, slug').single()
 
       if (error) {
+        setErrorMsg(error.message || 'Failed to save avatar. Please try again.')
         console.error('Insert error:', error)
         setLoading(false)
         return
@@ -126,6 +147,7 @@ export default function NewAvatarPage() {
 
       router.push(`/avatar/${avatar?.slug}`)
     } catch (e) {
+      setErrorMsg('Publish failed — check your connection and try again.')
       console.error('Publish failed:', e)
     }
     setLoading(false)
@@ -144,6 +166,23 @@ export default function NewAvatarPage() {
           />
         ))}
       </div>
+
+      {/* Error toast */}
+      {errorMsg && (
+        <div className="glass border border-red-500/30 rounded-xl p-4 flex items-start gap-3">
+          <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-red-300">{errorMsg}</p>
+          </div>
+          <button onClick={() => setErrorMsg(null)} className="text-muted hover:text-foreground transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {/* Step 1: Name + Domain */}
       {step === 1 && (

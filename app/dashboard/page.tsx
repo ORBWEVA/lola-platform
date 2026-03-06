@@ -2,8 +2,45 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Suspense } from 'react'
 
-export default async function DashboardPage() {
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-8 animate-pulse">
+      <div className="h-8 w-64 bg-white/5 rounded-lg" />
+
+      {/* Stats skeleton */}
+      <div className="grid grid-cols-3 gap-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="glass rounded-2xl p-5 text-center space-y-2">
+            <div className="h-9 w-12 bg-white/5 rounded-lg mx-auto" />
+            <div className="h-4 w-16 bg-white/5 rounded mx-auto" />
+          </div>
+        ))}
+      </div>
+
+      {/* Button skeleton */}
+      <div className="h-12 bg-white/5 rounded-xl" />
+
+      {/* Sessions skeleton */}
+      <div className="space-y-3">
+        <div className="h-6 w-40 bg-white/5 rounded-lg" />
+        {[1, 2, 3].map(i => (
+          <div key={i} className="flex items-center gap-4 glass rounded-2xl p-4">
+            <div className="w-12 h-12 rounded-full bg-white/5 flex-shrink-0" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-32 bg-white/5 rounded" />
+              <div className="h-3 w-24 bg-white/5 rounded" />
+            </div>
+            <div className="h-3 w-16 bg-white/5 rounded" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+async function DashboardContent() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -26,7 +63,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, {profile?.display_name}</h1>
+        <h1 className="text-2xl font-bold">Welcome back, {profile?.display_name || profile?.full_name || 'there'}</h1>
       </div>
 
       {/* Stats */}
@@ -101,5 +138,13 @@ export default async function DashboardPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   )
 }
