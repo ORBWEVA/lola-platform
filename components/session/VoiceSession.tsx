@@ -15,7 +15,7 @@ interface Props {
 }
 
 type SessionState = 'connecting' | 'active' | 'ended'
-type ErrorKind = 'mic_denied' | 'no_credits' | 'connection_lost' | null
+type ErrorKind = 'mic_denied' | 'no_credits' | 'connection_lost' | 'session_failed' | null
 
 export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props) {
   const [state, setState] = useState<SessionState>('connecting')
@@ -38,10 +38,19 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
   const durationIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<number>(0)
   const reconnectAttemptsRef = useRef<number>(0)
+  const stateRef = useRef<SessionState>('connecting')
+  const sessionIdRef = useRef<string>('')
+  const transcriptRef = useRef<TranscriptEntry[]>([])
+
+  // Keep refs in sync with state for use in callbacks/intervals
+  useEffect(() => { stateRef.current = state }, [state])
+  useEffect(() => { sessionIdRef.current = sessionId }, [sessionId])
+  useEffect(() => { transcriptRef.current = transcript }, [transcript])
 
   const endSession = useCallback(async () => {
-    if (state === 'ended') return
+    if (stateRef.current === 'ended') return
     setState('ended')
+    stateRef.current = 'ended'
 
     // Stop credit deduction
     if (creditIntervalRef.current) clearInterval(creditIntervalRef.current)
@@ -52,24 +61,27 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
     if (pcRef.current) pcRef.current.close()
     if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop())
 
-    // Save session
+    // Save session (only if we actually started one)
+    const sid = sessionIdRef.current
+    if (!sid || !startTimeRef.current) return
+
     const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
-    const creditsUsed = Math.ceil(elapsed / 60)
+    const creditsUsed = Math.max(Math.ceil(elapsed / 60), 1)
     try {
       await fetch('/api/sessions', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId,
+          sessionId: sid,
           durationSeconds: elapsed,
           creditsUsed,
-          transcript,
+          transcript: transcriptRef.current,
         }),
       })
     } catch (e) {
       console.error('Failed to save session:', e)
     }
-  }, [state, sessionId, transcript])
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -98,8 +110,13 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         })
 
         if (!res.ok) {
-          const err = await res.json()
+          const err = await res.json().catch(() => ({}))
           console.error('Session init error:', err)
+          if (res.status === 402) {
+            setError('no_credits')
+          } else {
+            setError('session_failed')
+          }
           setState('ended')
           return
         }
@@ -225,6 +242,15 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
           }
         )
 
+        if (!sdpRes.ok) {
+          console.error('OpenAI SDP exchange failed:', sdpRes.status)
+          if (!cancelled) {
+            setError('session_failed')
+            setState('ended')
+          }
+          return
+        }
+
         const answerSdp = await sdpRes.text()
         await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp })
 
@@ -251,7 +277,10 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         }
       } catch (err) {
         console.error('Connection error:', err)
-        if (!cancelled) setState('ended')
+        if (!cancelled) {
+          setError('session_failed')
+          setState('ended')
+        }
       }
     }
 
@@ -340,7 +369,7 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
     )
   }
 
-  if (error === 'connection_lost' || (state === 'ended' && error === 'connection_lost')) {
+  if (error === 'connection_lost') {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-background px-6">
         <div className="glass rounded-2xl p-8 max-w-sm text-center space-y-4">
@@ -351,6 +380,28 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
           </div>
           <h2 className="text-lg font-bold">Connection Lost</h2>
           <p className="text-sm text-muted">The voice connection dropped after multiple reconnection attempts. This can happen with unstable networks.</p>
+          <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
+            Try Again
+          </button>
+          <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
+            Back to profile
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  if (error === 'session_failed') {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-background px-6">
+        <div className="glass rounded-2xl p-8 max-w-sm text-center space-y-4">
+          <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
+            <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-bold">Session Failed</h2>
+          <p className="text-sm text-muted">Something went wrong starting the voice session. Please try again.</p>
           <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
             Try Again
           </button>
@@ -388,7 +439,17 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
             avatarName={avatarName}
           />
         </div>
-        <span className="font-medium text-sm truncate mx-4">{avatarName}</span>
+        <div className="flex items-center gap-2 mx-4 min-w-0">
+          {state === 'active' && (
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
+          )}
+          <span className="font-medium text-sm truncate">{avatarName}</span>
+          {state === 'active' && (
+            <span className="text-xs text-muted font-mono flex-shrink-0">
+              {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
+            </span>
+          )}
+        </div>
         <CreditPill credits={credits} />
       </div>
 

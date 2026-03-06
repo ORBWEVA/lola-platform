@@ -50,10 +50,15 @@ export default async function AvatarsListPage() {
                 <h3 className="font-semibold">{avatar.name}</h3>
                 <p className="text-xs text-muted">{avatar.tagline}</p>
                 <div className="flex items-center justify-between mt-3">
-                  <span className="text-xs text-muted">{avatar.session_count} sessions</span>
-                  <Link href={`/avatar/${avatar.slug}`} className="text-xs text-indigo-400 hover:underline">
-                    View Profile →
-                  </Link>
+                  <span className="text-xs text-muted">{avatar.session_count ?? 0} sessions</span>
+                  <div className="flex items-center gap-3">
+                    <Link href={`/creator/avatars/${avatar.id}`} className="text-xs text-muted hover:text-foreground transition-colors">
+                      Edit
+                    </Link>
+                    <Link href={`/avatar/${avatar.slug}`} className="text-xs text-indigo-400 hover:underline">
+                      View →
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>

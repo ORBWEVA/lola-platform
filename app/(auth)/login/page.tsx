@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import Link from 'next/link'
 
 function LoginInner() {
   const router = useRouter()
@@ -89,7 +90,7 @@ function LoginInner() {
 
         <p className="text-center text-sm text-muted">
           Don&apos;t have an account?{' '}
-          <a href="/signup" className="text-indigo-400 hover:underline">Sign up</a>
+          <Link href="/signup" className="text-indigo-400 hover:underline">Sign up</Link>
         </p>
       </div>
     </div>

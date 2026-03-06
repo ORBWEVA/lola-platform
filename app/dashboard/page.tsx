@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Suspense } from 'react'
+import { BuyCreditsButton } from './buy-credits-button'
 
 function DashboardSkeleton() {
   return (
@@ -40,7 +41,7 @@ function DashboardSkeleton() {
   )
 }
 
-async function DashboardContent() {
+async function DashboardContent({ purchased }: { purchased?: string }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -63,8 +64,15 @@ async function DashboardContent() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, {profile?.display_name || profile?.full_name || 'there'}</h1>
+        <h1 className="text-2xl font-bold">Welcome back, {profile?.display_name || 'there'}</h1>
       </div>
+
+      {/* Purchase confirmation */}
+      {purchased && (
+        <div className="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-500/5">
+          <p className="text-emerald-400 font-medium">+{purchased} credits added to your account!</p>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
@@ -83,12 +91,14 @@ async function DashboardContent() {
       </div>
 
       {/* Buy Credits */}
-      <Link
-        href="/api/checkout?pack=starter"
-        className="block w-full py-3 rounded-xl gradient-btn text-center font-medium"
-      >
-        Buy More Credits
-      </Link>
+      <div className="space-y-3">
+        <h2 className="text-lg font-semibold">Buy Credits</h2>
+        <div className="grid grid-cols-3 gap-3">
+          <BuyCreditsButton pack="starter" credits={30} price="$4.99" />
+          <BuyCreditsButton pack="popular" credits={100} price="$12.99" label="Popular" />
+          <BuyCreditsButton pack="pro" credits={300} price="$29.99" label="Best Value" />
+        </div>
+      </div>
 
       {/* Quiz prompt */}
       {!profile?.onboarding_complete && (
@@ -141,10 +151,11 @@ async function DashboardContent() {
   )
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ purchased?: string }> }) {
+  const params = await searchParams
   return (
     <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardContent />
+      <DashboardContent purchased={params.purchased} />
     </Suspense>
   )
 }

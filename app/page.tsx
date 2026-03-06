@@ -23,6 +23,8 @@ export const metadata: Metadata = {
 export default async function LandingPage() {
   const supabase = await createClient()
 
+  const { data: { user } } = await supabase.auth.getUser()
+
   const { data: avatars } = await supabase
     .from('avatars')
     .select('id, name, slug, tagline, domain, anchor_image_url, session_count')
@@ -36,12 +38,20 @@ export default async function LandingPage() {
       <nav className="flex items-center justify-between px-6 py-4 glass sticky top-0 z-50">
         <span className="text-xl font-bold gradient-text">LoLA</span>
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-sm text-muted hover:text-foreground transition-colors">
-            Sign In
-          </Link>
-          <Link href="/signup" className="text-sm px-4 py-2 rounded-xl gradient-btn font-medium">
-            Get Started
-          </Link>
+          {user ? (
+            <Link href="/dashboard" className="text-sm px-4 py-2 rounded-xl gradient-btn font-medium">
+              Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="text-sm text-muted hover:text-foreground transition-colors">
+                Sign In
+              </Link>
+              <Link href="/signup" className="text-sm px-4 py-2 rounded-xl gradient-btn font-medium">
+                Get Started
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 

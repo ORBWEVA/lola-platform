@@ -17,49 +17,61 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'n8n not configured' }, { status: 500 })
   }
 
-  if (body.generateScenes) {
-    // Use creator's custom scene prompts if provided, otherwise domain defaults
-    const scenePrompts = body.customScenePrompts?.length > 0
-      ? body.customScenePrompts
-      : getScenesForDomain(body.domain)
+  try {
+    if (body.generateScenes) {
+      // Use creator's custom scene prompts if provided, otherwise domain defaults
+      const scenePrompts = body.customScenePrompts?.length > 0
+        ? body.customScenePrompts
+        : getScenesForDomain(body.domain)
 
-    const res = await fetch(`${n8nBase}/generate-avatar-scenes`, {
+      const res = await fetch(`${n8nBase}/generate-avatar-scenes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          anchor_url: body.anchorUrl,
+          domain: body.domain,
+          avatar_name: body.name,
+          scene_prompts: scenePrompts.map((s: { label: string; prompt: string }) => ({
+            label: s.label,
+            prompt: s.prompt,
+          })),
+        }),
+      })
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => 'Unknown error')
+        console.error('n8n scene generation error:', res.status, errText)
+        return NextResponse.json({ error: 'Scene generation failed' }, { status: 500 })
+      }
+
+      const data = await res.json()
+      return NextResponse.json({ scenes: data.scenes || [] })
+    }
+
+    // Generate 4 anchor candidates
+    const res = await fetch(`${n8nBase}/generate-avatar`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        anchor_url: body.anchorUrl,
+        appearance_description: body.appearance,
         domain: body.domain,
         avatar_name: body.name,
-        scene_prompts: scenePrompts.map((s: { label: string; prompt: string }) => ({
-          label: s.label,
-          prompt: s.prompt,
-        })),
       }),
     })
 
     if (!res.ok) {
-      return NextResponse.json({ error: 'Scene generation failed' }, { status: 500 })
+      const errText = await res.text().catch(() => 'Unknown error')
+      console.error('n8n image generation error:', res.status, errText)
+      return NextResponse.json({ error: 'Image generation failed' }, { status: 500 })
     }
 
     const data = await res.json()
-    return NextResponse.json({ scenes: data.scenes || [] })
+    return NextResponse.json({ candidates: data.candidates || [] })
+  } catch (e) {
+    console.error('n8n request failed:', e)
+    return NextResponse.json(
+      { error: 'Could not reach image generation service. Please try again.' },
+      { status: 502 },
+    )
   }
-
-  // Generate 4 anchor candidates
-  const res = await fetch(`${n8nBase}/generate-avatar`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      appearance_description: body.appearance,
-      domain: body.domain,
-      avatar_name: body.name,
-    }),
-  })
-
-  if (!res.ok) {
-    return NextResponse.json({ error: 'Image generation failed' }, { status: 500 })
-  }
-
-  const data = await res.json()
-  return NextResponse.json({ candidates: data.candidates || [] })
 }

@@ -9,6 +9,15 @@ begin
 end;
 $$ language plpgsql security definer;
 
+create or replace function public.add_credits(p_user_id uuid, p_credits int)
+returns void as $$
+begin
+  update public.profiles
+  set credits = credits + p_credits
+  where id = p_user_id;
+end;
+$$ language plpgsql security definer;
+
 create or replace function public.increment_session_count(p_avatar_id uuid)
 returns void as $$
 begin

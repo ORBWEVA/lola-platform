@@ -69,11 +69,9 @@ export default function WaveformVisualizer({ analyserNode, speaking }: Props) {
       animRef.current = requestAnimationFrame(draw)
     }
 
-    // Set canvas size
+    // Set canvas size (use CSS dimensions for drawing, no DPR scaling needed
+    // since we're drawing procedural bars, not raster content)
     const resize = () => {
-      canvas.width = canvas.offsetWidth * window.devicePixelRatio
-      canvas.height = canvas.offsetHeight * window.devicePixelRatio
-      ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
       canvas.width = canvas.offsetWidth
       canvas.height = canvas.offsetHeight
     }

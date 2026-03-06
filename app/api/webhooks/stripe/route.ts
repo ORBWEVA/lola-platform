@@ -1,18 +1,14 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { getStripe } from '@/lib/stripe'
 
-const getStripe = () => {
-  const key = process.env.STRIPE_SECRET_KEY
-  if (!key) throw new Error('STRIPE_SECRET_KEY not configured')
-  return new Stripe(key, { apiVersion: '2026-02-25.clover' })
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('Supabase service role env vars not configured')
+  return createClient(url, key)
 }
-
-// Use service role for webhook (no user context)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function POST(request: Request) {
   const body = await request.text()
@@ -22,10 +18,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
   }
 
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+  if (!webhookSecret) {
+    console.error('STRIPE_WEBHOOK_SECRET is not configured')
+    return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 })
+  }
+
   let event: Stripe.Event
 
   try {
-    event = getStripe().webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET!)
+    event = getStripe().webhooks.constructEvent(body, sig, webhookSecret)
   } catch (err) {
     console.error('Webhook signature verification failed:', err)
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
@@ -37,17 +39,28 @@ export async function POST(request: Request) {
     const credits = parseInt(session.metadata?.credits || '0', 10)
 
     if (userId && credits > 0) {
-      // Add credits
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('credits')
-        .eq('id', userId)
-        .single()
+      const supabase = getSupabaseAdmin()
 
-      await supabase
-        .from('profiles')
-        .update({ credits: (profile?.credits || 0) + credits })
-        .eq('id', userId)
+      // Atomic credit increment — avoids race condition
+      const { error: rpcError } = await supabase.rpc('add_credits', {
+        p_user_id: userId,
+        p_credits: credits,
+      })
+
+      if (rpcError) {
+        // Fallback: direct update (less safe but functional)
+        console.error('RPC add_credits failed, using fallback:', rpcError.message)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('credits')
+          .eq('id', userId)
+          .single()
+
+        await supabase
+          .from('profiles')
+          .update({ credits: (profile?.credits || 0) + credits })
+          .eq('id', userId)
+      }
 
       // Record purchase
       await supabase.from('credit_purchases').insert({

@@ -30,7 +30,7 @@ export default async function CreatorOverview() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="glass rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold text-indigo-400">{avatars?.length ?? 0}</p>
           <p className="text-sm text-muted mt-1">Avatars</p>
@@ -45,13 +45,15 @@ export default async function CreatorOverview() {
         </div>
       </div>
 
-      <div className="glass rounded-2xl p-6 text-center">
-        <h2 className="font-semibold">Ready to create your first avatar?</h2>
-        <p className="text-sm text-muted mt-2">It takes less than 5 minutes. AI generates everything.</p>
-        <Link href="/creator/avatars/new" className="inline-block mt-4 px-6 py-3 rounded-xl gradient-btn font-medium">
-          Create Avatar
-        </Link>
-      </div>
+      {(!avatars || avatars.length === 0) && (
+        <div className="glass rounded-2xl p-6 text-center">
+          <h2 className="font-semibold">Ready to create your first avatar?</h2>
+          <p className="text-sm text-muted mt-2">It takes less than 5 minutes. AI generates everything.</p>
+          <Link href="/creator/avatars/new" className="inline-block mt-4 px-6 py-3 rounded-xl gradient-btn font-medium">
+            Create Avatar
+          </Link>
+        </div>
+      )}
     </div>
   )
 }
