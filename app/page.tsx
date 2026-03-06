@@ -87,7 +87,7 @@ export default async function LandingPage() {
         <section className="px-6 py-16 max-w-4xl mx-auto">
           <h2 className="text-2xl font-bold text-center mb-4">Try a conversation</h2>
           <p className="text-muted text-center mb-12">Meet our demo avatars — each one adapts to you</p>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {avatars.map(avatar => (
               <Link
                 key={avatar.id}

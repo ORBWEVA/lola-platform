@@ -268,5 +268,32 @@ BEGIN
     scene_images = EXCLUDED.scene_images,
     is_published = true;
 
+  -- Emma Lindgren
+  INSERT INTO public.avatars (creator_id, name, slug, domain, personality_traits, tagline, appearance_description, anchor_image_url, scene_images, voice_id, conversation_mode, is_published)
+  VALUES (
+    demo_user_id,
+    'Emma Lindgren',
+    'emma-lindgren',
+    'mentoring',
+    'Strategic, empathetic, direct but warm, asks powerful questions, experienced startup advisor',
+    'Your AI business mentor — strategic thinking, real talk',
+    'Professional Scandinavian woman in her early 40s, blonde hair in a relaxed updo, confident warm smile, tailored blazer',
+    'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/anchor.png',
+    ARRAY[
+      'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/scene-0.png',
+      'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/scene-1.png',
+      'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/scene-2.png',
+      'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/scene-3.png',
+      'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/scene-4.png',
+      'https://udftjfjfxyvghngqywth.supabase.co/storage/v1/object/public/avatars/emma-lindgren/scene-5.png'
+    ],
+    'nova',
+    'coaching',
+    true
+  ) ON CONFLICT (slug) DO UPDATE SET
+    anchor_image_url = EXCLUDED.anchor_image_url,
+    scene_images = EXCLUDED.scene_images,
+    is_published = true;
+
   RAISE NOTICE 'Demo avatars seeded with creator_id: %', demo_user_id;
 END $$;
