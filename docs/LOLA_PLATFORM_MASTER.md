@@ -1,0 +1,582 @@
+# LoLA Platform Master Document v1.0 — 2026-03-07
+
+> CLICKUP: skip — documentation task, no plan mirroring required.
+
+---
+
+## Version History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| v1.0 | 2026-03-07 | Claude Code | Initial master document creation from HACKATHON_BUILD_SPEC.md |
+
+---
+
+## Table of Contents
+
+- [S0 - Mission & Brand](#s0---mission--brand)
+- [S1 - Product Architecture](#s1---product-architecture)
+- [S2 - Pricing & Revenue](#s2---pricing--revenue)
+- [S3 - API Architecture](#s3---api-architecture)
+- [S4 - AI & Automation](#s4---ai--automation)
+- [S5 - Technical Infrastructure](#s5---technical-infrastructure)
+- [S6 - Data & Schema](#s6---data--schema)
+- [S7 - Roadmap & Milestones](#s7---roadmap--milestones)
+- [S8 - Development & Deployment](#s8---development--deployment)
+- [S9 - Integration Boundaries](#s9---integration-boundaries)
+- [S10 - Market Context](#s10---market-context)
+
+---
+
+## S0 — Mission & Brand
+
+**Name**: LoLA (Loka Learning Avatar)
+
+**Mission**: Let anyone build a photorealistic AI avatar that posts to social media and has real-time voice conversations with anyone who clicks — coaching, selling, training, or just engaging.
+
+**Who it's for**: Creators, educators, coaches, trainers, and influencers who want to scale personalized 1-on-1 conversations with AI.
+
+**Problem**: Creators can't scale personal conversations — every prospect who doesn't get a reply is lost revenue.
+
+**Solution**: An AI avatar that looks like a real person, markets itself on social media, then has adaptive voice conversations with anyone who clicks through.
+
+**Origin**: Built for the Sabrina/Marcin AI Hackathon (March 6-8, 2026). Builder: Ryno + Claude Code.
+
+**Core philosophy**: Domain-agnostic coaching engine. Language coaching is one opt-in module, not the default. The 12 coaching principles are about how to adapt to a *person*, not what you're teaching.
+
+**Brand identity**:
+- Background: `#0a0a0f`
+- Cards: `#13131a`, border `rgba(255,255,255,0.08)`
+- Glass: `rgba(255,255,255,0.05)`, `backdrop-filter: blur(20px)`
+- Primary gradient: `indigo-400 -> emerald-400`
+- Text: `#f0f0f5` (primary), `#9ca3af` (muted)
+- Accent: `indigo-600`, `emerald-600`
+- Font: Geist Sans + Geist Mono
+- Radius: 16px cards, 12px buttons, 9999px pills
+
+---
+
+## S1 — Product Architecture
+
+### Core Engine
+
+12 evidence-based coaching principles analyze the user's personality (how they handle mistakes, how they prefer to learn, what motivates them, their pace, their depth preference) and generate a unique conversation approach. The engine is domain-agnostic — a fitness avatar uses the same adaptation framework differently than a language avatar.
+
+### System Instruction Layers
+
+1. **Base layer (always active)**: 12 principles weighted by user personality profile (or domain defaults)
+2. **Domain layer (per avatar)**: Creator's domain, personality traits, tagline, knowledge base
+3. **Language layer (opt-in)**: L1 interference patterns — only when domain = language coaching AND user L1 known
+4. **Custom layer (optional)**: Creator-defined instructions
+
+### Demo Avatars (Pre-Seeded)
+
+| Avatar | Domain | Personality | Voice | Tagline |
+|--------|--------|-------------|-------|---------|
+| Sakura Sensei | Japanese Language Coach | warm, patient, encouraging | shimmer | "Let's make Japanese feel natural" |
+| Coach Marcus | Fitness & Wellness | energetic, motivating, no-nonsense | echo | "Your goals, your pace, real results" |
+| Alex Rivera | Sales & Product Advisory | consultative, curious, knowledgeable | alloy | "I help you find exactly what you need" |
+| Emma Lindgren | Business Mentoring | experienced, direct, strategic | — | — |
+
+### User Flows
+
+**Social media click-through (zero friction)**:
+```
+Social post -> Bio link -> Avatar profile page (public, no auth)
+  -> "Talk to Me" button
+  -> IF logged in: start session immediately
+  -> IF not logged in: quick signup modal (Google one-tap or email)
+     -> Session starts immediately after auth (no quiz, no onboarding)
+     -> 5 free minutes, no credit card
+```
+
+**Creator onboarding (~5 minutes to published avatar)**:
+```
+Step 1: Name + domain picker
+Step 2: Personality + tagline (with smart suggestions per domain)
+Step 3: Appearance description
+Step 4: Generate -> 4 portrait candidates -> pick anchor
+Step 5: Review & edit scene prompts -> generate 6 lifestyle scenes -> approve
+Step 6: Publish -> live profile page + social post triggered
+```
+
+### Key UX Decisions
+
+- Avatar profile pages are PUBLIC (no auth required to view)
+- Auth required only to START a voice session (Google OAuth + magic link)
+- Personality quiz is OPTIONAL — appears on dashboard later, NOT a gate to first session
+- Transcript is a persistent scrollable chat view, NOT fading bubbles
+- Every avatar is multilingual by default (starts English, follows user's language switch)
+- Character consistency is non-negotiable (same person across social, profile, session)
+
+### Session UI Layout
+
+```
+TOP BAR (fixed, glass): [burger menu]  [avatar name]  [credits pill]
+CAROUSEL (~40% height): auto-crossfade of scene_images[], 8-10s per image
+WAVEFORM (~10% height): AnalyserNode bars, color-coded by speaker
+TRANSCRIPT (~35% height): scrollable chat view, persistent, auto-scroll
+BOTTOM SAFE AREA (~5%): env(safe-area-inset-bottom)
+```
+
+### Domain Presets
+
+| Domain | Conversation Mode | Default Opener | Principles Emphasis |
+|--------|------------------|----------------|---------------------|
+| Language Coaching | coaching | "Hey! I'm {name}. What would you like to practice today?" | Growth Mindset, Emotional State, Cognitive Load, Spacing |
+| Fitness & Wellness | coaching | "Hey! I'm {name}. Ready to work on your goals today?" | Progressive Challenge, Autonomy, Positive Framing, Sensory |
+| Sales & Advisory | sales | "Hi! I'm {name}. I'd love to help you find exactly what you need." | Rapport, Meta-Model Questioning, Autonomy, Retrieval |
+| Business Mentoring | coaching | "Hey, I'm {name}. What's the biggest challenge you're facing right now?" | Meta-Model Questioning, Progressive Challenge, Retrieval, Cognitive Load |
+| Custom | creator-defined | creator-defined or auto-generated | balanced defaults |
+
+---
+
+## S2 — Pricing & Revenue
+
+### Tiers
+
+| Tier | Price | Avatars | Sessions | Features |
+|------|-------|---------|----------|----------|
+| Free | $0/mo | 1 | 50/mo | Basic avatar, profile page |
+| Creator | $29/mo | 5 | Unlimited | Social publishing, analytics |
+| Pro | $99/mo | Unlimited | Unlimited | API access, white-label |
+
+### Credit System
+
+- New users get 15 free credits on signup
+- Per-minute credit deduction during voice sessions
+- At 0 credits: avatar gracefully wraps up (not hard cutoff)
+- Credit packs available via Stripe Checkout (3 tiers)
+
+### Revenue Model
+
+- Creator subscriptions (monthly recurring)
+- Credit pack purchases (one-time)
+- Future: marketplace commission on creator product sales
+
+---
+
+## S3 — API Architecture
+
+All API routes live under `/app/api/`.
+
+### Endpoints
+
+| Route | Method | Auth | Purpose |
+|-------|--------|------|---------|
+| `/api/realtime` | POST | Required | Generate OpenAI Realtime API ephemeral token with domain-adaptive system instruction |
+| `/api/avatars/generate` | POST | Required (creator) | Trigger FLUX image generation via n8n webhook |
+| `/api/avatars/publish` | POST | Required (creator) | Trigger social media publish via n8n + Blotato |
+| `/api/checkout` | POST | Required | Create Stripe Checkout session for credit purchase |
+| `/api/sessions` | PATCH | Required | Save session duration + transcript data |
+| `/api/profile` | PATCH | Required | Update user profile data |
+| `/api/webhooks/stripe` | POST | Stripe signature | Handle Stripe payment + subscription webhooks |
+
+### Auth Flow
+
+- Supabase Auth with Google OAuth (primary) + magic link (fallback)
+- `/callback` route handles profile creation (15 credits, role: learner)
+- Protected routes via middleware (`/dashboard/*`, `/creator/*`, `/session/*`)
+- Public routes: `/`, `/avatar/[slug]`, `/login`, `/signup`
+
+---
+
+## S4 — AI & Automation
+
+### AI Tools Used
+
+| Tool | Purpose | Access |
+|------|---------|--------|
+| OpenAI Realtime API (gpt-4o-realtime-preview) | Real-time voice conversations via WebRTC | Direct (ephemeral token from `/api/realtime`) |
+| OpenAI GPT-4o | Social captions, domain-specific content generation | Via n8n |
+| FLUX Juggernaut Pro (RunDiffusion/Juggernaut-pro-flux) | Avatar portrait + lifestyle scene generation | Via Together AI (in n8n and scripts) |
+| Claude Code | Development agent | Direct |
+
+### n8n Workflows
+
+| Workflow ID | Name | Trigger | Pipeline |
+|-------------|------|---------|----------|
+| `np7v88fMbocgXKQa` | Image Generator | Webhook: `POST /webhook/generate-avatar` | FLUX portrait gen (4 candidates) -> anchor selection -> 6 scene variations -> Supabase upload -> notify |
+| `mmtJ5YpwbnvPCYdW` | Social Publisher | Webhook: `POST /webhook/publish-content` | Load avatar context -> select scene image -> GPT-4o caption -> Blotato publish -> content_library record -> notify |
+
+### Image Generation Pipeline
+
+```
+Creator clicks "Generate"
+  -> POST n8n.orbweva.cloud/webhook/generate-avatar
+  -> Step 1: Generate 4 anchor candidates (~$0.16)
+  -> Step 2: Return candidates, creator picks anchor
+  -> Step 3: Generate 6 scene variations with anchor reference (~$0.24)
+  -> Step 4: Quality check via GPT-4o Vision (optional)
+  -> Step 5: Upload to Supabase Storage
+  -> Step 6: Notify creator
+  Total: ~$0.40, ~15-20 seconds
+```
+
+### Social Publishing Pipeline
+
+```
+Creator clicks "Publish" OR scheduled cron
+  -> POST n8n.orbweva.cloud/webhook/publish-content
+  -> Load avatar context from Supabase
+  -> Select unused scene image (rotate through 6)
+  -> GPT-4o: generate caption
+  -> Switch: Blotato OR direct posting
+  -> Record in content_library table
+  -> Notify creator
+```
+
+### Coaching Engine
+
+Location: `lib/coaching/`
+
+| File | Purpose |
+|------|---------|
+| `principles.ts` | 12 domain-agnostic adaptation principles with weighted scoring |
+| `profiles.ts` | Personality quiz (optional, 5 questions) + default profiles per domain |
+| `instructions.ts` | Domain-adaptive system instruction generator (4 layers) |
+| `domains.ts` | Domain presets with default personality profiles and conversation openers |
+| `l1-patterns/` | L1 interference patterns (Japanese, Korean, English) — opt-in module |
+
+---
+
+## S5 — Technical Infrastructure
+
+### Stack
+
+| Layer | Technology | Details |
+|-------|-----------|---------|
+| Frontend | Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 | Turbopack dev server |
+| Auth | Supabase Auth | Google OAuth + magic link |
+| Database | Supabase PostgreSQL + RLS | Project: `udftjfjfxyvghngqywth` (LoLA2) |
+| Storage | Supabase Storage | Avatar images bucket |
+| Voice AI | OpenAI Realtime API | `gpt-4o-realtime-preview` via WebRTC |
+| Image Gen | FLUX Juggernaut Pro | Via Together AI (RunDiffusion/Juggernaut-pro-flux) |
+| Content AI | OpenAI GPT-4o | Via n8n |
+| Orchestration | n8n | Self-hosted at `n8n.orbweva.cloud` |
+| Social Publishing | Blotato API | Via n8n, 9 platforms from one API call |
+| Payments | Stripe | Credit purchases + creator subscriptions |
+| Deployment | Vercel | `lola-platform.vercel.app`, auto-deploy from main |
+
+### Cost Estimates (Per Avatar Creation)
+
+- 4 portrait candidates: ~$0.16
+- 6 scene variations: ~$0.24
+- Total image gen: ~$0.40
+- Voice session: OpenAI Realtime API usage-based pricing
+
+---
+
+## S6 — Data & Schema
+
+### Tables
+
+All tables have RLS enabled.
+
+#### profiles
+```sql
+id UUID PK (refs auth.users)
+display_name TEXT
+role TEXT ('learner' | 'creator' | 'admin') DEFAULT 'learner'
+credits INT DEFAULT 15
+onboarding_complete BOOLEAN DEFAULT false
+profile_data JSONB  -- personality quiz results (optional)
+stripe_customer_id TEXT
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### sessions
+```sql
+id UUID PK
+user_id UUID -> profiles
+avatar_id UUID -> avatars
+profile_label TEXT
+profile_data JSONB  -- coaching profile used for this session
+duration_seconds INT
+credits_used INT DEFAULT 0
+started_at TIMESTAMPTZ DEFAULT now()
+ended_at TIMESTAMPTZ
+```
+
+#### transcript_entries
+```sql
+id BIGINT GENERATED
+session_id UUID -> sessions
+role TEXT ('user' | 'model')
+content TEXT
+seq INT
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### avatars
+```sql
+id UUID PK
+creator_id UUID -> profiles
+name TEXT NOT NULL
+slug TEXT UNIQUE
+tagline TEXT
+domain TEXT NOT NULL  -- 'language_coaching' | 'fitness' | 'sales' | 'mentoring' | 'support' | 'custom'
+personality_traits TEXT
+appearance_description TEXT
+anchor_image_url TEXT
+scene_images TEXT[]  -- array of 6+ lifestyle scene URLs
+voice_id TEXT DEFAULT 'shimmer'
+conversation_mode TEXT DEFAULT 'coaching'  -- 'coaching' | 'sales' | 'support' | 'freeform'
+knowledge_base JSONB
+system_instruction_override TEXT
+social_links JSONB  -- { instagram, x, youtube, tiktok, linkedin }
+is_published BOOLEAN DEFAULT false
+session_count INT DEFAULT 0
+rating DECIMAL(2,1) DEFAULT 5.0
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### creator_products
+```sql
+id UUID PK
+creator_id UUID -> profiles
+avatar_id UUID -> avatars (nullable)
+name TEXT NOT NULL
+description TEXT
+price DECIMAL(10,2)
+currency TEXT DEFAULT 'USD'
+checkout_url TEXT NOT NULL
+platform TEXT
+image_url TEXT
+is_active BOOLEAN DEFAULT true
+sort_order INT DEFAULT 0
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### credit_purchases
+```sql
+id UUID PK
+user_id UUID -> profiles
+stripe_payment_intent TEXT
+credits_added INT NOT NULL
+amount_cents INT NOT NULL
+currency TEXT DEFAULT 'usd'
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### creator_subscriptions
+```sql
+id UUID PK
+creator_id UUID -> profiles
+tier TEXT ('free' | 'creator' | 'pro' | 'enterprise')
+stripe_subscription_id TEXT
+status TEXT DEFAULT 'active'
+current_period_end TIMESTAMPTZ
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### content_library
+```sql
+id UUID PK
+avatar_id UUID -> avatars
+platform TEXT
+post_url TEXT
+caption TEXT
+scene_image_url TEXT
+published_at TIMESTAMPTZ
+created_at TIMESTAMPTZ DEFAULT now()
+```
+
+### Database Functions
+
+| Function | Purpose |
+|----------|---------|
+| `deduct_credits` | Atomic credit deduction during voice sessions |
+| `increment_session_count` | Increment avatar session counter |
+
+### Auto-Trigger
+
+- Profile row created automatically on auth signup (15 credits, role: learner)
+
+---
+
+## S7 — Roadmap & Milestones
+
+### Hackathon Phases (March 6-8, 2026)
+
+| Phase | Description | Status |
+|-------|-------------|--------|
+| 1 | Scaffold + Auth | Complete |
+| 2 | Database + Migrations | Complete |
+| 3 | Conversation Engine | Complete |
+| 4 | Creator Dashboard + Avatar Wizard | Complete |
+| 5 | Avatar Profile Page (public) | Complete |
+| 6 | Full-Screen Voice Session | Complete |
+| 7 | Learner Dashboard | Complete |
+| 8 | n8n Workflows (image gen + social publisher) | Complete |
+| 9 | Stripe Integration | Complete |
+| 10 | Landing Page (3 demo avatars) | Complete |
+| 11 | Deploy + Polish + Mobile Testing | Complete |
+| 12 | Demo Video + Submission | Pending |
+
+### Post-Hackathon Backlog
+
+- Live animated avatars / TalkingHead
+- Clone yourself (real face + voice cloning)
+- Email nurture sequences
+- Content-only mode (no-conversation avatars)
+- Loka classroom bridge
+- Custom domains
+- BYOK (bring your own API key)
+- Marketplace / avatar discovery
+- Video content generation (Hedra/VEO)
+- Per-session AI coaching reports
+- Advanced analytics dashboard
+- A/B testing conversation approaches
+- Native iOS + Android apps
+
+---
+
+## S8 — Development & Deployment
+
+### Local Development
+
+```bash
+cd ~/lola-platform
+npm run dev          # Port 3000, Turbopack
+npm run build        # Production build
+```
+
+### Deployment
+
+- **Platform**: Vercel
+- **URL**: `lola-platform.vercel.app`
+- **Auto-deploy**: From `main` branch
+- **Environment variables**: Managed in Vercel dashboard
+
+### Demo User
+
+- **ID**: `0d88d57a-cdc4-482d-9c16-35e34be5e3c8`
+
+### Project Tracking
+
+- **ClickUp**: LoLA > Sabrina/Marcin Hackathon (list: `901816480324`)
+
+### File Structure
+
+```
+lola-platform/
+  app/
+    layout.tsx                    # Root layout, dark theme, fonts
+    page.tsx                      # Landing page with demo avatars
+    globals.css                   # Tailwind + glassmorphism + LoLA tokens
+    (auth)/login, signup, callback
+    avatar/[slug]/page.tsx        # PUBLIC profile page (link-in-bio)
+    session/[slug]/page.tsx       # Full-screen voice session
+    dashboard/                    # Learner dashboard
+    creator/                      # Creator dashboard + avatar wizard
+    api/                          # API routes (realtime, checkout, webhooks, etc.)
+  components/
+    session/                      # VoiceSession, ImageCarousel, Waveform, Transcript, CreditPill
+    onboarding/                   # ProfileQuiz
+    avatar/                       # AvatarHero, SceneGallery, ProductGrid
+    creator/                      # AvatarWizard, ImagePicker, SceneReview
+    landing/                      # DemoAvatarCard, HowItWorks, PricingTable
+  lib/
+    coaching/                     # 12 principles, profiles, instructions, domains, l1-patterns
+    openai/realtime.ts
+    stripe/client.ts, config.ts
+    supabase/client.ts, server.ts, middleware.ts
+  supabase/migrations/            # SQL migrations (001-006)
+  scripts/regen-flux.mjs          # Image regeneration script (Together AI)
+  middleware.ts
+```
+
+### Key Conventions
+
+- TypeScript strict mode
+- `@/*` import alias
+- Server Components by default, `'use client'` only when needed
+- Tailwind v4: `@theme inline` in globals.css, no tailwind.config
+- Supabase: `lib/supabase/client.ts` (browser), `lib/supabase/server.ts` (server), `lib/supabase/middleware.ts` (middleware)
+
+---
+
+## S9 — Integration Boundaries
+
+### n8n (Orchestration Hub)
+
+n8n handles ALL AI tool orchestration. This is deliberate — models and tools change monthly. Swapping FLUX for Ideogram or DALL-E 4 is a one-node change in n8n, zero code changes in the platform.
+
+- **Host**: `n8n.orbweva.cloud`
+- **Image gen workflow**: `np7v88fMbocgXKQa`
+- **Social publisher workflow**: `mmtJ5YpwbnvPCYdW`
+- **Tool swapping**: Switch node in n8n allows A/B testing generators
+
+### Supabase
+
+- **Project**: `udftjfjfxyvghngqywth` (LoLA2)
+- **Note**: Supabase MCP is connected to a DIFFERENT project — use REST API with service role key for programmatic access
+- Auth, database, and storage are all on this project
+
+### Together AI
+
+- Used for FLUX Juggernaut Pro image generation
+- API key referenced in `scripts/regen-flux.mjs`
+- Called from n8n workflows and local scripts
+
+### Blotato
+
+- Social media publishing API (9 platforms from one call)
+- Accessed via n8n social publisher workflow
+- Requires Blotato API credentials in n8n
+
+### Stripe
+
+- Live integration — handle with care
+- Credit purchases (one-time Checkout sessions)
+- Creator subscriptions (recurring)
+- Webhook handler at `/api/webhooks/stripe`
+
+### OpenAI
+
+- Realtime API for voice sessions (WebRTC, `gpt-4o-realtime-preview`)
+- GPT-4o for content generation (via n8n)
+- Ephemeral tokens generated server-side at `/api/realtime`
+
+---
+
+## S10 — Market Context
+
+### Target Segments
+
+1. **Language coaches/teachers** — scale 1-on-1 practice sessions (validated via 4,000+ educator network at Loka)
+2. **Fitness trainers** — automate check-ins and motivation
+3. **Sales teams** — AI product advisors that qualify and recommend
+4. **Business mentors/coaches** — scale advisory conversations
+5. **AI influencers/creators** — autonomous social media presence with voice engagement
+
+### Competitive Landscape
+
+| Competitor | Gap LoLA Fills |
+|-----------|---------------|
+| Character.ai | No social media pipeline, no creator monetization, text-only |
+| Synthesia | Video-only, no real-time conversation |
+| ElevenLabs | Voice cloning but no avatar or social pipeline |
+| Replika | Consumer-only, no creator tools, no domain flexibility |
+| ChatGPT Voice | No persistent avatar identity, no social publishing, no creator economy |
+
+### Unique Value
+
+- **End-to-end pipeline**: Create avatar -> auto-post to social -> users discover -> real-time voice conversation -> creator earns
+- **Domain-agnostic**: One engine serves language, fitness, sales, mentoring, support, custom
+- **Character consistency**: Same person across social media, profile page, and voice session
+- **Creator economy**: Avatars earn through credit consumption and product sales
+
+---
+
+## Risk Register
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| FLUX API unavailable | No avatar images | n8n switch to alternate provider. Fallback: URL upload |
+| OpenAI Realtime API issues | Core broken | Test early. Fallback: text chat mode |
+| Blotato credits unavailable | No social posting | Direct posting via n8n (X/LinkedIn) |
+| Character inconsistency | Illusion breaks | Tight prompting + anchor reference + GPT-4o Vision QC |
+| Mobile WebRTC issues | Session broken on phone | Test early on real devices. Desktop OK for demo video |
+| Session feels generic | Not impressive | Domain presets + personality quiz differentiation |
