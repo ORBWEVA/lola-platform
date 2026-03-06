@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import { getDomainPreset } from '@/lib/coaching/domains'
 import AvatarProfileClient from './client'
 
 interface Props {
@@ -52,11 +53,29 @@ export default async function AvatarProfilePage({ params }: Props) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
+  const preset = getDomainPreset(avatar.domain)
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: avatar.name,
+    description: avatar.tagline,
+    image: avatar.anchor_image_url,
+    url: `https://lola-platform.vercel.app/avatar/${slug}`,
+    jobTitle: preset.label,
+    knowsLanguage: ['en', 'ja', 'ko', 'es', 'de', 'fr'],
+  }
+
   return (
-    <AvatarProfileClient
-      avatar={avatar}
-      products={products || []}
-      isLoggedIn={!!user}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <AvatarProfileClient
+        avatar={avatar}
+        products={products || []}
+        isLoggedIn={!!user}
+      />
+    </>
   )
 }

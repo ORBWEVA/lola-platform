@@ -7,9 +7,10 @@ interface Props {
   onToggleMute: () => void
   isMuted: boolean
   avatarName: string
+  avatarSlug: string
 }
 
-export default function BurgerMenu({ onEndSession, onToggleMute, isMuted, avatarName }: Props) {
+export default function BurgerMenu({ onEndSession, onToggleMute, isMuted, avatarName, avatarSlug }: Props) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -45,6 +46,28 @@ export default function BurgerMenu({ onEndSession, onToggleMute, isMuted, avatar
               </svg>
               {isMuted ? 'Unmute' : 'Mute'}
             </button>
+            <a
+              href={`/avatar/${avatarSlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left"
+              onClick={() => setOpen(false)}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              About {avatarName}
+            </a>
+            <button
+              onClick={() => { window.open(`mailto:support@orbweva.com?subject=Report: ${encodeURIComponent(avatarName)}`); setOpen(false) }}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/10 transition-colors text-left text-muted"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 21v-13m0 0V5a1 1 0 011-1h5.5a1 1 0 01.7.3L11.5 5.5a1 1 0 00.7.3H19a1 1 0 011 1v5a1 1 0 01-1 1h-6.3a1 1 0 00-.7.3L10.7 14.3a1 1 0 01-.7.3H3z" />
+              </svg>
+              Report
+            </button>
+            <div className="border-t border-glass-border my-1" />
             <button
               onClick={() => { onEndSession(); setOpen(false) }}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-red-500/20 transition-colors text-left text-red-400"

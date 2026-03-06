@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://lola-platform.vercel.app'),
   title: "LoLA — AI Avatars That Coach, Sell & Grow",
   description: "Build a photorealistic AI avatar that posts to social media and has real-time voice conversations with anyone who clicks.",
 };

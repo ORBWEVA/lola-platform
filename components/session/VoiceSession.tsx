@@ -263,7 +263,24 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
             setCredits(prev => {
               const next = prev - 1
               if (next <= 0) {
-                endSession()
+                // Graceful wrap-up: ask avatar to say goodbye, then end after delay
+                if (dcRef.current?.readyState === 'open') {
+                  dcRef.current.send(JSON.stringify({
+                    type: 'conversation.item.create',
+                    item: {
+                      type: 'message',
+                      role: 'user',
+                      content: [{ type: 'input_text', text: '[SYSTEM: The user has run out of session credits. Wrap up the conversation naturally in one short sentence — say goodbye warmly and encourage them to come back.]' }],
+                    },
+                  }))
+                  dcRef.current.send(JSON.stringify({
+                    type: 'response.create',
+                    response: { modalities: ['audio', 'text'] },
+                  }))
+                }
+                // End session after giving the avatar time to respond
+                setTimeout(() => endSession(), 8000)
+                if (creditIntervalRef.current) clearInterval(creditIntervalRef.current)
                 return 0
               }
               return next
@@ -437,6 +454,7 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
             onToggleMute={toggleMute}
             isMuted={isMuted}
             avatarName={avatarName}
+            avatarSlug={avatarSlug}
           />
         </div>
         <div className="flex items-center gap-2 mx-4 min-w-0">

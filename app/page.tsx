@@ -34,6 +34,16 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'LoLA',
+          description: 'AI avatars that coach, sell & grow',
+          url: 'https://lola-platform.vercel.app',
+        }) }}
+      />
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 glass sticky top-0 z-50">
         <span className="text-xl font-bold gradient-text">LoLA</span>
