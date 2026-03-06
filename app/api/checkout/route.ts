@@ -2,9 +2,11 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2026-02-25.clover',
-})
+const getStripe = () => {
+  const key = process.env.STRIPE_SECRET_KEY
+  if (!key) throw new Error('STRIPE_SECRET_KEY not configured')
+  return new Stripe(key, { apiVersion: '2026-02-25.clover' })
+}
 
 const CREDIT_PACKS = {
   starter: { credits: 30, price: 499, name: '30 Credits' },
@@ -34,7 +36,7 @@ export async function GET(request: Request) {
   let customerId = profile?.stripe_customer_id
 
   if (!customerId) {
-    const customer = await stripe.customers.create({
+    const customer = await getStripe().customers.create({
       email: user.email,
       metadata: { supabase_id: user.id },
     })
@@ -45,7 +47,7 @@ export async function GET(request: Request) {
       .eq('id', user.id)
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: 'payment',
     line_items: [{
