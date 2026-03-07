@@ -21,7 +21,9 @@ export function useVideoSubtitles(
   const [visibleCount, setVisibleCount] = useState(0)
   const [speaking, setSpeaking] = useState(false)
   const [energy, setEnergy] = useState(0)
+  const [loopCount, setLoopCount] = useState(0)
   const animRef = useRef<number>(0)
+  const prevTimeRef = useRef<number>(0)
 
   // Load subtitle data
   useEffect(() => {
@@ -41,6 +43,12 @@ export function useVideoSubtitles(
     }
 
     const t = video.currentTime
+
+    // Detect loop (time jumps backwards)
+    if (t < prevTimeRef.current - 0.5) {
+      setLoopCount(c => c + 1)
+    }
+    prevTimeRef.current = t
 
     // Count visible words
     let count = 0
@@ -86,5 +94,5 @@ export function useVideoSubtitles(
     return () => cancelAnimationFrame(animRef.current)
   }, [sync])
 
-  return { data, visibleCount, speaking, energy }
+  return { data, visibleCount, speaking, energy, loopCount }
 }

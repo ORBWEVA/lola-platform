@@ -1,12 +1,13 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import HeroVideo from '@/components/landing/HeroVideo'
 import HeroWaveform from '@/components/landing/HeroWaveform'
 import HeroSubtitles from '@/components/landing/HeroSubtitles'
 import SlideMenu from '@/components/SlideMenu'
 import { useVideoSubtitles } from '@/lib/use-video-subtitles'
+import type { SubtitleWord } from '@/lib/use-video-subtitles'
 
 const avatars = [
   {
@@ -17,13 +18,49 @@ const avatars = [
   },
 ]
 
+const translations: Record<string, string> = {
+  en: 'Sara is my name, your multilingual educator. Let\'s talk.',
+  ja: 'サラです。あなたの多言語教育者です。話しましょう。',
+  ko: '사라입니다. 다국어 교육자입니다. 이야기해요.',
+  es: 'Sara es mi nombre, tu educadora multilingüe. Hablemos.',
+  de: 'Sara ist mein Name, deine mehrsprachige Ausbilderin. Lass uns reden.',
+  fr: 'Sara est mon nom, votre éducatrice multilingue. Parlons.',
+  zh: '我叫萨拉，您的多语言教育者。我们聊聊吧。',
+  pt: 'Sara é meu nome, sua educadora multilíngue. Vamos conversar.',
+}
+
+function makeEvenWords(text: string, duration: number): SubtitleWord[] {
+  const words = text.split(/\s+/)
+  const speakEnd = duration * 0.6
+  const interval = speakEnd / words.length
+  return words.map((word, i) => ({
+    word,
+    start: i * interval,
+    end: (i + 1) * interval,
+  }))
+}
+
 export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const avatar = avatars[0]
-  const { data, visibleCount, speaking, energy } = useVideoSubtitles(
+  const { data, visibleCount, speaking, energy, loopCount } = useVideoSubtitles(
     videoRef,
     avatar.subtitlesUrl
   )
+
+  const [browserLang, setBrowserLang] = useState('en')
+  useEffect(() => {
+    const lang = navigator.language.split('-')[0]
+    setBrowserLang(lang)
+  }, [])
+
+  const isTranslatedLoop = loopCount % 2 === 1 && browserLang !== 'en'
+  const translatedWords = useMemo(() => {
+    const text = translations[browserLang] || translations.en
+    return makeEvenWords(text, data?.duration ?? 6.2)
+  }, [browserLang, data?.duration])
+
+  const displayWords = isTranslatedLoop ? translatedWords : data?.words
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black">
@@ -49,7 +86,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
       {/* Subtitles — synced to video */}
       <div className="absolute z-20 left-0 right-0" style={{ top: '52%' }}>
         <div className="flex justify-center px-6">
-          <HeroSubtitles words={data?.words} visibleCount={visibleCount} />
+          <HeroSubtitles words={displayWords} visibleCount={visibleCount} />
         </div>
       </div>
 
