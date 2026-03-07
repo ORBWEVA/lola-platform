@@ -100,8 +100,8 @@ export default function SlideMenu({ isLoggedIn }: Props) {
             {allItems.map((item, i) => (
               <li
                 key={item.href}
-                className={open ? 'animate-[slideIn_0.3s_ease-out_both]' : 'opacity-0'}
-                style={{ animationDelay: open ? `${i * 50}ms` : '0ms' }}
+                className={open ? 'animate-[slideIn_0.6s_cubic-bezier(0.16,1,0.3,1)_both]' : 'opacity-0'}
+                style={{ animationDelay: open ? `${150 + i * 80}ms` : '0ms' }}
               >
                 <Link
                   href={item.href}
