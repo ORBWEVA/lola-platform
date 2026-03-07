@@ -34,7 +34,7 @@ export default function PricingPage() {
   return (
     <div>
       <div className="text-center mb-16">
-        <p className="text-sm font-medium text-indigo-400 mb-3 uppercase tracking-wider">Pricing</p>
+        <p className="text-sm font-medium text-[var(--muted)] mb-3 uppercase tracking-wider">Pricing</p>
         <h1 className="text-4xl md:text-5xl font-bold">Start free, scale as you grow</h1>
         <p className="text-[var(--muted)] mt-4 max-w-xl mx-auto">No credit card required. Upgrade when you need more.</p>
       </div>
@@ -45,13 +45,13 @@ export default function PricingPage() {
             key={plan.name}
             className={`rounded-2xl p-6 relative animated-border ${
               plan.popular
-                ? 'border-2 border-[var(--lola-indigo)] bg-[var(--card)]'
+                ? 'border-2 border-[var(--foreground)]/20 bg-[var(--card)]'
                 : 'border border-[var(--border)] bg-[var(--card)]'
             }`}
           >
             {plan.popular && (
               <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <span className="text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-emerald-500 text-white">
+                <span className="text-xs font-medium px-3 py-1 rounded-full bg-[var(--foreground)] text-[var(--background)]">
                   Most Popular
                 </span>
               </div>
@@ -64,9 +64,7 @@ export default function PricingPage() {
             <ul className="mt-6 space-y-3">
               {plan.features.map((f) => (
                 <li key={f} className="text-sm text-[var(--muted)] flex items-center gap-2.5">
-                  <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                  </svg>
+                  <span className="w-1 h-1 rounded-full bg-[var(--foreground)]/40 flex-shrink-0" />
                   {f}
                 </li>
               ))}
@@ -75,8 +73,8 @@ export default function PricingPage() {
               href="/signup"
               className={`block w-full mt-8 py-3 rounded-xl text-center font-medium transition-all ${
                 plan.popular
-                  ? 'bg-gradient-to-r from-indigo-500 to-emerald-500 text-white hover:opacity-90'
-                  : 'border border-white/10 bg-white/[0.05] hover:bg-white/10'
+                  ? 'bg-[var(--foreground)] text-[var(--background)] hover:opacity-90'
+                  : 'border border-[var(--border)] hover:bg-[var(--foreground)]/5'
               }`}
             >
               Get Started
