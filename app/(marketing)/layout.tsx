@@ -10,7 +10,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
           </svg>
           Back
         </Link>
-        <Link href="/" className="text-lg font-bold gradient-text">
+        <Link href="/" className="text-lg font-bold gradient-text" style={{ fontFamily: 'var(--font-exo2)', fontWeight: 700 }}>
           LoLA
         </Link>
         <div className="w-16" />

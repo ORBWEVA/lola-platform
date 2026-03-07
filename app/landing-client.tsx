@@ -38,7 +38,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
 
       {/* Logo */}
       <div className="absolute top-0 left-0 z-50 p-4 sm:p-6">
-        <span className="text-xl font-bold gradient-text-vivid">LoLA</span>
+        <span className="text-xl font-bold gradient-text" style={{ fontFamily: 'var(--font-exo2)', fontWeight: 700 }}>LoLA</span>
       </div>
 
       {/* Menu */}
