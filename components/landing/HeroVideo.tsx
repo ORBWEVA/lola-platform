@@ -52,7 +52,7 @@ const HeroVideo = forwardRef<HTMLVideoElement | null, Props>(({ avatars }, ref) 
             muted
             loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-[center_30%] sm:object-center"
             key={avatar.name}
           >
             {avatar.portraitSrc && (
