@@ -76,17 +76,17 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="glass rounded-2xl p-5 text-center">
+        <div className="stat-card rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold text-emerald-400">{profile?.credits ?? 0}</p>
-          <p className="text-sm text-muted mt-1">Credits</p>
+          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">Credits</p>
         </div>
-        <div className="glass rounded-2xl p-5 text-center">
+        <div className="stat-card rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold">{sessions?.length ?? 0}</p>
-          <p className="text-sm text-muted mt-1">Sessions</p>
+          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">Sessions</p>
         </div>
-        <div className="glass rounded-2xl p-5 text-center">
+        <div className="stat-card rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold">{totalMinutes}</p>
-          <p className="text-sm text-muted mt-1">Minutes</p>
+          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">Minutes</p>
         </div>
       </div>
 
