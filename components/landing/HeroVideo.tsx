@@ -5,9 +5,7 @@ import { forwardRef, useEffect, useRef, useState, useCallback, useImperativeHand
 interface AvatarMedia {
   name: string
   type: 'video' | 'image'
-  src?: string
-  portraitSrc?: string
-  landscapeSrc?: string
+  src: string
 }
 
 interface Props {
@@ -52,18 +50,10 @@ const HeroVideo = forwardRef<HTMLVideoElement | null, Props>(({ avatars }, ref) 
             muted
             loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover object-[center_30%] sm:object-center"
+            className="absolute inset-0 w-full h-full object-cover"
             key={avatar.name}
           >
-            {avatar.portraitSrc && (
-              <source src={avatar.portraitSrc} type="video/mp4" media="(orientation: portrait)" />
-            )}
-            {avatar.landscapeSrc && (
-              <source src={avatar.landscapeSrc} type="video/mp4" />
-            )}
-            {avatar.src && !avatar.portraitSrc && !avatar.landscapeSrc && (
-              <source src={avatar.src} type="video/mp4" />
-            )}
+            <source src={avatar.src} type="video/mp4" />
           </video>
         ) : (
           <div
@@ -71,7 +61,7 @@ const HeroVideo = forwardRef<HTMLVideoElement | null, Props>(({ avatars }, ref) 
             key={avatar?.name}
           >
             <img
-              src={avatar?.src ?? avatar?.landscapeSrc ?? ''}
+              src={avatar?.src ?? ''}
               alt={avatar?.name ?? ''}
               className="w-full h-full object-cover"
             />
