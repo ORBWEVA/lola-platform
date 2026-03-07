@@ -54,8 +54,12 @@ export default function HeroWaveform({ videoRef, speaking, energy }: Props) {
       const value = idle + speechShape + variation
       const barHeight = Math.max(value * height, 2)
 
-      const alpha = 0.15 + e * 0.45
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
+      // LoLA brand gradient: Indigo → Sky per bar
+      const gradient = ctx.createLinearGradient(0, centerY - barHeight / 2, 0, centerY + barHeight / 2)
+      const alpha = 0.3 + e * 0.55
+      gradient.addColorStop(0, `rgba(67, 97, 238, ${alpha})`)   // --lola-indigo
+      gradient.addColorStop(1, `rgba(76, 201, 240, ${alpha})`)  // --lola-sky
+      ctx.fillStyle = gradient
       const x = i * (barWidth + 2) + 1
       ctx.beginPath()
       ctx.roundRect(x, centerY - barHeight / 2, barWidth, barHeight, 2)

@@ -75,7 +75,8 @@ export default function SlideMenu({ isLoggedIn }: Props) {
 
       {/* Panel */}
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-72 bg-black/80 backdrop-blur-xl border-l border-white/10 transition-transform duration-300 ease-out flex flex-col ${
+        style={{ background: 'var(--menu-bg)', borderColor: 'var(--glass-border)' }}
+        className={`fixed top-0 right-0 z-50 h-full w-72 backdrop-blur-xl border-l transition-transform duration-300 ease-out flex flex-col ${
           open ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -105,7 +106,7 @@ export default function SlideMenu({ isLoggedIn }: Props) {
                 <Link
                   href={item.href}
                   onClick={close}
-                  className="block py-3 px-4 text-lg text-white/80 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                  className="block py-3 px-4 text-lg font-light text-[var(--foreground)]/80 hover:text-[var(--foreground)] hover:bg-[var(--foreground)]/5 rounded-lg transition-colors"
                 >
                   {item.label}
                 </Link>

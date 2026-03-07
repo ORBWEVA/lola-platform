@@ -13,8 +13,8 @@ export default function HeroSubtitles({ words, visibleCount }: Props) {
   return (
     <div className="text-center">
       <p
-        className="text-lg md:text-2xl text-white/90 leading-relaxed"
-        style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic' }}
+        className="text-lg md:text-2xl text-white/90 leading-relaxed font-light tracking-wide"
+        style={{ fontFamily: 'var(--font-exo2, var(--font-sans))', letterSpacing: '0.2px' }}
       >
         {words.map((w, i) => (
           <span key={i}>
