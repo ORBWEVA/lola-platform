@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.0 — 2026-03-07
+# LoLA Platform Master Document v1.1 — 2026-03-08
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.1 | 2026-03-08 | Claude Code | Immersive landing page redesign: full-screen Sara hero video, localized subtitles with alternating loops, animated waveform, monochrome greyscale for all non-landing pages, animated conic-gradient border traces on cards, dark/light mode system (dark default), always-dark slide menu with minimal toggle, text-only marketing pages, avatar video prompt doc |
 | v1.0 | 2026-03-07 | Claude Code | Initial master document creation from HACKATHON_BUILD_SPEC.md |
 
 ---
@@ -45,14 +46,17 @@
 **Core philosophy**: Domain-agnostic coaching engine. Language coaching is one opt-in module, not the default. The 12 coaching principles are about how to adapt to a *person*, not what you're teaching.
 
 **Brand identity**:
-- Background: `#0a0a0f`
-- Cards: `#13131a`, border `rgba(255,255,255,0.08)`
+- Background: `#0a0a0f` (dark), `#fafafa` (light)
+- Cards: `#13131a` / `#ffffff`, border `rgba(255,255,255,0.08)` / `rgba(0,0,0,0.08)`
 - Glass: `rgba(255,255,255,0.05)`, `backdrop-filter: blur(20px)`
-- Primary gradient: `indigo-400 -> emerald-400`
-- Text: `#f0f0f5` (primary), `#9ca3af` (muted)
+- Primary gradient: `indigo-400 -> emerald-400` (landing page only)
+- Monochrome greyscale: all non-landing pages (`.monochrome` CSS class)
+- Animated border traces: conic-gradient `@property --border-angle` on all cards
+- Text: `#f0f0f5` / `#1a1a2e` (primary), `#9ca3af` / `#6b7280` (muted)
 - Accent: `indigo-600`, `emerald-600`
-- Font: Geist Sans + Geist Mono
+- Font: Exo 2 (headings), Space Mono (code), Noto Sans JP (Japanese)
 - Radius: 16px cards, 12px buttons, 9999px pills
+- Theme: dark default (no OS preference fallback), toggle in slide menu
 
 ---
 
@@ -410,9 +414,11 @@ created_at TIMESTAMPTZ DEFAULT now()
 | 7 | Learner Dashboard | Complete |
 | 8 | n8n Workflows (image gen + social publisher) | Complete |
 | 9 | Stripe Integration | Complete |
-| 10 | Landing Page (3 demo avatars) | Complete |
-| 11 | Deploy + Polish + Mobile Testing | Complete |
-| 12 | Demo Video + Submission | Pending |
+| 10 | Landing Page (immersive full-screen redesign) | Complete |
+| 11 | Design System (monochrome, animated borders, dark/light) | Complete |
+| 12 | Avatar Video Generation (5 avatars, landscape + portrait) | In Progress |
+| 13 | Multi-Avatar Carousel + Portrait Video Support | Pending |
+| 14 | Demo Video + Submission | Pending |
 
 ### Post-Hackathon Backlog
 
@@ -462,10 +468,12 @@ npm run build        # Production build
 ```
 lola-platform/
   app/
-    layout.tsx                    # Root layout, dark theme, fonts
-    page.tsx                      # Landing page with demo avatars
-    globals.css                   # Tailwind + glassmorphism + LoLA tokens
+    layout.tsx                    # Root layout, dark default, Exo 2 + Space Mono + Noto Sans JP
+    page.tsx                      # Server component wrapper for landing
+    landing-client.tsx            # Immersive landing: video hero, subtitles, waveform, CTA
+    globals.css                   # Tailwind v4 + design tokens + monochrome + animated borders
     (auth)/login, signup, callback
+    (marketing)/                  # Features, How It Works, Pricing (monochrome)
     avatar/[slug]/page.tsx        # PUBLIC profile page (link-in-bio)
     session/[slug]/page.tsx       # Full-screen voice session
     dashboard/                    # Learner dashboard
@@ -476,7 +484,8 @@ lola-platform/
     onboarding/                   # ProfileQuiz
     avatar/                       # AvatarHero, SceneGallery, ProductGrid
     creator/                      # AvatarWizard, ImagePicker, SceneReview
-    landing/                      # DemoAvatarCard, HowItWorks, PricingTable
+    landing/                      # HeroVideo, HeroWaveform, HeroSubtitles
+    SlideMenu.tsx                 # Always-dark slide-out nav with theme toggle
   lib/
     coaching/                     # 12 principles, profiles, instructions, domains, l1-patterns
     openai/realtime.ts
@@ -567,6 +576,19 @@ n8n handles ALL AI tool orchestration. This is deliberate — models and tools c
 - **Domain-agnostic**: One engine serves language, fitness, sales, mentoring, support, custom
 - **Character consistency**: Same person across social media, profile page, and voice session
 - **Creator economy**: Avatars earn through credit consumption and product sales
+
+### Hackathon Strategy (Sabrina/Marcin, March 6-8, 2026)
+
+**Key insight**: Hackathon participants are potential users. They're builders who want to attract and monetize users for their apps via social media — which is exactly what LoLA does for them. Every participant who sees the demo is a potential creator on the platform.
+
+**Pitch angle**: "You just built something amazing this weekend. Now you need users. LoLA gives you a photorealistic AI avatar that posts to social, engages your prospects in real-time voice conversations, and converts them — while you sleep."
+
+**Demo priorities**:
+1. Immersive landing page (wow factor — judges and participants feel like they're talking to a real person)
+2. Multi-avatar carousel (proves the platform works for ANY domain, not just one use case)
+3. Live voice session (the core product — real-time adaptive conversation)
+4. Creator dashboard (show how fast you go from zero to published avatar)
+5. Social publishing pipeline (the growth engine that runs on autopilot)
 
 ---
 
