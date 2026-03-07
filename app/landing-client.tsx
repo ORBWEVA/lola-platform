@@ -12,8 +12,7 @@ const avatars = [
   {
     name: 'Sara',
     type: 'video' as const,
-    portraitSrc: '/avatars/sara/hero-portrait.mp4',
-    landscapeSrc: '/avatars/sara/hero-landscape.mp4',
+    src: '/avatars/sara/hero-landscape.mp4',
     subtitlesUrl: '/avatars/sara/subtitles.json',
   },
 ]
