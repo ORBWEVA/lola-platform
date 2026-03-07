@@ -40,7 +40,7 @@ export function BuyCreditsButton({
     <button
       onClick={handleBuy}
       disabled={loading}
-      className="glass rounded-xl p-4 text-center hover:bg-white/10 transition-colors disabled:opacity-50 relative"
+      className="glass rounded-xl p-4 text-center transition-colors disabled:opacity-50 relative"
     >
       {label && (
         <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-black px-2 py-0.5 rounded-full">

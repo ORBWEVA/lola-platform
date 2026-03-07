@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Exo_2, Space_Mono } from "next/font/google";
+import { Exo_2, Space_Mono, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 
 const exo2 = Exo_2({
@@ -12,6 +12,12 @@ const spaceMono = Space_Mono({
   variable: "--font-space-mono",
   subsets: ["latin"],
   weight: ["400", "700"],
+});
+
+const notoSansJP = Noto_Sans_JP({
+  variable: "--font-noto-jp",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -40,7 +46,7 @@ export default function RootLayout({
         `}} />
       </head>
       <body
-        className={`${exo2.variable} ${spaceMono.variable} antialiased bg-background text-foreground`}
+        className={`${exo2.variable} ${spaceMono.variable} ${notoSansJP.variable} antialiased bg-background text-foreground`}
       >
         {children}
       </body>

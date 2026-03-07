@@ -38,7 +38,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
   const sessionUrl = isLoggedIn ? `/session/${avatar.slug}` : `/login?next=/session/${avatar.slug}`
 
   return (
-    <div className="min-h-screen pb-20 noise">
+    <div className="min-h-screen pb-20 noise monochrome">
       <div className="mesh-bg" />
 
       {/* Hero */}

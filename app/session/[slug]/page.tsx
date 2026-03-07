@@ -22,10 +22,10 @@ export default async function SessionPage({ params }: { params: Promise<{ slug: 
 
   if (!avatar) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center px-6 monochrome">
         <div className="glass rounded-2xl p-8 max-w-sm text-center space-y-4">
-          <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mx-auto">
-            <svg className="w-7 h-7 text-red-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <div className="w-14 h-14 rounded-full bg-[var(--surface-2)] flex items-center justify-center mx-auto">
+            <svg className="w-7 h-7 text-[var(--muted)]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -40,6 +40,8 @@ export default async function SessionPage({ params }: { params: Promise<{ slug: 
   }
 
   return (
-    <VoiceSession avatarId={avatar.id} avatarName={avatar.name} avatarSlug={avatar.slug} />
+    <div className="monochrome">
+      <VoiceSession avatarId={avatar.id} avatarName={avatar.name} avatarSlug={avatar.slug} />
+    </div>
   )
 }

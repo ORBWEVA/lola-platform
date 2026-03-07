@@ -69,7 +69,7 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
 
       {/* Purchase confirmation */}
       {purchased && (
-        <div className="glass rounded-2xl p-4 border border-emerald-500/30 bg-emerald-500/5">
+        <div className="glass no-trace rounded-2xl p-4 border border-emerald-500/30 bg-emerald-500/5">
           <p className="text-emerald-400 font-medium">+{purchased} credits added to your account!</p>
         </div>
       )}

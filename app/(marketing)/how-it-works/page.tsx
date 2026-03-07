@@ -51,7 +51,7 @@ export default function HowItWorksPage() {
 
       <div className="space-y-8">
         {steps.map((item) => (
-          <div key={item.step} className="rounded-2xl border border-white/10 bg-white/[0.03] p-8 flex gap-6 items-start">
+          <div key={item.step} className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 flex gap-6 items-start animated-border">
             <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center">
               {item.icon}
             </div>

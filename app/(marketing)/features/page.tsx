@@ -73,7 +73,7 @@ export default function FeaturesPage() {
 
       <div className="grid sm:grid-cols-2 gap-5">
         {features.map((f) => (
-          <div key={f.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+          <div key={f.title} className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 animated-border">
             <div className="w-10 h-10 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center mb-4">
               {f.icon}
             </div>

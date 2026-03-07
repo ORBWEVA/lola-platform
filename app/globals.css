@@ -32,9 +32,46 @@
   --overlay-bg: rgba(10, 10, 26, 0.7);
   --menu-bg: rgba(10, 10, 26, 0.92);
 
+  /* Active states */
+  --lola-indigo-active: #3a56d4;
+  --lola-rose-active: #e64460;
+  --lola-sky-active: #3fb8dd;
+
+  /* Text inverse */
+  --lola-text-inverse: #0a0a1a;
+
   /* Borders */
   --border: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(67, 97, 238, 0.3);
+
+  /* Gradients */
+  --lola-gradient: linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%);
+  --lola-gradient-rose: linear-gradient(135deg, #ff4d6d 0%, #ff6b9d 100%);
+
+  /* Shadows / Elevation */
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.3), 0 0 1px rgba(255,255,255,0.05) inset;
+  --shadow-2: 0 4px 12px rgba(0,0,0,0.4), 0 0 1px rgba(255,255,255,0.05) inset;
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.5), 0 0 1px rgba(255,255,255,0.08) inset;
+  --shadow-glow: 0 0 20px rgba(67,97,238,0.25);
+
+  /* Spacing (8pt grid) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 99px;
 
   /* Text on media (video overlay) */
   --text-on-media: rgba(240, 240, 248, 0.9);
@@ -69,8 +106,39 @@
   --overlay-bg: rgba(0, 0, 0, 0.4);
   --menu-bg: rgba(255, 255, 255, 0.95);
 
+  --lola-indigo-active: #3a56d4;
+  --lola-rose-active: #c8374f;
+  --lola-sky-active: #2ea8cc;
+
+  --lola-text-inverse: #f0f0f8;
+
   --border: rgba(0, 0, 0, 0.08);
   --border-hover: rgba(67, 97, 238, 0.3);
+
+  --lola-gradient: linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%);
+  --lola-gradient-rose: linear-gradient(135deg, #ff4d6d 0%, #ff6b9d 100%);
+
+  --shadow-1: 0 1px 3px rgba(0,0,0,0.1), 0 0 1px rgba(0,0,0,0.05) inset;
+  --shadow-2: 0 4px 12px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.05) inset;
+  --shadow-3: 0 8px 24px rgba(0,0,0,0.2), 0 0 1px rgba(0,0,0,0.08) inset;
+  --shadow-glow: 0 0 20px rgba(67,97,238,0.2);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 99px;
 
   --text-on-media: rgba(255, 255, 255, 0.95);
   --text-on-media-muted: rgba(255, 255, 255, 0.7);
@@ -97,10 +165,44 @@ body {
 
 /* ===== LoLA Glass ===== */
 .glass {
+  position: relative;
   background: var(--glass-bg);
   backdrop-filter: blur(var(--glass-blur));
   -webkit-backdrop-filter: blur(var(--glass-blur));
   border: 1px solid var(--glass-border);
+  transition: border-color 0.3s ease;
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    var(--lola-indigo) 60deg,
+    var(--lola-sky) 120deg,
+    transparent 180deg
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.glass:not(.no-trace):hover {
+  border-color: transparent;
+}
+
+.glass:not(.no-trace):hover::before {
+  opacity: 1;
+  animation: border-trace 3s linear infinite;
 }
 
 .glass-strong {
@@ -176,20 +278,96 @@ body {
   box-shadow: 0 0 20px rgba(255, 77, 109, 0.25);
 }
 
+/* ===== Animated border trace (CSS-only, @property) ===== */
+@property --border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes border-trace {
+  to { --border-angle: 360deg; }
+}
+
+.animated-border {
+  position: relative;
+  border: 1px solid var(--border);
+  transition: border-color 0.3s ease;
+}
+
+.animated-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    var(--lola-indigo) 60deg,
+    var(--lola-sky) 120deg,
+    transparent 180deg
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.animated-border:hover {
+  border-color: transparent;
+}
+
+.animated-border:hover::before {
+  opacity: 1;
+  animation: border-trace 3s linear infinite;
+}
+
 /* ===== LoLA Cards ===== */
 .glow-card {
   position: relative;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  overflow: hidden;
-  transition: border-color 0.2s ease, transform 0.3s ease;
+  overflow: visible;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.glow-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    var(--lola-indigo) 60deg,
+    var(--lola-sky) 120deg,
+    transparent 180deg
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .glow-card:hover {
   transform: translateY(-4px);
-  border-color: var(--border-hover);
-  box-shadow: 0 0 20px rgba(67, 97, 238, 0.15);
+  border-color: transparent;
+}
+
+.glow-card:hover::before {
+  opacity: 1;
+  animation: border-trace 3s linear infinite;
 }
 
 /* ===== Fade animations ===== */
@@ -240,13 +418,42 @@ body {
 
 /* ===== Stat card ===== */
 .stat-card {
+  position: relative;
   background: var(--card);
   border: 1px solid var(--border);
-  transition: border-color 0.2s ease;
+  transition: border-color 0.3s ease;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    var(--lola-indigo) 60deg,
+    var(--lola-sky) 120deg,
+    transparent 180deg
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .stat-card:hover {
-  border-color: var(--border-hover);
+  border-color: transparent;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
+  animation: border-trace 3s linear infinite;
 }
 
 /* ===== Pricing popular ===== */
@@ -308,6 +515,268 @@ body {
 /* ===== Scrollbar ===== */
 .scrollbar-none::-webkit-scrollbar { display: none; }
 .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ===== LoLA Card (brand guide pattern) ===== */
+.lola-card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  transition: border-color 0.3s ease;
+}
+
+.lola-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    var(--lola-indigo) 60deg,
+    var(--lola-sky) 120deg,
+    transparent 180deg
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lola-card:hover {
+  border-color: transparent;
+}
+
+.lola-card:hover::before {
+  opacity: 1;
+  animation: border-trace 3s linear infinite;
+}
+
+/* ===== LoLA Glass (brand guide pattern) ===== */
+.lola-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+}
+
+/* ===== Credit Pill ===== */
+.credit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--foreground);
+  border: 1px solid var(--glass-border);
+}
+
+.credit-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lola-sky);
+  box-shadow: 0 0 8px rgba(76, 201, 240, 0.4);
+}
+
+.credit-pill.warning .dot {
+  background: var(--lola-warning);
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.4);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.credit-pill.critical {
+  background: rgba(239, 71, 111, 0.2);
+  border-color: rgba(239, 71, 111, 0.3);
+}
+
+.credit-pill.critical .dot {
+  background: var(--lola-error);
+  box-shadow: 0 0 8px rgba(239, 71, 111, 0.5);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ===== Waveform bar (brand guide pattern) ===== */
+.waveform-bar {
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(to top, var(--lola-indigo), var(--lola-sky));
+  transition: height 0.1s ease;
+}
+
+.waveform-bar.idle {
+  height: 4px;
+  opacity: 0.3;
+}
+
+.waveform-bar.active {
+  animation: waveform-pulse 0.6s ease-in-out infinite alternate;
+  opacity: 0.85;
+}
+
+@keyframes waveform-pulse {
+  from { transform: scaleY(0.6); }
+  to { transform: scaleY(1); }
+}
+
+/* ===== Monochrome mode (all pages except landing) ===== */
+[data-theme="dark"] .monochrome {
+  --lola-indigo: #808080;
+  --lola-indigo-hover: #999999;
+  --lola-indigo-active: #666666;
+  --lola-rose: #808080;
+  --lola-rose-hover: #999999;
+  --lola-rose-active: #666666;
+  --lola-sky: #999999;
+  --lola-sky-hover: #aaaaaa;
+  --lola-sky-active: #777777;
+  --lola-success: #999999;
+  --lola-warning: #999999;
+  --lola-error: #777777;
+  --border-hover: rgba(128, 128, 128, 0.3);
+  --shadow-glow: 0 0 20px rgba(128, 128, 128, 0.15);
+}
+
+[data-theme="light"] .monochrome {
+  --lola-indigo: #555555;
+  --lola-indigo-hover: #444444;
+  --lola-indigo-active: #333333;
+  --lola-rose: #555555;
+  --lola-rose-hover: #444444;
+  --lola-rose-active: #333333;
+  --lola-sky: #666666;
+  --lola-sky-hover: #555555;
+  --lola-sky-active: #444444;
+  --lola-success: #555555;
+  --lola-warning: #666666;
+  --lola-error: #444444;
+  --border-hover: rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Monochrome: neutralize gradient text */
+.monochrome .gradient-text,
+.monochrome .gradient-text-vivid {
+  background: none;
+  -webkit-background-clip: unset;
+  -webkit-text-fill-color: var(--foreground);
+  background-clip: unset;
+  animation: none;
+}
+
+/* Monochrome: neutralize gradient buttons */
+.monochrome .gradient-btn {
+  background: var(--lola-indigo);
+}
+.monochrome .gradient-btn:hover {
+  background: var(--lola-indigo-hover);
+  box-shadow: none;
+}
+.monochrome .gradient-btn-lg {
+  background: var(--lola-indigo);
+  box-shadow: none;
+}
+.monochrome .gradient-btn-lg:hover {
+  box-shadow: var(--shadow-2);
+}
+.monochrome .btn-rose {
+  background: var(--lola-indigo);
+}
+.monochrome .btn-rose:hover {
+  background: var(--lola-indigo-hover);
+  box-shadow: none;
+}
+.monochrome .pulse-glow {
+  animation: none;
+  box-shadow: none;
+}
+
+/* Monochrome: neutralize glow-card hover */
+.monochrome .glow-card:hover {
+  box-shadow: var(--shadow-2);
+}
+
+/* Monochrome: animated borders use grey gradient */
+.monochrome .glow-card::before,
+.monochrome .stat-card::before,
+.monochrome .lola-card::before,
+.monochrome .glass::before,
+.monochrome .animated-border::before {
+  background: conic-gradient(
+    from var(--border-angle),
+    transparent 0deg,
+    var(--lola-indigo) 60deg,
+    var(--lola-indigo) 120deg,
+    transparent 180deg
+  ) !important;
+}
+
+/* Monochrome: override hardcoded Tailwind color utilities */
+.monochrome .text-indigo-400,
+.monochrome .text-indigo-300 { color: var(--muted) !important; }
+.monochrome .text-emerald-400,
+.monochrome .text-emerald-300 { color: var(--foreground) !important; }
+.monochrome .text-violet-400 { color: var(--muted) !important; }
+.monochrome .text-amber-400 { color: var(--muted) !important; }
+.monochrome .text-red-400 { color: var(--muted) !important; }
+
+.monochrome .border-indigo-500\/50 { border-color: var(--border) !important; }
+.monochrome .border-emerald-500\/30 { border-color: var(--border) !important; }
+.monochrome .ring-indigo-500\/30 { --tw-ring-color: rgba(128, 128, 128, 0.2) !important; }
+.monochrome .focus\:ring-indigo-500\/50:focus { --tw-ring-color: rgba(128, 128, 128, 0.3) !important; }
+
+.monochrome .bg-indigo-500\/20 { background-color: rgba(128, 128, 128, 0.12) !important; }
+.monochrome .bg-emerald-500 { background-color: var(--lola-indigo) !important; }
+.monochrome .bg-emerald-500\/5 { background-color: rgba(128, 128, 128, 0.05) !important; }
+
+/* Monochrome: override Tailwind gradient utilities */
+.monochrome .from-indigo-400 { --tw-gradient-from: #999 !important; }
+.monochrome .to-emerald-400 { --tw-gradient-to: #999 !important; }
+.monochrome .from-indigo-500 { --tw-gradient-from: var(--lola-indigo) !important; }
+.monochrome .to-emerald-500 { --tw-gradient-to: var(--lola-indigo) !important; }
+.monochrome .from-indigo-600 { --tw-gradient-from: var(--lola-indigo) !important; }
+.monochrome .to-emerald-600 { --tw-gradient-to: var(--lola-indigo) !important; }
+.monochrome .hover\:from-indigo-500:hover { --tw-gradient-from: var(--lola-indigo-hover) !important; }
+.monochrome .hover\:to-emerald-500:hover { --tw-gradient-to: var(--lola-indigo-hover) !important; }
+.monochrome .from-indigo-900 { --tw-gradient-from: #333 !important; }
+.monochrome .to-emerald-900 { --tw-gradient-to: #333 !important; }
+
+/* Monochrome: feature icon boxes */
+.monochrome .feature-icon {
+  background: rgba(128, 128, 128, 0.08);
+  border-color: rgba(128, 128, 128, 0.12);
+}
+
+/* ===== Focus indicators (accessibility) ===== */
+:focus-visible {
+  outline: 2px solid var(--lola-indigo);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--lola-indigo);
+  outline-offset: 2px;
+}
 
 /* ===== Reduced motion ===== */
 @media (prefers-reduced-motion: reduce) {

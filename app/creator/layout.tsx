@@ -19,7 +19,7 @@ export default function CreatorLayout({ children }: { children: React.ReactNode 
     item.exact ? pathname === item.href : pathname.startsWith(item.href)
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative monochrome">
       <nav className="flex items-center justify-between px-4 sm:px-6 py-4 glass-strong sticky top-0 z-50">
         <Link href="/" className="text-xl font-bold gradient-text-vivid">LoLA</Link>
         <div className="flex items-center gap-1 text-sm">

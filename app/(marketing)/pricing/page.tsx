@@ -43,10 +43,10 @@ export default function PricingPage() {
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className={`rounded-2xl p-6 relative ${
+            className={`rounded-2xl p-6 relative animated-border ${
               plan.popular
-                ? 'border-2 border-indigo-500/50 bg-white/[0.05]'
-                : 'border border-white/10 bg-white/[0.03]'
+                ? 'border-2 border-[var(--lola-indigo)] bg-[var(--card)]'
+                : 'border border-[var(--border)] bg-[var(--card)]'
             }`}
           >
             {plan.popular && (

@@ -135,12 +135,12 @@ export default function EditAvatarPage() {
 
       {/* Error / success messages */}
       {errorMsg && (
-        <div className="glass border border-red-500/30 rounded-xl p-3">
+        <div className="glass no-trace border border-red-500/30 rounded-xl p-3">
           <p className="text-sm text-red-300">{errorMsg}</p>
         </div>
       )}
       {successMsg && (
-        <div className="glass border border-emerald-500/30 rounded-xl p-3">
+        <div className="glass no-trace border border-emerald-500/30 rounded-xl p-3">
           <p className="text-sm text-emerald-300">{successMsg}</p>
         </div>
       )}

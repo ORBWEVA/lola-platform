@@ -3,7 +3,7 @@ import SignOutButton from '@/components/SignOutButton'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative monochrome">
       <nav className="flex items-center justify-between px-6 py-4 glass-strong sticky top-0 z-50">
         <Link href="/" className="text-xl font-bold gradient-text-vivid">LoLA</Link>
         <div className="flex items-center gap-1 text-sm">

@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative monochrome">
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-xl bg-[var(--background)]/80 border-b" style={{ borderColor: 'var(--border)' }}>
         <Link href="/" className="flex items-center gap-2 text-sm text-[var(--muted)] hover:text-[var(--foreground)] transition-colors">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
