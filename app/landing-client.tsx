@@ -45,7 +45,7 @@ export default function LandingHero({ isLoggedIn }: { isLoggedIn: boolean }) {
       {/* Subtitles — positioned above waveform */}
       <div className="absolute z-20 left-0 right-0" style={{ top: '52%' }}>
         <div className="flex justify-center px-6">
-          <HeroSubtitles avatarName="sara" />
+          <HeroSubtitles avatarName="sara" videoRef={videoRef} />
         </div>
       </div>
 
