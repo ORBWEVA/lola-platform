@@ -1,15 +1,14 @@
 {
   "duration": 6.2,
   "words": [
-    { "word": "Hi,", "start": 0.2, "end": 0.45 },
-    { "word": "I'm", "start": 0.5, "end": 0.7 },
-    { "word": "Sara.", "start": 0.75, "end": 1.1 },
-    { "word": "I", "start": 1.5, "end": 1.65 },
-    { "word": "help", "start": 1.7, "end": 2.0 },
-    { "word": "you", "start": 2.05, "end": 2.25 },
-    { "word": "find", "start": 2.3, "end": 2.6 },
-    { "word": "your", "start": 2.65, "end": 2.9 },
-    { "word": "creative", "start": 2.95, "end": 3.5 },
-    { "word": "voice.", "start": 3.55, "end": 4.0 }
+    { "word": "Sara", "start": 0.00, "end": 0.34 },
+    { "word": "is", "start": 0.34, "end": 0.62 },
+    { "word": "my", "start": 0.62, "end": 0.82 },
+    { "word": "name,", "start": 0.82, "end": 1.18 },
+    { "word": "your", "start": 1.36, "end": 1.46 },
+    { "word": "multilingual", "start": 1.46, "end": 2.04 },
+    { "word": "educator.", "start": 2.04, "end": 2.60 },
+    { "word": "Let's", "start": 3.20, "end": 3.48 },
+    { "word": "talk.", "start": 3.48, "end": 3.68 }
   ]
 }
