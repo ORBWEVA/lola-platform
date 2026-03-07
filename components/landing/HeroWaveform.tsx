@@ -4,40 +4,18 @@ import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface Props {
   videoRef?: React.RefObject<HTMLVideoElement | null>
+  speaking: boolean
+  energy: number
 }
 
-// Speech energy envelope for Sara's 8s video loop
-// Values 0–1 representing speech intensity at each 0.25s interval
-// Higher during speech, lower during pauses
-const speechEnvelope = [
-  // 0.00–1.00s: "Hi, I'm Sara."
-  0.0, 0.6, 0.8, 0.9, 0.7,
-  // 1.25–2.00s: brief pause then "I help"
-  0.2, 0.1, 0.5, 0.8,
-  // 2.25–3.50s: "you find your"
-  0.7, 0.9, 0.8, 0.7, 0.9,
-  // 3.75–4.75s: "creative voice."
-  0.8, 0.95, 0.9, 0.6,
-  // 5.00–6.00s: trailing off
-  0.3, 0.1, 0.05, 0.02, 0.0, 0.0,
-  // 6.50–8.00s: silence before loop
-  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-]
-
-function getEnvelopeAt(time: number): number {
-  const idx = time / 0.25
-  const lo = Math.floor(idx)
-  const hi = Math.ceil(idx)
-  const frac = idx - lo
-  const a = speechEnvelope[lo % speechEnvelope.length] ?? 0
-  const b = speechEnvelope[hi % speechEnvelope.length] ?? 0
-  return a + (b - a) * frac
-}
-
-export default function HeroWaveform({ videoRef }: Props) {
+export default function HeroWaveform({ videoRef, speaking, energy }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const animRef = useRef<number>(0)
+  const energyRef = useRef(0)
   const [muted, setMuted] = useState(true)
+
+  // Keep energy in a ref so the draw loop always has the latest value
+  energyRef.current = energy
 
   const toggleMute = () => {
     if (videoRef?.current) {
@@ -59,29 +37,24 @@ export default function HeroWaveform({ videoRef }: Props) {
     const bars = 48
     const barWidth = width / bars - 2
     const centerY = height / 2
-
-    // Get speech intensity from video time
-    const video = videoRef?.current
-    const videoTime = video ? video.currentTime : 0
-    const envelope = video ? getEnvelopeAt(videoTime) : 0
     const now = Date.now() / 800
+    const e = energyRef.current
 
     for (let i = 0; i < bars; i++) {
       // Base idle wave
       const idle = 0.05 + Math.sin(now + i * 0.35) * 0.03
 
-      // Speech-driven component: bars near center are taller, edges shorter
+      // Speech-driven: center bars taller, edges shorter
       const centerDist = Math.abs(i - bars / 2) / (bars / 2)
-      const speechShape = (1 - centerDist * 0.6) * envelope * 0.85
+      const speechShape = (1 - centerDist * 0.6) * e * 0.85
 
-      // Add per-bar variation for organic feel
-      const variation = Math.sin(now * 1.5 + i * 0.7) * 0.08 * envelope
+      // Per-bar variation for organic feel
+      const variation = Math.sin(now * 1.5 + i * 0.7) * 0.08 * e
 
       const value = idle + speechShape + variation
       const barHeight = Math.max(value * height, 2)
 
-      // Brighter during speech
-      const alpha = 0.15 + envelope * 0.45
+      const alpha = 0.15 + e * 0.45
       ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
       const x = i * (barWidth + 2) + 1
       ctx.beginPath()
@@ -90,7 +63,7 @@ export default function HeroWaveform({ videoRef }: Props) {
     }
 
     animRef.current = requestAnimationFrame(draw)
-  }, [videoRef])
+  }, [])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -116,10 +89,7 @@ export default function HeroWaveform({ videoRef }: Props) {
 
   return (
     <div className="flex items-center gap-3 w-full">
-      <canvas
-        ref={canvasRef}
-        className="h-12 w-full"
-      />
+      <canvas ref={canvasRef} className="h-12 w-full" />
       {videoRef && (
         <button
           onClick={toggleMute}
