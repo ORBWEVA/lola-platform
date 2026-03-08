@@ -137,9 +137,19 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
     return () => video.removeEventListener('timeupdate', onTimeUpdate)
   }, [subtitleData, activeIndex])
 
+  // Extract current segment's words as standalone SubtitleData
+  const currentSegmentData = useMemo<SubtitleData | undefined>(() => {
+    const seg = subtitleData?.segments[activeIndex]
+    if (!seg) return undefined
+    return {
+      duration: seg.end - seg.start,
+      words: seg.words,
+    }
+  }, [subtitleData, activeIndex])
+
   const { data, visibleCount, speaking, energy, loopCount } = useVideoSubtitles(
     videoRef,
-    subtitleData ?? undefined
+    currentSegmentData
   )
 
   const [browserLang, setBrowserLang] = useState('en')
