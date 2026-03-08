@@ -23,5 +23,20 @@ export default async function LandingPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  return <LandingHero isLoggedIn={!!user} />
+  let userInfo: { name: string; role: string } | null = null
+  if (user) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('display_name, role')
+      .eq('id', user.id)
+      .single()
+    if (profile) {
+      userInfo = {
+        name: profile.display_name || user.email?.split('@')[0] || 'there',
+        role: profile.role || 'learner',
+      }
+    }
+  }
+
+  return <LandingHero isLoggedIn={!!user} userInfo={userInfo} />
 }

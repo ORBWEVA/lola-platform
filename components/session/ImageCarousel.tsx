@@ -1,26 +1,44 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
+
+const DISPLAY_MS = 8000
+const FADE_MS = 1200
 
 export default function ImageCarousel({ images }: { images: string[] }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [nextIndex, setNextIndex] = useState(1)
-  const [transitioning, setTransitioning] = useState(false)
+  const [activeLayer, setActiveLayer] = useState(0) // 0 = layer A visible, 1 = layer B visible
+  const indexA = useRef(0)
+  const indexB = useRef(1)
+  const [, setRenderKey] = useState(0)
 
+  const advance = useCallback(() => {
+    setActiveLayer(prev => {
+      const next = prev === 0 ? 1 : 0
+      return next
+    })
+  }, [])
+
+  // After each fade completes, prepare the now-hidden layer with the next image
   useEffect(() => {
     if (images.length <= 1) return
+    const prepTimer = setTimeout(() => {
+      if (activeLayer === 1) {
+        // A is now hidden — load next image into A
+        indexA.current = (indexB.current + 1) % images.length
+      } else {
+        // B is now hidden — load next image into B
+        indexB.current = (indexA.current + 1) % images.length
+      }
+      setRenderKey(n => n + 1)
+    }, FADE_MS + 100) // wait for fade to finish before swapping hidden layer
 
-    const interval = setInterval(() => {
-      setTransitioning(true)
-      setTimeout(() => {
-        setCurrentIndex(prev => (prev + 1) % images.length)
-        setNextIndex(prev => (prev + 1) % images.length)
-        setTransitioning(false)
-      }, 1000) // crossfade duration
-    }, 8000) // time per image
+    const advanceTimer = setTimeout(advance, DISPLAY_MS)
 
-    return () => clearInterval(interval)
-  }, [images.length])
+    return () => {
+      clearTimeout(prepTimer)
+      clearTimeout(advanceTimer)
+    }
+  }, [activeLayer, images.length, advance])
 
   if (images.length === 0) {
     return (
@@ -32,35 +50,26 @@ export default function ImageCarousel({ images }: { images: string[] }) {
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Current image */}
+      {/* Layer A */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+        className="absolute inset-0 bg-cover bg-top transition-opacity duration-[1.2s] ease-in-out"
         style={{
-          backgroundImage: `url(${images[currentIndex]})`,
-          opacity: transitioning ? 0 : 1,
-          transform: 'scale(1.05)',
-          animation: 'kenburns 16s ease-in-out infinite alternate',
+          backgroundImage: `url(${images[indexA.current]})`,
+          opacity: activeLayer === 0 ? 1 : 0,
         }}
       />
-      {/* Next image (crossfade) */}
+      {/* Layer B */}
       {images.length > 1 && (
         <div
-          className="absolute inset-0 bg-cover bg-center transition-opacity duration-1000"
+          className="absolute inset-0 bg-cover bg-top transition-opacity duration-[1.2s] ease-in-out"
           style={{
-            backgroundImage: `url(${images[nextIndex]})`,
-            opacity: transitioning ? 1 : 0,
+            backgroundImage: `url(${images[indexB.current]})`,
+            opacity: activeLayer === 1 ? 1 : 0,
           }}
         />
       )}
-      {/* Gradient overlay for text readability */}
+      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
-
-      <style jsx>{`
-        @keyframes kenburns {
-          from { transform: scale(1.0); }
-          to { transform: scale(1.08); }
-        }
-      `}</style>
     </div>
   )
 }

@@ -100,16 +100,26 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
         </div>
       </div>
 
-      {/* Quiz prompt */}
-      {!profile?.onboarding_complete && (
-        <div className="glass rounded-2xl p-5">
-          <h3 className="font-semibold">Want better coaching?</h3>
-          <p className="text-sm text-muted mt-1">Take a 30-second quiz to personalize your experience.</p>
-          <Link href="/dashboard/quiz" className="inline-block mt-3 text-sm text-indigo-400 hover:underline">
-            Take the quiz →
-          </Link>
-        </div>
-      )}
+      {/* Quiz prompt / status */}
+      <div className="glass rounded-2xl p-5">
+        {profile?.onboarding_complete ? (
+          <>
+            <h3 className="font-semibold">Coaching personalized</h3>
+            <p className="text-sm text-muted mt-1">Your sessions adapt to your learning style.</p>
+            <Link href="/dashboard/quiz" className="inline-block mt-3 text-sm text-indigo-400 hover:underline">
+              Retake quiz →
+            </Link>
+          </>
+        ) : (
+          <>
+            <h3 className="font-semibold">Want better coaching?</h3>
+            <p className="text-sm text-muted mt-1">Take a 30-second quiz to personalize your experience.</p>
+            <Link href="/dashboard/quiz" className="inline-block mt-3 text-sm text-indigo-400 hover:underline">
+              Take the quiz →
+            </Link>
+          </>
+        )}
+      </div>
 
       {/* Recent sessions */}
       <div>
@@ -121,10 +131,9 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
             {sessions.map(session => {
               const avatar = session.avatars as { name: string; slug: string; anchor_image_url: string | null } | null
               return (
-                <Link
+                <div
                   key={session.id}
-                  href={`/dashboard/transcripts/${session.id}`}
-                  className="flex items-center gap-4 glass rounded-2xl p-4 hover:bg-white/10 transition-colors"
+                  className="flex items-center gap-4 glass rounded-2xl p-4"
                 >
                   <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                     {avatar?.anchor_image_url ? (
@@ -140,8 +149,15 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
                       {new Date(session.started_at).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className="text-xs text-muted">{session.credits_used} credits</span>
-                </Link>
+                  {avatar?.slug && (
+                    <Link
+                      href={`/session/${avatar.slug}`}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 transition-colors flex-shrink-0"
+                    >
+                      Talk again
+                    </Link>
+                  )}
+                </div>
               )
             })}
           </div>

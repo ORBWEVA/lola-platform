@@ -1,0 +1,90 @@
+{
+  "duration": 7.6,
+  "words": [
+    {
+      "word": "I'm",
+      "start": 0.0,
+      "end": 0.92
+    },
+    {
+      "word": "Alex",
+      "start": 0.92,
+      "end": 1.36
+    },
+    {
+      "word": "I",
+      "start": 1.86,
+      "end": 2.02
+    },
+    {
+      "word": "help",
+      "start": 2.02,
+      "end": 2.18
+    },
+    {
+      "word": "you",
+      "start": 2.18,
+      "end": 2.48
+    },
+    {
+      "word": "find",
+      "start": 2.48,
+      "end": 2.6
+    },
+    {
+      "word": "exactly",
+      "start": 2.6,
+      "end": 3.28
+    },
+    {
+      "word": "what",
+      "start": 3.28,
+      "end": 3.48
+    },
+    {
+      "word": "you",
+      "start": 3.48,
+      "end": 3.76
+    },
+    {
+      "word": "need",
+      "start": 3.76,
+      "end": 3.96
+    },
+    {
+      "word": "in",
+      "start": 3.96,
+      "end": 4.6
+    },
+    {
+      "word": "any",
+      "start": 4.6,
+      "end": 5.06
+    },
+    {
+      "word": "language",
+      "start": 5.06,
+      "end": 5.48
+    },
+    {
+      "word": "Let's",
+      "start": 6.28,
+      "end": 6.52
+    },
+    {
+      "word": "figure",
+      "start": 6.52,
+      "end": 6.66
+    },
+    {
+      "word": "it",
+      "start": 6.66,
+      "end": 6.84
+    },
+    {
+      "word": "out",
+      "start": 6.84,
+      "end": 6.98
+    }
+  ]
+}

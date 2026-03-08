@@ -1,6 +1,6 @@
 'use client'
 
-import { forwardRef, useEffect, useRef, useState, useCallback, useImperativeHandle } from 'react'
+import { forwardRef, useEffect, useRef, useState, useCallback } from 'react'
 
 interface AvatarMedia {
   name: string
@@ -10,60 +10,144 @@ interface AvatarMedia {
 
 interface Props {
   avatars: AvatarMedia[]
+  activeIndex: number
+  onIndexChange: (index: number) => void
+  onTransitionStart?: () => void
+  onTransitionEnd?: () => void
 }
 
-const HeroVideo = forwardRef<HTMLVideoElement | null, Props>(({ avatars }, ref) => {
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [transitioning, setTransitioning] = useState(false)
+const FADE_MS = 1000
 
-  useImperativeHandle(ref, () => videoRef.current as HTMLVideoElement, [])
+const HeroVideo = forwardRef<HTMLVideoElement | null, Props>(({ avatars, activeIndex, onIndexChange, onTransitionStart, onTransitionEnd }, ref) => {
+  const [displayIndex, setDisplayIndex] = useState(activeIndex)
+  const [nextIndex, setNextIndex] = useState<number | null>(null)
+  const [fading, setFading] = useState(false)
+  const currentVideoRef = useRef<HTMLVideoElement | null>(null)
+  const nextVideoRef = useRef<HTMLVideoElement | null>(null)
 
-  const avatar = avatars[activeIndex]
+  // Forward the active video ref to parent
+  const syncRef = useCallback((el: HTMLVideoElement | null) => {
+    if (typeof ref === 'function') ref(el)
+    else if (ref) (ref as React.MutableRefObject<HTMLVideoElement | null>).current = el
+  }, [ref])
 
-  const cycleAvatar = useCallback(() => {
-    if (avatars.length <= 1) return
-    setTransitioning(true)
-    setTimeout(() => {
-      setActiveIndex((prev) => (prev + 1) % avatars.length)
-      setTransitioning(false)
-    }, 600)
-  }, [avatars.length])
-
+  // Keep parent ref pointed at current video
   useEffect(() => {
-    if (avatars.length <= 1) return
-    const interval = setInterval(cycleAvatar, 10000)
-    return () => clearInterval(interval)
-  }, [cycleAvatar, avatars.length])
+    if (!fading) syncRef(currentVideoRef.current)
+  }, [fading, displayIndex, syncRef])
+
+  // Begin crossfade: mount next video behind, wait for it to be ready, then fade
+  const beginTransition = useCallback((toIndex: number) => {
+    if (fading || toIndex === displayIndex) return
+    onTransitionStart?.()
+    setNextIndex(toIndex)
+  }, [fading, displayIndex, onTransitionStart])
+
+  // When next video is canplay, start the crossfade
+  const onNextReady = useCallback(() => {
+    if (nextVideoRef.current) {
+      nextVideoRef.current.play().catch(() => {})
+    }
+    // Mute outgoing video during fade
+    if (currentVideoRef.current) currentVideoRef.current.muted = true
+    setFading(true)
+  }, [])
+
+  // After fade completes, promote next to current
+  useEffect(() => {
+    if (!fading) return
+    const t = setTimeout(() => {
+      if (nextIndex === null) return
+      setDisplayIndex(nextIndex)
+      setNextIndex(null)
+      setFading(false)
+      onIndexChange(nextIndex)
+      onTransitionEnd?.()
+    }, FADE_MS)
+    return () => clearTimeout(t)
+  }, [fading, nextIndex, onIndexChange, onTransitionEnd])
+
+  // Auto-advance when video ends
+  useEffect(() => {
+    const video = currentVideoRef.current
+    if (!video) return
+    const onEnded = () => {
+      if (avatars.length > 1) {
+        beginTransition((displayIndex + 1) % avatars.length)
+      } else {
+        video.currentTime = 0
+        video.play().catch(() => {})
+      }
+    }
+    video.addEventListener('ended', onEnded)
+    return () => video.removeEventListener('ended', onEnded)
+  }, [displayIndex, avatars.length, beginTransition])
+
+  const goTo = useCallback((i: number) => {
+    if (i === displayIndex || fading) return
+    beginTransition(i)
+  }, [displayIndex, fading, beginTransition])
+
+  const currentAvatar = avatars[displayIndex]
+  const nextAvatar = nextIndex !== null ? avatars[nextIndex] : null
+
+  // When displayIndex changes (after transition completes), play new current from start
+  useEffect(() => {
+    const video = currentVideoRef.current
+    if (!video) return
+    video.currentTime = 0
+    video.muted = false
+    video.play().catch(() => {})
+  }, [displayIndex])
+
+  const videoClass = "absolute inset-0 w-full h-full object-cover object-[center_20%]"
 
   return (
     <div className="relative w-full overflow-hidden" style={{ height: '100dvh' }}>
-      {/* Media */}
-      <div
-        className="absolute inset-0 transition-opacity duration-600"
-        style={{ opacity: transitioning ? 0 : 1 }}
-      >
-        {avatar?.type === 'video' ? (
+      {/* Next video layer — behind current, fades in by current fading out */}
+      {nextAvatar?.type === 'video' && (
+        <div className="absolute inset-0">
           <video
-            ref={videoRef}
+            ref={nextVideoRef}
+            muted
+            playsInline
+            className={videoClass}
+            key={`next-${nextIndex}`}
+            onCanPlay={onNextReady}
+          >
+            <source src={nextAvatar.src} type="video/mp4" />
+          </video>
+        </div>
+      )}
+
+      {/* Current video layer — fades out to reveal next */}
+      <div
+        className="absolute inset-0"
+        style={{
+          opacity: fading ? 0 : 1,
+          transition: `opacity ${FADE_MS}ms ease-in-out`,
+        }}
+      >
+        {currentAvatar?.type === 'video' ? (
+          <video
+            ref={currentVideoRef}
             autoPlay
             muted
-            loop
             playsInline
-            className="absolute inset-0 w-full h-full object-cover"
-            key={avatar.name}
+            className={videoClass}
+            key={`video-${displayIndex}`}
           >
-            <source src={avatar.src} type="video/mp4" />
+            <source src={currentAvatar.src} type="video/mp4" />
           </video>
         ) : (
           <div
             className="absolute inset-0 w-full h-full animate-[kenBurns_20s_ease-in-out_infinite_alternate]"
-            key={avatar?.name}
+            key={currentAvatar?.name}
           >
             <img
-              src={avatar?.src ?? ''}
-              alt={avatar?.name ?? ''}
-              className="w-full h-full object-cover"
+              src={currentAvatar?.src ?? ''}
+              alt={currentAvatar?.name ?? ''}
+              className="w-full h-full object-cover object-top"
             />
           </div>
         )}
@@ -92,15 +176,9 @@ const HeroVideo = forwardRef<HTMLVideoElement | null, Props>(({ avatars }, ref) 
           {avatars.map((a, i) => (
             <button
               key={a.name}
-              onClick={() => {
-                setTransitioning(true)
-                setTimeout(() => {
-                  setActiveIndex(i)
-                  setTransitioning(false)
-                }, 600)
-              }}
+              onClick={() => goTo(i)}
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === activeIndex ? 'bg-white/90 scale-125' : 'bg-white/40 hover:bg-white/60'
+                i === (nextIndex ?? displayIndex) ? 'bg-white/90 scale-125' : 'bg-white/40 hover:bg-white/60'
               }`}
               aria-label={`Show ${a.name}`}
             />

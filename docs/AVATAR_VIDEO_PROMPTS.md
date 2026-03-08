@@ -56,6 +56,26 @@ Character consistency is the hardest part of AI-generated media. Without a consi
 
 ---
 
+## Voice Lines (Spoken Dialogue)
+
+Each avatar speaks their intro line in the video. These lines are what the avatar mouths on camera, displayed as synced subtitles on the landing page, and generated as voice-over audio via ElevenLabs.
+
+| Avatar | ElevenLabs Voice ID | Line |
+|--------|-------------------|------|
+| Sara | `oAyAUy2T7oSLWwREApp9` | "I'm Sara. Pick a language, any language — I'll keep up. Let's talk." |
+| Sakura Sensei | `xwDy9oDEtzWzFo6FqAI9` | "I'm Sakura. Whether it's Japanese or any language, I'll meet you where you are. Let's begin." |
+| Coach Marcus | `6OzrBCQf8cjERkYgzSg8` | "I'm Marcus. Your goals, your pace, your language. Let's get to work." |
+| Alex Rivera | `RWLFUuahyl6QdlLs8Al5` | "I'm Alex. I help you find exactly what you need, in any language. Let's figure it out." |
+| Emma Lindgren | `EQu48Nbp4OqDxsnYh27f` | "I'm Emma. Strategy, growth, straight talk — in whatever language you think in. Let's go." |
+
+### Usage in Veo 3
+
+When generating videos, include the voice line in the prompt so the avatar's lip movement matches the dialogue. For example, append to the visual prompt:
+
+> The person is saying: "I'm Sara. Pick a language, any language — I'll keep up. Let's talk."
+
+---
+
 ## 16:9 Landscape
 
 ### Sara

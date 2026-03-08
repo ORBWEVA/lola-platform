@@ -12,12 +12,13 @@ interface Props {
   avatarId: string
   avatarName: string
   avatarSlug: string
+  userRole: string
 }
 
 type SessionState = 'connecting' | 'active' | 'ended'
 type ErrorKind = 'mic_denied' | 'no_credits' | 'connection_lost' | 'session_failed' | null
 
-export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props) {
+export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRole }: Props) {
   const [state, setState] = useState<SessionState>('connecting')
   const [error, setError] = useState<ErrorKind>(null)
   const [credits, setCredits] = useState(15)
@@ -28,6 +29,9 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
   const [sessionId, setSessionId] = useState<string>('')
   const [duration, setDuration] = useState(0)
   const [showHint, setShowHint] = useState(true)
+  const [panelOpen, setPanelOpen] = useState(false)
+  const panelAutoCloseRef = useRef<NodeJS.Timeout | null>(null)
+  const hasAutoOpenedRef = useRef(false)
 
   const pcRef = useRef<RTCPeerConnection | null>(null)
   const dcRef = useRef<RTCDataChannel | null>(null)
@@ -47,6 +51,22 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
   useEffect(() => { sessionIdRef.current = sessionId }, [sessionId])
   useEffect(() => { transcriptRef.current = transcript }, [transcript])
 
+  // Auto-open transcript panel on first message, auto-close after 5s
+  useEffect(() => {
+    if (transcript.length > 0 && !hasAutoOpenedRef.current) {
+      hasAutoOpenedRef.current = true
+      setPanelOpen(true)
+      panelAutoCloseRef.current = setTimeout(() => setPanelOpen(false), 5000)
+    }
+    // Re-open briefly on each new message if panel is closed
+    if (transcript.length > 0 && hasAutoOpenedRef.current && !panelOpen) {
+      // Don't auto-reopen after user manually closed
+    }
+    return () => {
+      if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
+    }
+  }, [transcript.length]) // eslint-disable-line react-hooks/exhaustive-deps
+
   const endSession = useCallback(async () => {
     if (stateRef.current === 'ended') return
     setState('ended')
@@ -56,10 +76,20 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
     if (creditIntervalRef.current) clearInterval(creditIntervalRef.current)
     if (durationIntervalRef.current) clearInterval(durationIntervalRef.current)
 
-    // Close WebRTC
-    if (dcRef.current) dcRef.current.close()
-    if (pcRef.current) pcRef.current.close()
-    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop())
+    // Close WebRTC and stop all media
+    try { dcRef.current?.close() } catch {}
+    try { pcRef.current?.close() } catch {}
+    try {
+      streamRef.current?.getTracks().forEach(t => {
+        t.stop()
+        t.enabled = false
+      })
+    } catch {}
+    try { audioElRef.current?.pause() } catch {}
+    dcRef.current = null
+    pcRef.current = null
+    streamRef.current = null
+    audioElRef.current = null
 
     // Save session (only if we actually started one)
     const sid = sessionIdRef.current
@@ -125,7 +155,10 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         if (cancelled) return
 
         setSessionId(data.sessionId)
-        setSceneImages(data.sceneImages || [])
+        // Filter out broken/expired API URLs, fall back to anchor image
+        const validScenes = (data.sceneImages || []).filter((url: string) => url && !url.includes('api.together'))
+        const fallback = data.anchorImage ? [data.anchorImage] : []
+        setSceneImages(validScenes.length > 0 ? validScenes : fallback)
 
         // Set up WebRTC
         const pc = new RTCPeerConnection()
@@ -325,6 +358,8 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
       cancelled = true
       if (creditIntervalRef.current) clearInterval(creditIntervalRef.current)
       if (durationIntervalRef.current) clearInterval(durationIntervalRef.current)
+      try { streamRef.current?.getTracks().forEach(t => t.stop()) } catch {}
+      try { pcRef.current?.close() } catch {}
     }
   }, [avatarId]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -438,14 +473,36 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         duration={duration}
         creditsUsed={Math.ceil(duration / 60)}
         transcriptCount={transcript.length}
+        userRole={userRole}
       />
     )
   }
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-background">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 glass z-10"
+    <div className="fixed inset-0 bg-black">
+      {/* Full-screen scene carousel background */}
+      <div className="absolute inset-0 z-0">
+        {state === 'connecting' ? (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/20 to-emerald-900/20">
+            <div className="text-center space-y-3 px-8">
+              <div className="w-10 h-10 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-white/60 text-sm">Connecting to {avatarName}...</p>
+              <p className="text-xs text-white/40 mt-2">Just speak naturally — {avatarName} is multilingual and adapts to you.</p>
+            </div>
+          </div>
+        ) : (
+          <ImageCarousel images={sceneImages} />
+        )}
+      </div>
+
+      {/* Gradient overlays for readability */}
+      <div className="absolute inset-0 z-10 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      </div>
+
+      {/* Top bar — overlaid */}
+      <div className="absolute top-0 left-0 right-0 z-30 flex items-center justify-between px-4 py-2"
         style={{ paddingTop: 'max(0.5rem, env(safe-area-inset-top))' }}
       >
         <div className="relative">
@@ -461,9 +518,9 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
           {state === 'active' && (
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0" />
           )}
-          <span className="font-medium text-sm truncate">{avatarName}</span>
+          <span className="font-medium text-sm text-white truncate">{avatarName}</span>
           {state === 'active' && (
-            <span className="text-xs text-muted font-mono flex-shrink-0">
+            <span className="text-xs text-white/60 font-mono flex-shrink-0">
               {Math.floor(duration / 60)}:{(duration % 60).toString().padStart(2, '0')}
             </span>
           )}
@@ -471,43 +528,88 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug }: Props
         <CreditPill credits={credits} />
       </div>
 
-      {/* Carousel — 40% */}
-      <div className="flex-[4] min-h-0 relative">
-        {state === 'connecting' ? (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/20 to-emerald-900/20">
-            <div className="text-center space-y-3 px-8">
-              <div className="w-10 h-10 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-muted text-sm">Connecting to {avatarName}...</p>
-              <p className="text-xs text-muted/60 mt-2">Just speak naturally — {avatarName} is multilingual and adapts to you.</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <ImageCarousel images={sceneImages} />
-            {showHint && transcript.length === 0 && (
-              <button
-                onClick={() => setShowHint(false)}
-                className="absolute bottom-4 left-4 right-4 glass rounded-xl p-3 text-xs text-muted text-center animate-pulse z-10"
-              >
-                Just start talking — {avatarName} will respond. Speak any language. Tap to dismiss.
-              </button>
-            )}
-          </>
-        )}
+      {/* Hint overlay */}
+      {state === 'active' && showHint && transcript.length === 0 && (
+        <button
+          onClick={() => setShowHint(false)}
+          className="absolute z-20 bottom-36 left-6 right-6 backdrop-blur-md bg-black/40 rounded-xl p-3 text-xs text-white/60 text-center animate-pulse border border-white/10"
+        >
+          Just start talking — {avatarName} will respond. Speak any language. Tap to dismiss.
+        </button>
+      )}
+
+      {/* Bottom bar: waveform + transcript toggle */}
+      <div className="absolute bottom-0 left-0 right-0 z-20 flex items-end justify-between px-4"
+        style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom))' }}
+      >
+        {/* Compact waveform */}
+        <div className="flex-1 h-10 max-w-[200px]">
+          <WaveformVisualizer analyserNode={analyserRef.current} speaking={speaking} />
+        </div>
+
+        {/* Transcript toggle button */}
+        <button
+          onClick={() => {
+            setPanelOpen(prev => !prev)
+            if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
+          }}
+          className="p-3 rounded-full backdrop-blur-md bg-white/10 border border-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-colors"
+          aria-label={panelOpen ? 'Hide transcript' : 'Show transcript'}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          {transcript.length > 0 && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-indigo-500 text-[10px] flex items-center justify-center text-white font-bold">
+              {transcript.length > 9 ? '9+' : transcript.length}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* Waveform — 10% */}
-      <div className="flex-[1] min-h-0 px-4 py-1">
-        <WaveformVisualizer analyserNode={analyserRef.current} speaking={speaking} />
-      </div>
+      {/* Transcript backdrop */}
+      {panelOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm transition-opacity"
+          onClick={() => {
+            setPanelOpen(false)
+            if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
+          }}
+        />
+      )}
 
-      {/* Transcript — 35% */}
-      <div className="flex-[3.5] min-h-0 border-t border-glass-border">
-        <SessionTranscript entries={transcript} avatarName={avatarName} />
-      </div>
+      {/* Transcript slide panel */}
+      <div
+        className={`fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] backdrop-blur-xl border-l border-white/[0.08] transition-transform duration-300 ease-out flex flex-col ${
+          panelOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        style={{ background: 'rgba(10, 10, 26, 0.92)' }}
+      >
+        {/* Panel header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10"
+          style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
+        >
+          <span className="text-sm font-medium text-white/80">Transcript</span>
+          <button
+            onClick={() => {
+              setPanelOpen(false)
+              if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
+            }}
+            className="p-1.5 text-white/40 hover:text-white transition-colors"
+            aria-label="Close transcript"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
 
-      {/* Safe area bottom */}
-      <div style={{ paddingBottom: 'env(safe-area-inset-bottom)' }} />
+        {/* Transcript content */}
+        <div className="flex-1 min-h-0">
+          <SessionTranscript entries={transcript} avatarName={avatarName} />
+        </div>
+      </div>
     </div>
   )
 }

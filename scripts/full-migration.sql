@@ -185,7 +185,7 @@ BEGIN
   END IF;
 
   -- Update demo user to creator role
-  UPDATE public.profiles SET role = 'creator', credits = 999, display_name = COALESCE(display_name, full_name, 'LoLA Demo') WHERE id = demo_user_id;
+  UPDATE public.profiles SET role = 'creator', credits = 999, display_name = COALESCE(display_name, 'LoLA Demo') WHERE id = demo_user_id;
 
   -- Sakura Sensei
   INSERT INTO public.avatars (creator_id, name, slug, domain, personality_traits, tagline, appearance_description, anchor_image_url, scene_images, voice_id, conversation_mode, is_published)

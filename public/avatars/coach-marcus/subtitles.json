@@ -1,0 +1,65 @@
+{
+  "duration": 8.0,
+  "words": [
+    {
+      "word": "I'm",
+      "start": 0.0,
+      "end": 0.7
+    },
+    {
+      "word": "Marcus",
+      "start": 0.7,
+      "end": 1.1
+    },
+    {
+      "word": "Your",
+      "start": 1.68,
+      "end": 1.9
+    },
+    {
+      "word": "goals",
+      "start": 1.9,
+      "end": 2.32
+    },
+    {
+      "word": "Your",
+      "start": 3.02,
+      "end": 3.3
+    },
+    {
+      "word": "pace",
+      "start": 3.3,
+      "end": 3.7
+    },
+    {
+      "word": "Your",
+      "start": 4.28,
+      "end": 4.48
+    },
+    {
+      "word": "language",
+      "start": 4.48,
+      "end": 4.94
+    },
+    {
+      "word": "Let's",
+      "start": 5.72,
+      "end": 6.06
+    },
+    {
+      "word": "get",
+      "start": 6.06,
+      "end": 6.18
+    },
+    {
+      "word": "to",
+      "start": 6.18,
+      "end": 6.58
+    },
+    {
+      "word": "work",
+      "start": 6.58,
+      "end": 6.64
+    }
+  ]
+}

@@ -15,7 +15,7 @@ export interface SubtitleData {
 
 export function useVideoSubtitles(
   videoRef: React.RefObject<HTMLVideoElement | null> | undefined,
-  subtitlesUrl: string | undefined
+  subtitlesUrlOrData: string | SubtitleData | undefined
 ) {
   const [data, setData] = useState<SubtitleData | null>(null)
   const [visibleCount, setVisibleCount] = useState(0)
@@ -25,14 +25,24 @@ export function useVideoSubtitles(
   const animRef = useRef<number>(0)
   const prevTimeRef = useRef<number>(0)
 
-  // Load subtitle data
+  // Load subtitle data — reset state on change
   useEffect(() => {
-    if (!subtitlesUrl) return
-    fetch(subtitlesUrl)
+    setVisibleCount(0)
+    setSpeaking(false)
+    setEnergy(0)
+    setLoopCount(0)
+    prevTimeRef.current = 0
+    if (!subtitlesUrlOrData) { setData(null); return }
+    // If data object passed directly, use it
+    if (typeof subtitlesUrlOrData === 'object') {
+      setData(subtitlesUrlOrData)
+      return
+    }
+    fetch(subtitlesUrlOrData)
       .then(r => r.json())
       .then(setData)
       .catch(() => setData(null))
-  }, [subtitlesUrl])
+  }, [subtitlesUrlOrData])
 
   // Sync to video.currentTime
   const sync = useCallback(() => {

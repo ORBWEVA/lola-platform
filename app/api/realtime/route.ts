@@ -20,8 +20,11 @@ export async function POST(request: Request) {
     .single()
 
   if (!avatar) {
+    console.error('Avatar not found for id:', avatarId)
     return NextResponse.json({ error: 'Avatar not found' }, { status: 404 })
   }
+
+  console.log('[realtime] Avatar loaded:', { id: avatar.id, name: avatar.name, slug: avatar.slug, voice_id: avatar.voice_id })
 
   // Load user profile for coaching weights
   const { data: profile } = await supabase
@@ -91,6 +94,7 @@ export async function POST(request: Request) {
     avatarName: avatar.name,
     voiceId: avatar.voice_id || 'shimmer',
     sceneImages: avatar.scene_images || [],
+    anchorImage: avatar.anchor_image_url,
     domain: avatar.domain,
   })
 }

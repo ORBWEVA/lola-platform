@@ -8,9 +8,10 @@ interface Props {
   duration: number
   creditsUsed: number
   transcriptCount: number
+  userRole: string
 }
 
-export default function SessionSummary({ avatarName, avatarSlug, duration, creditsUsed, transcriptCount }: Props) {
+export default function SessionSummary({ avatarName, avatarSlug, duration, creditsUsed, transcriptCount, userRole }: Props) {
   const minutes = Math.floor(duration / 60)
   const seconds = duration % 60
 
@@ -51,10 +52,10 @@ export default function SessionSummary({ avatarName, avatarSlug, duration, credi
             Back to {avatarName}
           </Link>
           <Link
-            href="/dashboard"
+            href={userRole === 'creator' ? '/creator' : '/dashboard'}
             className="block w-full px-4 py-3 rounded-xl glass text-center font-medium hover:bg-white/10 transition-colors"
           >
-            Go to Dashboard
+            {userRole === 'creator' ? 'Creator Studio' : 'My Dashboard'}
           </Link>
         </div>
       </div>

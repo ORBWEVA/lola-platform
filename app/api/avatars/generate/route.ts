@@ -2,6 +2,42 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getScenesForDomain } from '@/lib/coaching/domains'
 
+const TOGETHER_URL = 'https://api.together.xyz/v1/images/generations'
+const KONTEXT_MODEL = 'black-forest-labs/FLUX.1-Kontext-pro'
+
+async function kontextGenerate(prompt: string, anchorUrl?: string): Promise<string | null> {
+  const apiKey = process.env.TOGETHER_API_KEY
+  if (!apiKey) throw new Error('TOGETHER_API_KEY not configured')
+
+  const body: Record<string, unknown> = {
+    model: KONTEXT_MODEL,
+    prompt,
+    n: 1,
+    width: 1024,
+    height: 1024,
+  }
+  if (anchorUrl) {
+    body.image_url = anchorUrl
+  }
+
+  const res = await fetch(TOGETHER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!res.ok) {
+    console.error('Together AI error:', res.status, await res.text().catch(() => ''))
+    return null
+  }
+
+  const data = await res.json()
+  return data.data?.[0]?.url || null
+}
+
 export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -11,64 +47,47 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const n8nBase = process.env.N8N_WEBHOOK_BASE
-
-  if (!n8nBase) {
-    return NextResponse.json({ error: 'n8n not configured' }, { status: 500 })
-  }
 
   try {
     if (body.generateScenes) {
-      // Use creator's custom scene prompts if provided, otherwise domain defaults
       const scenePrompts = body.customScenePrompts?.length > 0
         ? body.customScenePrompts
         : getScenesForDomain(body.domain)
 
-      const res = await fetch(`${n8nBase}/generate-avatar-scenes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          anchor_url: body.anchorUrl,
-          domain: body.domain,
-          avatar_name: body.name,
-          scene_prompts: scenePrompts.map((s: { label: string; prompt: string }) => ({
-            label: s.label,
-            prompt: s.prompt,
-          })),
+      // Generate all scenes in parallel via FLUX Kontext Pro
+      const results = await Promise.allSettled(
+        scenePrompts.map(async (s: { label: string; prompt: string }) => {
+          const fullPrompt = body.anchorUrl
+            ? `This is the SAME PERSON shown in the reference image — keep their exact face, skin tone, hair, and ethnicity unchanged. Only change their clothing and environment. New scene: ${s.prompt}`
+            : `${s.prompt}. Character name: ${body.name}`
+          const imageUrl = await kontextGenerate(fullPrompt, body.anchorUrl)
+          return { label: s.label, imageUrl }
         }),
-      })
+      )
 
-      if (!res.ok) {
-        const errText = await res.text().catch(() => 'Unknown error')
-        console.error('n8n scene generation error:', res.status, errText)
-        return NextResponse.json({ error: 'Scene generation failed' }, { status: 500 })
-      }
+      const scenes = results
+        .filter((r): r is PromiseFulfilledResult<{ label: string; imageUrl: string | null }> =>
+          r.status === 'fulfilled' && r.value.imageUrl !== null)
+        .map(r => r.value.imageUrl)
 
-      const data = await res.json()
-      return NextResponse.json({ scenes: data.scenes || [] })
+      return NextResponse.json({ scenes })
     }
 
     // Generate 4 anchor candidates
-    const res = await fetch(`${n8nBase}/generate-avatar`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        appearance_description: body.appearance,
-        domain: body.domain,
-        avatar_name: body.name,
-      }),
-    })
+    const appearance = body.appearance || 'Professional, approachable person'
+    const prompt = `Portrait photo of ${appearance}. High quality, professional headshot, neutral background, natural lighting. Character name: ${body.name}`
 
-    if (!res.ok) {
-      const errText = await res.text().catch(() => 'Unknown error')
-      console.error('n8n image generation error:', res.status, errText)
-      return NextResponse.json({ error: 'Image generation failed' }, { status: 500 })
-    }
+    const results = await Promise.allSettled(
+      Array.from({ length: 4 }, () => kontextGenerate(prompt)),
+    )
 
-    const data = await res.json()
-    return NextResponse.json({ candidates: data.candidates || [] })
+    const candidates = results
+      .filter((r): r is PromiseFulfilledResult<string | null> => r.status === 'fulfilled' && r.value !== null)
+      .map(r => r.value)
+
+    return NextResponse.json({ candidates })
   } catch (e) {
-    console.error('n8n request failed:', e)
+    console.error('Image generation failed:', e)
     return NextResponse.json(
       { error: 'Could not reach image generation service. Please try again.' },
       { status: 502 },

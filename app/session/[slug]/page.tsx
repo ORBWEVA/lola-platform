@@ -13,6 +13,14 @@ export default async function SessionPage({ params }: { params: Promise<{ slug: 
     redirect(`/login?next=/session/${slug}`)
   }
 
+  // Load user role
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+  const userRole = profile?.role || 'learner'
+
   // Load avatar by slug
   const { data: avatar } = await supabase
     .from('avatars')
@@ -41,7 +49,7 @@ export default async function SessionPage({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="monochrome">
-      <VoiceSession avatarId={avatar.id} avatarName={avatar.name} avatarSlug={avatar.slug} />
+      <VoiceSession avatarId={avatar.id} avatarName={avatar.name} avatarSlug={avatar.slug} userRole={userRole} />
     </div>
   )
 }

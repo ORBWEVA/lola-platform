@@ -17,10 +17,25 @@ export default function HeroWaveform({ videoRef, speaking, energy }: Props) {
   // Keep energy in a ref so the draw loop always has the latest value
   energyRef.current = energy
 
+  // Ensure video muted state stays in sync (handles carousel swaps)
+  useEffect(() => {
+    const check = () => {
+      const video = videoRef?.current
+      if (video && video.muted !== muted) {
+        video.muted = muted
+      }
+    }
+    check()
+    // Re-check shortly after render to catch new video elements
+    const t = setTimeout(check, 100)
+    return () => clearTimeout(t)
+  })
+
   const toggleMute = () => {
+    const next = !muted
+    setMuted(next)
     if (videoRef?.current) {
-      videoRef.current.muted = !videoRef.current.muted
-      setMuted(videoRef.current.muted)
+      videoRef.current.muted = next
     }
   }
 

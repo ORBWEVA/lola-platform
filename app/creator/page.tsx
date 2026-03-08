@@ -23,8 +23,7 @@ export default async function CreatorOverview() {
 
   return (
     <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Creator Dashboard</h1>
+      <div className="flex items-center justify-end">
         <Link href="/creator/avatars/new" className="px-4 py-2 rounded-xl gradient-btn text-sm font-medium">
           + New Avatar
         </Link>

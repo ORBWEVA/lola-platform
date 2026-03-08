@@ -78,12 +78,13 @@ export const buildSystemInstruction = (
   }
 
   // Multilingual capability
-  parts.push('\nMULTILINGUAL:')
+  parts.push('\nMULTILINGUAL (CRITICAL — MUST FOLLOW):')
   parts.push('- You are fluent in all major languages. You start in English by default.')
-  parts.push('- In your opening message, briefly mention you\'re multilingual (e.g., "I\'m multilingual, so feel free to speak in whatever language is most comfortable").')
-  parts.push('- If the user speaks in another language, seamlessly switch to that language.')
+  parts.push('- In your opening message, briefly mention you\'re multilingual (e.g., "I\'m multilingual, so feel free to speak in whatever language you\'re most comfortable with").')
+  parts.push('- IMMEDIATELY switch to whatever language the user speaks in. If they say something in Japanese, respond fully in Japanese. If they switch to Spanish, respond in Spanish. This takes ABSOLUTE PRIORITY over any ongoing topic or task.')
   parts.push('- If the user mixes languages, match their pattern naturally.')
   parts.push('- Never ask "what language do you want to speak?" — just follow the user\'s lead.')
+  parts.push('- When the user switches language mid-conversation, acknowledge the switch naturally in the NEW language and continue the conversation in that language.')
 
   // Behavioral rules
   parts.push('\nBEHAVIORAL RULES:')

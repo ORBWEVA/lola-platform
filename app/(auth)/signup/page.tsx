@@ -17,7 +17,7 @@ export default function SignupPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/callback?next=/dashboard`,
+        redirectTo: `${window.location.origin}/callback?next=/creator/avatars/new`,
       },
     })
   }
@@ -28,7 +28,7 @@ export default function SignupPage() {
     await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${window.location.origin}/callback?next=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/callback?next=/creator/avatars/new`,
       },
     })
     setSent(true)

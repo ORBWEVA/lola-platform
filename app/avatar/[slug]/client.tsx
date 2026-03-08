@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
+import { useState, useEffect, useCallback } from 'react'
 import { getDomainPreset } from '@/lib/coaching/domains'
 
 interface Avatar {
@@ -36,160 +36,225 @@ interface Props {
 export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Props) {
   const preset = getDomainPreset(avatar.domain)
   const sessionUrl = isLoggedIn ? `/session/${avatar.slug}` : `/login?next=/session/${avatar.slug}`
+  const [panelOpen, setPanelOpen] = useState(false)
+
+  const close = useCallback(() => setPanelOpen(false), [])
+
+  useEffect(() => {
+    if (!panelOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [panelOpen, close])
+
+  // Filter out internal keys from social links display
+  const displaySocialLinks = avatar.social_links
+    ? Object.entries(avatar.social_links).filter(([key]) => !key.includes('api_key') && !key.includes('voice_id'))
+    : []
 
   return (
-    <div className="min-h-screen pb-20 noise monochrome">
-      <div className="mesh-bg" />
+    <div className="fixed inset-0 monochrome">
+      {/* Full-screen anchor image */}
+      {avatar.anchor_image_url ? (
+        <img
+          src={avatar.anchor_image_url}
+          alt={avatar.name}
+          className="absolute inset-0 w-full h-full object-cover object-top"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 to-emerald-900" />
+      )}
 
-      {/* Hero */}
-      <div className="relative h-[55vh] min-h-[360px]">
-        {avatar.anchor_image_url ? (
-          <Image
-            src={avatar.anchor_image_url}
-            alt={avatar.name}
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-emerald-900" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-black/20" />
+      {/* Gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
-        {/* Back nav */}
+      {/* Top bar */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between p-4"
+        style={{ paddingTop: 'max(1rem, env(safe-area-inset-top))' }}
+      >
         <Link
           href="/"
-          className="absolute top-4 left-4 z-20 flex items-center gap-2 px-3 py-2 rounded-xl glass-strong text-sm text-white/80 hover:text-white transition-colors"
+          className="text-xl font-bold text-white/90"
+          style={{ fontFamily: 'var(--font-exo2)', fontWeight: 700 }}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-          </svg>
-          Browse
+          LoLA
         </Link>
 
-        <div className="absolute bottom-8 left-6 right-6 z-10">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-xs px-2.5 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-medium backdrop-blur-sm border border-indigo-500/20">
-              {preset.label}
-            </span>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-white/10 text-white/70 font-medium backdrop-blur-sm border border-white/10">
-              Multilingual
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-bold">{avatar.name}</h1>
-          <p className="text-muted text-lg mt-2">{avatar.tagline || preset.label}</p>
-        </div>
+        {/* Open panel button */}
+        <button
+          onClick={() => setPanelOpen(true)}
+          className="p-2 rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:text-white transition-colors"
+          aria-label="View details"
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6" />
+            <line x1="4" y1="12" x2="20" y2="12" />
+            <line x1="4" y1="18" x2="20" y2="18" />
+          </svg>
+        </button>
       </div>
 
-      <div className="relative z-10 px-6 -mt-2 space-y-8 max-w-2xl mx-auto">
-        {/* Social proof */}
-        <div className="flex items-center gap-5 text-sm text-muted">
-          <div className="flex items-center gap-1.5">
-            <span className="text-amber-400 text-base">{'★'.repeat(Math.round(avatar.rating))}</span>
-            <span className="font-medium text-foreground">{avatar.rating}</span>
-          </div>
-          <div className="w-px h-4 bg-glass-border" />
-          <span className="font-medium text-foreground">{avatar.session_count}</span>
-          <span className="-ml-4">sessions</span>
-        </div>
+      {/* Bottom overlay: name + tagline + mic CTA */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-6 pb-8"
+        style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom))' }}
+      >
+        <h1 className="text-4xl md:text-5xl font-bold text-white">{avatar.name}</h1>
+        <p className="text-white/60 text-lg mt-1 max-w-md">{avatar.tagline || preset.label}</p>
 
-        {/* CTA */}
-        <Link
-          href={sessionUrl}
-          className="block w-full py-4 rounded-2xl gradient-btn-lg text-center text-lg font-semibold pulse-glow"
-        >
-          <span className="flex items-center justify-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+        {/* Mic CTA — just the icon */}
+        <div className="mt-6">
+          <Link
+            href={sessionUrl}
+            className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all hover:scale-110 group"
+            aria-label={`Talk to ${avatar.name}`}
+          >
+            <svg className="w-7 h-7 text-white group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
             </svg>
-            Talk to {avatar.name}
-          </span>
-        </Link>
-        <p className="text-center text-xs text-muted -mt-5">Free — no credit card needed</p>
-
-        {/* Scene gallery */}
-        {avatar.scene_images?.length > 0 && (
-          <div>
-            <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider">Gallery</h3>
-            <div className="flex gap-3 overflow-x-auto pb-3 -mx-6 px-6 scrollbar-none">
-              {avatar.scene_images.map((img, i) => (
-                <div key={i} className="flex-shrink-0 w-36 h-36 rounded-xl overflow-hidden ring-1 ring-white/10 hover:ring-indigo-500/30 transition-all hover:scale-105 duration-300">
-                  <Image
-                    src={img}
-                    alt={`${avatar.name} scene ${i + 1}`}
-                    width={144}
-                    height={144}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Products */}
-        {products.length > 0 && (
-          <div>
-            <h3 className="text-sm font-medium text-muted mb-4 uppercase tracking-wider">Products</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {products.map(product => (
-                <a
-                  key={product.id}
-                  href={product.checkout_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="glow-card rounded-2xl p-4"
-                >
-                  {product.image_url && (
-                    <Image
-                      src={product.image_url}
-                      alt={product.name}
-                      width={200}
-                      height={120}
-                      className="w-full h-24 object-cover rounded-xl mb-3"
-                    />
-                  )}
-                  <p className="font-medium text-sm">{product.name}</p>
-                  {product.description && (
-                    <p className="text-xs text-muted mt-1 line-clamp-2">{product.description}</p>
-                  )}
-                  {product.price && (
-                    <p className="text-emerald-400 font-semibold text-sm mt-2">
-                      {product.currency === 'USD' ? '$' : product.currency}{product.price}
-                    </p>
-                  )}
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Social links */}
-        {avatar.social_links && Object.keys(avatar.social_links).length > 0 && (
-          <div className="flex justify-center gap-3">
-            {Object.entries(avatar.social_links).map(([platform, url]) => (
-              url && (
-                <a
-                  key={platform}
-                  href={url as string}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full glass-strong flex items-center justify-center hover:bg-white/10 transition-all hover:scale-110 text-sm uppercase text-muted hover:text-foreground"
-                >
-                  {platform.slice(0, 2)}
-                </a>
-              )
-            ))}
-          </div>
-        )}
-
-        {/* Footer */}
-        <div className="text-center pt-6 pb-8 border-t border-glass-border">
-          <Link href="/" className="text-sm text-muted hover:text-indigo-400 transition-colors">
-            Powered by <span className="gradient-text font-semibold">LoLA</span> — Create your own
           </Link>
         </div>
       </div>
+
+      {/* Slide panel backdrop */}
+      {panelOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+          onClick={close}
+        />
+      )}
+
+      {/* Slide panel */}
+      <div
+        className={`fixed top-0 right-0 z-50 h-full w-80 max-w-[85vw] backdrop-blur-xl border-l border-white/[0.08] transition-transform duration-300 ease-out flex flex-col overflow-y-auto ${
+          panelOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        style={{ background: 'rgba(10, 10, 26, 0.95)' }}
+      >
+        {/* Close */}
+        <div className="flex items-center justify-end p-4">
+          <button
+            onClick={close}
+            className="p-2 text-white/50 hover:text-white transition-colors"
+            aria-label="Close panel"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="px-6 pb-8 space-y-8">
+          {/* Avatar info */}
+          <div>
+            <h2 className="text-2xl font-bold text-white">{avatar.name}</h2>
+            <p className="text-white/50 text-sm mt-1">{avatar.tagline}</p>
+            <div className="flex items-center gap-4 mt-3 text-sm text-white/50">
+              <div className="flex items-center gap-1">
+                <span className="text-amber-400">{'★'.repeat(Math.round(avatar.rating))}</span>
+                <span className="text-white/70">{avatar.rating}</span>
+              </div>
+              <span>{avatar.session_count} sessions</span>
+            </div>
+          </div>
+
+          {/* Talk CTA */}
+          <Link
+            href={sessionUrl}
+            onClick={close}
+            className="block w-full py-4 rounded-xl gradient-btn text-center text-lg font-semibold"
+          >
+            Talk to {avatar.name}
+          </Link>
+
+          {/* Gallery — only show images that are valid URLs (not expired API URLs) */}
+          {avatar.scene_images?.filter(img => img.startsWith('http') && !img.includes('api.together')).length > 0 && (
+            <div>
+              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">Gallery</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {avatar.scene_images.filter(img => img.startsWith('http') && !img.includes('api.together')).map((img, i) => (
+                  <div key={i} className="rounded-lg overflow-hidden ring-1 ring-white/10">
+                    <img
+                      src={img}
+                      alt={`${avatar.name} scene ${i + 1}`}
+                      className="w-full aspect-square object-cover"
+                      loading="lazy"
+                      width={400}
+                      height={400}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Products */}
+          {products.length > 0 && (
+            <div>
+              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">Products</h3>
+              <div className="space-y-2">
+                {products.map(product => (
+                  <a
+                    key={product.id}
+                    href={product.checkout_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block rounded-xl p-3 bg-white/5 hover:bg-white/10 transition-colors border border-white/[0.08]"
+                  >
+                    <p className="font-medium text-sm text-white">{product.name}</p>
+                    {product.description && (
+                      <p className="text-xs text-white/40 mt-1 line-clamp-2">{product.description}</p>
+                    )}
+                    {product.price && (
+                      <p className="text-emerald-400 font-semibold text-sm mt-1">
+                        {product.currency === 'USD' ? '$' : product.currency}{product.price}
+                      </p>
+                    )}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Social links */}
+          {displaySocialLinks.length > 0 && (
+            <div>
+              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">Connect</h3>
+              <div className="flex gap-2">
+                {displaySocialLinks.map(([platform, url]) => (
+                  url && (
+                    <a
+                      key={platform}
+                      href={String(url).startsWith('http') ? String(url) : `https://instagram.com/${String(url).replace(/^@/, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full bg-white/5 border border-white/[0.08] flex items-center justify-center hover:bg-white/10 transition-colors text-xs uppercase text-white/50 hover:text-white"
+                    >
+                      {platform.slice(0, 2)}
+                    </a>
+                  )
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Footer */}
+          <div className="pt-4 border-t border-white/[0.08]">
+            <Link href="/" className="text-xs text-white/30 hover:text-white/60 transition-colors">
+              Powered by <span className="font-semibold">LoLA</span> — Create your own
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(20px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+      `}</style>
     </div>
   )
 }
