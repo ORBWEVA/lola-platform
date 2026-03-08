@@ -120,7 +120,7 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
   const [transitioning, setTransitioning] = useState(false)
   const avatar = avatars[activeIndex]
 
-  // Preload all subtitle data + videos at mount so switches are instant
+  // Preload all subtitle data at mount so switches are instant
   const [preloaded, setPreloaded] = useState<Record<string, SubtitleData>>({})
   useEffect(() => {
     avatars.forEach(a => {
@@ -128,12 +128,6 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
         .then(r => r.json())
         .then((d: SubtitleData) => setPreloaded(prev => ({ ...prev, [a.subtitlesUrl]: d })))
         .catch(() => {})
-      // Preload video into browser cache
-      const link = document.createElement('link')
-      link.rel = 'preload'
-      link.as = 'video'
-      link.href = a.src
-      document.head.appendChild(link)
     })
   }, [])
 
