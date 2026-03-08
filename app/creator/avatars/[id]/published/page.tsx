@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import PublishedActions from './actions'
+import { validImageUrl, filterExpiredUrls } from '@/lib/utils/images'
 
 interface Props {
   params: Promise<{ id: string }>
@@ -39,9 +40,13 @@ export default async function PublishedPage({ params }: Props) {
       </div>
 
       {/* Avatar preview */}
-      {avatar.anchor_image_url && (
+      {validImageUrl(avatar.anchor_image_url) ? (
         <div className="w-32 h-32 rounded-2xl overflow-hidden mx-auto">
-          <img src={avatar.anchor_image_url} alt={avatar.name} className="w-full h-full object-cover" />
+          <img src={validImageUrl(avatar.anchor_image_url)!} alt={avatar.name} className="w-full h-full object-cover" />
+        </div>
+      ) : (
+        <div className="w-32 h-32 rounded-2xl bg-gradient-to-br from-indigo-900 to-emerald-900 flex items-center justify-center mx-auto">
+          <span className="text-4xl font-bold text-white/30">{avatar.name?.charAt(0)}</span>
         </div>
       )}
 
@@ -50,8 +55,8 @@ export default async function PublishedPage({ params }: Props) {
         profileUrl={profileUrl}
         sessionUrl={sessionUrl}
         caption={avatar.social_caption || avatar.tagline || ''}
-        anchorImageUrl={avatar.anchor_image_url}
-        sceneImages={avatar.scene_images || []}
+        anchorImageUrl={validImageUrl(avatar.anchor_image_url)}
+        sceneImages={filterExpiredUrls(avatar.scene_images || [])}
         avatarName={avatar.name}
         instagramHandle={avatar.social_links?.instagram || null}
       />

@@ -5,6 +5,7 @@ import { DOMAIN_PRESETS } from '@/lib/coaching/domains'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { validImageUrl, filterExpiredUrls } from '@/lib/utils/images'
 
 interface AvatarData {
   id: string
@@ -18,6 +19,7 @@ interface AvatarData {
   scene_images: string[] | null
   voice_id: string
   is_published: boolean
+  social_links: Record<string, string> | null
 }
 
 export default function EditAvatarPage() {
@@ -28,6 +30,7 @@ export default function EditAvatarPage() {
   const [avatar, setAvatar] = useState<AvatarData | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
@@ -37,6 +40,7 @@ export default function EditAvatarPage() {
   const [personality, setPersonality] = useState('')
   const [domain, setDomain] = useState('')
   const [isPublished, setIsPublished] = useState(false)
+  const [instagram, setInstagram] = useState('')
 
   useEffect(() => {
     const load = async () => {
@@ -62,6 +66,7 @@ export default function EditAvatarPage() {
       setPersonality(data.personality_traits || '')
       setDomain(data.domain || 'custom')
       setIsPublished(data.is_published)
+      setInstagram(data.social_links?.instagram || '')
       setLoading(false)
     }
     load()
@@ -84,6 +89,7 @@ export default function EditAvatarPage() {
         personality_traits: personality,
         domain,
         is_published: isPublished,
+        social_links: instagram.trim() ? { instagram: instagram.trim() } : null,
       })
       .eq('id', avatar.id)
 
@@ -91,9 +97,74 @@ export default function EditAvatarPage() {
       setErrorMsg(error.message)
     } else {
       setSuccessMsg('Avatar updated.')
-      setAvatar(prev => prev ? { ...prev, name, slug, tagline, personality_traits: personality, domain, is_published: isPublished } : prev)
+      setAvatar(prev => prev ? { ...prev, name, slug, tagline, personality_traits: personality, domain, is_published: isPublished, social_links: instagram.trim() ? { instagram: instagram.trim() } : null } : prev)
     }
     setSaving(false)
+  }
+
+  const hasExpiredImages = avatar && (
+    (avatar.anchor_image_url && !validImageUrl(avatar.anchor_image_url)) ||
+    (avatar.scene_images && avatar.scene_images.length > 0 && filterExpiredUrls(avatar.scene_images).length === 0)
+  )
+
+  const regenerateImages = async () => {
+    if (!avatar) return
+    setRegenerating(true)
+    setErrorMsg(null)
+    setSuccessMsg(null)
+
+    try {
+      // Regenerate anchor
+      const anchorRes = await fetch('/api/avatars/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          appearance: avatar.appearance_description || `Professional, approachable person named ${avatar.name}`,
+          domain: avatar.domain,
+          name: avatar.name,
+        }),
+      })
+      const anchorData = await anchorRes.json()
+      if (!anchorRes.ok || !anchorData.candidates?.length) {
+        setErrorMsg(anchorData.error || 'Anchor image generation failed.')
+        setRegenerating(false)
+        return
+      }
+
+      const newAnchor = anchorData.candidates[0]
+
+      // Regenerate scenes using the new anchor
+      const sceneRes = await fetch('/api/avatars/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          anchorUrl: newAnchor,
+          domain: avatar.domain,
+          name: avatar.name,
+          generateScenes: true,
+        }),
+      })
+      const sceneData = await sceneRes.json()
+
+      // Update the avatar in DB
+      const { error } = await supabase
+        .from('avatars')
+        .update({
+          anchor_image_url: newAnchor,
+          scene_images: sceneData.scenes || [],
+        })
+        .eq('id', avatar.id)
+
+      if (error) {
+        setErrorMsg(error.message)
+      } else {
+        setAvatar(prev => prev ? { ...prev, anchor_image_url: newAnchor, scene_images: sceneData.scenes || [] } : prev)
+        setSuccessMsg('Images regenerated and saved.')
+      }
+    } catch {
+      setErrorMsg('Image regeneration failed — check your connection.')
+    }
+    setRegenerating(false)
   }
 
   if (loading) {
@@ -127,10 +198,25 @@ export default function EditAvatarPage() {
       </div>
 
       {/* Anchor image preview */}
-      {avatar.anchor_image_url && (
+      {validImageUrl(avatar.anchor_image_url) ? (
         <div className="w-24 h-24 rounded-xl overflow-hidden relative">
-          <Image src={avatar.anchor_image_url} alt={avatar.name} fill className="object-cover" />
+          <Image src={validImageUrl(avatar.anchor_image_url)!} alt={avatar.name} fill className="object-cover" />
         </div>
+      ) : (
+        <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-indigo-900 to-emerald-900 flex items-center justify-center">
+          <span className="text-2xl font-bold text-white/30">{avatar.name?.charAt(0)}</span>
+        </div>
+      )}
+
+      {/* Regenerate button for expired images */}
+      {hasExpiredImages && (
+        <button
+          onClick={regenerateImages}
+          disabled={regenerating}
+          className="w-full py-3 rounded-xl border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/10 transition-colors disabled:opacity-50"
+        >
+          {regenerating ? 'Regenerating images...' : 'Regenerate Expired Images'}
+        </button>
       )}
 
       {/* Error / success messages */}
@@ -202,19 +288,39 @@ export default function EditAvatarPage() {
           <span className="text-sm">{isPublished ? 'Published' : 'Draft'}</span>
         </div>
 
-        {/* Scene images preview */}
-        {avatar.scene_images && avatar.scene_images.length > 0 && (
-          <div>
-            <label className="text-xs font-medium text-muted block mb-2">Scene Images</label>
-            <div className="grid grid-cols-3 gap-2">
-              {avatar.scene_images.map((url, i) => (
-                <div key={i} className="rounded-xl overflow-hidden relative aspect-square">
-                  <Image src={url} alt={`Scene ${i + 1}`} fill className="object-cover" />
-                </div>
-              ))}
-            </div>
+        <div>
+          <label className="text-xs font-medium text-muted block mb-1">Instagram Handle</label>
+          <div className="relative">
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted text-sm">@</span>
+            <input
+              value={instagram}
+              onChange={e => setInstagram(e.target.value.replace(/^@/, ''))}
+              placeholder="yourhandle"
+              className="w-full pl-8 pr-4 py-3 rounded-xl bg-card border border-glass-border focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+            />
           </div>
-        )}
+        </div>
+
+        {/* Scene images preview */}
+        {(() => {
+          const validScenes = filterExpiredUrls(avatar.scene_images || [])
+          return validScenes.length > 0 ? (
+            <div>
+              <label className="text-xs font-medium text-muted block mb-2">Scene Images</label>
+              <div className="grid grid-cols-3 gap-2">
+                {validScenes.map((url, i) => (
+                  <div key={i} className="rounded-xl overflow-hidden relative aspect-square">
+                    <Image src={url} alt={`Scene ${i + 1}`} fill className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : avatar.scene_images && avatar.scene_images.length > 0 ? (
+            <div className="glass no-trace rounded-xl p-3">
+              <p className="text-xs text-amber-300">Scene images have expired. Regenerate them from the avatar creation flow.</p>
+            </div>
+          ) : null
+        })()}
 
         <div className="flex gap-3 pt-2">
           <button

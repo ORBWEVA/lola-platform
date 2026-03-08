@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
+import { validImageUrl } from '@/lib/utils/images'
 
 export default async function AvatarsListPage() {
   const supabase = await createClient()
@@ -32,13 +33,17 @@ export default async function AvatarsListPage() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
-          {avatars.map(avatar => (
+          {avatars.map(avatar => {
+            const anchorUrl = validImageUrl(avatar.anchor_image_url)
+            return (
             <div key={avatar.id} className="glass rounded-2xl overflow-hidden">
               <div className="h-32 relative">
-                {avatar.anchor_image_url ? (
-                  <Image src={avatar.anchor_image_url} alt={avatar.name} fill className="object-cover" />
+                {anchorUrl ? (
+                  <Image src={anchorUrl} alt={avatar.name} fill className="object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-emerald-900" />
+                  <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-emerald-900 flex items-center justify-center">
+                    <span className="text-3xl font-bold text-white/30">{avatar.name?.charAt(0)}</span>
+                  </div>
                 )}
                 <div className="absolute top-2 right-2">
                   <span className={`text-xs px-2 py-1 rounded-full ${avatar.is_published ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-gray-400'}`}>
@@ -62,7 +67,8 @@ export default async function AvatarsListPage() {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
