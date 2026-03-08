@@ -1,0 +1,762 @@
+{
+  "duration": 32.792,
+  "words": [
+    {
+      "word": "I'm",
+      "start": 0.0,
+      "end": 0.7
+    },
+    {
+      "word": "Emma",
+      "start": 0.7,
+      "end": 0.88
+    },
+    {
+      "word": "strategy",
+      "start": 1.54,
+      "end": 1.82
+    },
+    {
+      "word": "growth",
+      "start": 2.64,
+      "end": 2.64
+    },
+    {
+      "word": "straight",
+      "start": 3.12,
+      "end": 3.36
+    },
+    {
+      "word": "talk",
+      "start": 3.36,
+      "end": 3.72
+    },
+    {
+      "word": "in",
+      "start": 3.72,
+      "end": 4.06
+    },
+    {
+      "word": "whatever",
+      "start": 4.06,
+      "end": 4.54
+    },
+    {
+      "word": "language",
+      "start": 4.54,
+      "end": 5.0
+    },
+    {
+      "word": "you",
+      "start": 5.0,
+      "end": 5.3
+    },
+    {
+      "word": "think",
+      "start": 5.3,
+      "end": 5.54
+    },
+    {
+      "word": "in",
+      "start": 5.54,
+      "end": 6.12
+    },
+    {
+      "word": "Let's",
+      "start": 6.44,
+      "end": 6.62
+    },
+    {
+      "word": "go",
+      "start": 6.62,
+      "end": 6.8
+    },
+    {
+      "word": "I'm",
+      "start": 6.139,
+      "end": 6.659
+    },
+    {
+      "word": "Sakura",
+      "start": 6.659,
+      "end": 7.059
+    },
+    {
+      "word": "Whether",
+      "start": 7.419,
+      "end": 7.619
+    },
+    {
+      "word": "it's",
+      "start": 7.619,
+      "end": 7.959
+    },
+    {
+      "word": "Japanese",
+      "start": 7.959,
+      "end": 8.359
+    },
+    {
+      "word": "or",
+      "start": 8.359,
+      "end": 8.759
+    },
+    {
+      "word": "any",
+      "start": 8.759,
+      "end": 9.119
+    },
+    {
+      "word": "language",
+      "start": 9.119,
+      "end": 9.599
+    },
+    {
+      "word": "I'll",
+      "start": 9.919,
+      "end": 10.159
+    },
+    {
+      "word": "meet",
+      "start": 10.159,
+      "end": 10.339
+    },
+    {
+      "word": "you",
+      "start": 10.339,
+      "end": 10.559
+    },
+    {
+      "word": "where",
+      "start": 10.559,
+      "end": 10.779
+    },
+    {
+      "word": "you",
+      "start": 10.779,
+      "end": 11.039
+    },
+    {
+      "word": "are",
+      "start": 11.039,
+      "end": 11.279
+    },
+    {
+      "word": "Let's",
+      "start": 11.939,
+      "end": 12.259
+    },
+    {
+      "word": "begin",
+      "start": 12.259,
+      "end": 12.519
+    },
+    {
+      "word": "I'm",
+      "start": 12.444,
+      "end": 13.144
+    },
+    {
+      "word": "Marcus",
+      "start": 13.144,
+      "end": 13.544
+    },
+    {
+      "word": "Your",
+      "start": 14.124,
+      "end": 14.344
+    },
+    {
+      "word": "goals",
+      "start": 14.344,
+      "end": 14.764
+    },
+    {
+      "word": "Your",
+      "start": 15.464,
+      "end": 15.744
+    },
+    {
+      "word": "pace",
+      "start": 15.744,
+      "end": 16.144
+    },
+    {
+      "word": "Your",
+      "start": 16.724,
+      "end": 16.924
+    },
+    {
+      "word": "language",
+      "start": 16.924,
+      "end": 17.384
+    },
+    {
+      "word": "Let's",
+      "start": 18.164,
+      "end": 18.504
+    },
+    {
+      "word": "get",
+      "start": 18.504,
+      "end": 18.624
+    },
+    {
+      "word": "to",
+      "start": 18.624,
+      "end": 19.024
+    },
+    {
+      "word": "work",
+      "start": 19.024,
+      "end": 19.084
+    },
+    {
+      "word": "I'm",
+      "start": 18.944,
+      "end": 19.864
+    },
+    {
+      "word": "Alex",
+      "start": 19.864,
+      "end": 20.304
+    },
+    {
+      "word": "I",
+      "start": 20.804,
+      "end": 20.964
+    },
+    {
+      "word": "help",
+      "start": 20.964,
+      "end": 21.124
+    },
+    {
+      "word": "you",
+      "start": 21.124,
+      "end": 21.424
+    },
+    {
+      "word": "find",
+      "start": 21.424,
+      "end": 21.544
+    },
+    {
+      "word": "exactly",
+      "start": 21.544,
+      "end": 22.224
+    },
+    {
+      "word": "what",
+      "start": 22.224,
+      "end": 22.424
+    },
+    {
+      "word": "you",
+      "start": 22.424,
+      "end": 22.704
+    },
+    {
+      "word": "need",
+      "start": 22.704,
+      "end": 22.904
+    },
+    {
+      "word": "in",
+      "start": 22.904,
+      "end": 23.544
+    },
+    {
+      "word": "any",
+      "start": 23.544,
+      "end": 24.004
+    },
+    {
+      "word": "language",
+      "start": 24.004,
+      "end": 24.424
+    },
+    {
+      "word": "Let's",
+      "start": 25.224,
+      "end": 25.464
+    },
+    {
+      "word": "figure",
+      "start": 25.464,
+      "end": 25.604
+    },
+    {
+      "word": "it",
+      "start": 25.604,
+      "end": 25.784
+    },
+    {
+      "word": "out",
+      "start": 25.784,
+      "end": 25.924
+    },
+    {
+      "word": "I'm",
+      "start": 24.999,
+      "end": 25.779
+    },
+    {
+      "word": "Sara.",
+      "start": 25.779,
+      "end": 26.099
+    },
+    {
+      "word": "Pick",
+      "start": 26.719,
+      "end": 26.719
+    },
+    {
+      "word": "a",
+      "start": 26.719,
+      "end": 27.379
+    },
+    {
+      "word": "language,",
+      "start": 27.379,
+      "end": 27.379
+    },
+    {
+      "word": "any",
+      "start": 27.779,
+      "end": 28.019
+    },
+    {
+      "word": "language",
+      "start": 28.019,
+      "end": 28.379
+    },
+    {
+      "word": "\u2014",
+      "start": 28.379,
+      "end": 28.439
+    },
+    {
+      "word": "I'll",
+      "start": 28.439,
+      "end": 28.719
+    },
+    {
+      "word": "keep",
+      "start": 28.719,
+      "end": 28.899
+    },
+    {
+      "word": "up.",
+      "start": 28.899,
+      "end": 29.219
+    },
+    {
+      "word": "Let's",
+      "start": 29.899,
+      "end": 30.159
+    },
+    {
+      "word": "talk.",
+      "start": 30.159,
+      "end": 30.459
+    }
+  ],
+  "segments": [
+    {
+      "name": "emma-lindgren",
+      "start": 0.0,
+      "end": 6.139,
+      "words": [
+        {
+          "word": "I'm",
+          "start": 0.0,
+          "end": 0.7
+        },
+        {
+          "word": "Emma",
+          "start": 0.7,
+          "end": 0.88
+        },
+        {
+          "word": "strategy",
+          "start": 1.54,
+          "end": 1.82
+        },
+        {
+          "word": "growth",
+          "start": 2.64,
+          "end": 2.64
+        },
+        {
+          "word": "straight",
+          "start": 3.12,
+          "end": 3.36
+        },
+        {
+          "word": "talk",
+          "start": 3.36,
+          "end": 3.72
+        },
+        {
+          "word": "in",
+          "start": 3.72,
+          "end": 4.06
+        },
+        {
+          "word": "whatever",
+          "start": 4.06,
+          "end": 4.54
+        },
+        {
+          "word": "language",
+          "start": 4.54,
+          "end": 5.0
+        },
+        {
+          "word": "you",
+          "start": 5.0,
+          "end": 5.3
+        },
+        {
+          "word": "think",
+          "start": 5.3,
+          "end": 5.54
+        },
+        {
+          "word": "in",
+          "start": 5.54,
+          "end": 6.12
+        },
+        {
+          "word": "Let's",
+          "start": 6.44,
+          "end": 6.62
+        },
+        {
+          "word": "go",
+          "start": 6.62,
+          "end": 6.8
+        }
+      ]
+    },
+    {
+      "name": "sakura-sensei",
+      "start": 6.139,
+      "end": 12.444,
+      "words": [
+        {
+          "word": "I'm",
+          "start": 6.139,
+          "end": 6.659
+        },
+        {
+          "word": "Sakura",
+          "start": 6.659,
+          "end": 7.059
+        },
+        {
+          "word": "Whether",
+          "start": 7.419,
+          "end": 7.619
+        },
+        {
+          "word": "it's",
+          "start": 7.619,
+          "end": 7.959
+        },
+        {
+          "word": "Japanese",
+          "start": 7.959,
+          "end": 8.359
+        },
+        {
+          "word": "or",
+          "start": 8.359,
+          "end": 8.759
+        },
+        {
+          "word": "any",
+          "start": 8.759,
+          "end": 9.119
+        },
+        {
+          "word": "language",
+          "start": 9.119,
+          "end": 9.599
+        },
+        {
+          "word": "I'll",
+          "start": 9.919,
+          "end": 10.159
+        },
+        {
+          "word": "meet",
+          "start": 10.159,
+          "end": 10.339
+        },
+        {
+          "word": "you",
+          "start": 10.339,
+          "end": 10.559
+        },
+        {
+          "word": "where",
+          "start": 10.559,
+          "end": 10.779
+        },
+        {
+          "word": "you",
+          "start": 10.779,
+          "end": 11.039
+        },
+        {
+          "word": "are",
+          "start": 11.039,
+          "end": 11.279
+        },
+        {
+          "word": "Let's",
+          "start": 11.939,
+          "end": 12.259
+        },
+        {
+          "word": "begin",
+          "start": 12.259,
+          "end": 12.519
+        }
+      ]
+    },
+    {
+      "name": "coach-marcus",
+      "start": 12.444,
+      "end": 18.944,
+      "words": [
+        {
+          "word": "I'm",
+          "start": 12.444,
+          "end": 13.144
+        },
+        {
+          "word": "Marcus",
+          "start": 13.144,
+          "end": 13.544
+        },
+        {
+          "word": "Your",
+          "start": 14.124,
+          "end": 14.344
+        },
+        {
+          "word": "goals",
+          "start": 14.344,
+          "end": 14.764
+        },
+        {
+          "word": "Your",
+          "start": 15.464,
+          "end": 15.744
+        },
+        {
+          "word": "pace",
+          "start": 15.744,
+          "end": 16.144
+        },
+        {
+          "word": "Your",
+          "start": 16.724,
+          "end": 16.924
+        },
+        {
+          "word": "language",
+          "start": 16.924,
+          "end": 17.384
+        },
+        {
+          "word": "Let's",
+          "start": 18.164,
+          "end": 18.504
+        },
+        {
+          "word": "get",
+          "start": 18.504,
+          "end": 18.624
+        },
+        {
+          "word": "to",
+          "start": 18.624,
+          "end": 19.024
+        },
+        {
+          "word": "work",
+          "start": 19.024,
+          "end": 19.084
+        }
+      ]
+    },
+    {
+      "name": "alex-rivera",
+      "start": 18.944,
+      "end": 25.003,
+      "words": [
+        {
+          "word": "I'm",
+          "start": 18.944,
+          "end": 19.864
+        },
+        {
+          "word": "Alex",
+          "start": 19.864,
+          "end": 20.304
+        },
+        {
+          "word": "I",
+          "start": 20.804,
+          "end": 20.964
+        },
+        {
+          "word": "help",
+          "start": 20.964,
+          "end": 21.124
+        },
+        {
+          "word": "you",
+          "start": 21.124,
+          "end": 21.424
+        },
+        {
+          "word": "find",
+          "start": 21.424,
+          "end": 21.544
+        },
+        {
+          "word": "exactly",
+          "start": 21.544,
+          "end": 22.224
+        },
+        {
+          "word": "what",
+          "start": 22.224,
+          "end": 22.424
+        },
+        {
+          "word": "you",
+          "start": 22.424,
+          "end": 22.704
+        },
+        {
+          "word": "need",
+          "start": 22.704,
+          "end": 22.904
+        },
+        {
+          "word": "in",
+          "start": 22.904,
+          "end": 23.544
+        },
+        {
+          "word": "any",
+          "start": 23.544,
+          "end": 24.004
+        },
+        {
+          "word": "language",
+          "start": 24.004,
+          "end": 24.424
+        },
+        {
+          "word": "Let's",
+          "start": 25.224,
+          "end": 25.464
+        },
+        {
+          "word": "figure",
+          "start": 25.464,
+          "end": 25.604
+        },
+        {
+          "word": "it",
+          "start": 25.604,
+          "end": 25.784
+        },
+        {
+          "word": "out",
+          "start": 25.784,
+          "end": 25.924
+        }
+      ]
+    },
+    {
+      "name": "sara",
+      "start": 24.999,
+      "end": 32.737,
+      "words": [
+        {
+          "word": "I'm",
+          "start": 24.999,
+          "end": 25.779
+        },
+        {
+          "word": "Sara.",
+          "start": 25.779,
+          "end": 26.099
+        },
+        {
+          "word": "Pick",
+          "start": 26.719,
+          "end": 26.719
+        },
+        {
+          "word": "a",
+          "start": 26.719,
+          "end": 27.379
+        },
+        {
+          "word": "language,",
+          "start": 27.379,
+          "end": 27.379
+        },
+        {
+          "word": "any",
+          "start": 27.779,
+          "end": 28.019
+        },
+        {
+          "word": "language",
+          "start": 28.019,
+          "end": 28.379
+        },
+        {
+          "word": "\u2014",
+          "start": 28.379,
+          "end": 28.439
+        },
+        {
+          "word": "I'll",
+          "start": 28.439,
+          "end": 28.719
+        },
+        {
+          "word": "keep",
+          "start": 28.719,
+          "end": 28.899
+        },
+        {
+          "word": "up.",
+          "start": 28.899,
+          "end": 29.219
+        },
+        {
+          "word": "Let's",
+          "start": 29.899,
+          "end": 30.159
+        },
+        {
+          "word": "talk.",
+          "start": 30.159,
+          "end": 30.459
+        }
+      ]
+    }
+  ]
+}

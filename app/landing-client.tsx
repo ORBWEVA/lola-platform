@@ -9,13 +9,22 @@ import SlideMenu from '@/components/SlideMenu'
 import { useVideoSubtitles } from '@/lib/use-video-subtitles'
 import type { SubtitleWord, SubtitleData } from '@/lib/use-video-subtitles'
 
+const HERO_VIDEO = '/hero-combined.mp4'
+const HERO_SUBTITLES = '/hero-combined-subtitles.json'
+
+interface Segment {
+  name: string
+  start: number
+  end: number
+  words: SubtitleWord[]
+}
+
+interface CombinedSubtitleData extends SubtitleData {
+  segments: Segment[]
+}
+
 const avatars = [
-  {
-    name: 'Emma',
-    slug: 'emma-lindgren',
-    type: 'video' as const,
-    src: '/avatars/emma-lindgren/hero-portrait.mp4',
-    subtitlesUrl: '/avatars/emma-lindgren/subtitles.json',
+  { name: 'Emma', slug: 'emma-lindgren', segmentName: 'emma-lindgren',
     translations: {
       en: "I'm Emma. Strategy, growth, straight talk — in whatever language you think in. Let's go.",
       ja: 'エマです。戦略、成長、率直な対話 — 考える言語で。始めましょう。',
@@ -27,12 +36,7 @@ const avatars = [
       pt: 'Sou a Emma. Estratégia, crescimento, conversa direta — no idioma em que você pensa. Vamos.',
     },
   },
-  {
-    name: 'Sakura',
-    slug: 'sakura-sensei',
-    type: 'video' as const,
-    src: '/avatars/sakura-sensei/hero-portrait.mp4',
-    subtitlesUrl: '/avatars/sakura-sensei/subtitles.json',
+  { name: 'Sakura', slug: 'sakura-sensei', segmentName: 'sakura-sensei',
     translations: {
       en: "I'm Sakura. Whether it's Japanese or any language, I'll meet you where you are. Let's begin.",
       ja: 'さくらです。日本語でも何語でも、あなたに合わせます。始めましょう。',
@@ -44,12 +48,7 @@ const avatars = [
       pt: 'Sou a Sakura. Seja japonês ou qualquer idioma, me adapto a você. Vamos começar.',
     },
   },
-  {
-    name: 'Marcus',
-    slug: 'coach-marcus',
-    type: 'video' as const,
-    src: '/avatars/coach-marcus/hero-portrait.mp4',
-    subtitlesUrl: '/avatars/coach-marcus/subtitles.json',
+  { name: 'Marcus', slug: 'coach-marcus', segmentName: 'coach-marcus',
     translations: {
       en: "I'm Marcus. Your goals, your pace, your language. Let's get to work.",
       ja: 'マーカスです。目標もペースも言語も自分次第。さあ始めよう。',
@@ -61,12 +60,7 @@ const avatars = [
       pt: 'Sou o Marcus. Seus objetivos, seu ritmo, seu idioma. Vamos trabalhar.',
     },
   },
-  {
-    name: 'Alex',
-    slug: 'alex-rivera',
-    type: 'video' as const,
-    src: '/avatars/alex-rivera/hero-portrait.mp4',
-    subtitlesUrl: '/avatars/alex-rivera/subtitles.json',
+  { name: 'Alex', slug: 'alex-rivera', segmentName: 'alex-rivera',
     translations: {
       en: "I'm Alex. I help you find exactly what you need, in any language. Let's figure it out.",
       ja: 'アレックスです。必要なものを見つけるお手伝いをします。どの言語でも。一緒に考えましょう。',
@@ -78,12 +72,7 @@ const avatars = [
       pt: 'Sou o Alex. Ajudo você a encontrar exatamente o que precisa, em qualquer idioma. Vamos resolver.',
     },
   },
-  {
-    name: 'Sara',
-    slug: 'sara',
-    type: 'video' as const,
-    src: '/avatars/sara/hero-portrait.mp4',
-    subtitlesUrl: '/avatars/sara/subtitles.json',
+  { name: 'Sara', slug: 'sara', segmentName: 'sara',
     translations: {
       en: "I'm Sara. Pick a language, any language — I'll keep up. Let's talk.",
       ja: 'サラです。どの言語でもどうぞ — ついていきます。話しましょう。',
@@ -117,24 +106,40 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const videoRef = useRef<HTMLVideoElement | null>(null)
-  const [transitioning, setTransitioning] = useState(false)
   const avatar = avatars[activeIndex]
 
-  // Preload all subtitle data at mount so switches are instant
-  const [preloaded, setPreloaded] = useState<Record<string, SubtitleData>>({})
+  // Load combined subtitle data
+  const [subtitleData, setSubtitleData] = useState<CombinedSubtitleData | null>(null)
   useEffect(() => {
-    avatars.forEach(a => {
-      fetch(a.subtitlesUrl)
-        .then(r => r.json())
-        .then((d: SubtitleData) => setPreloaded(prev => ({ ...prev, [a.subtitlesUrl]: d })))
-        .catch(() => {})
-    })
+    fetch(HERO_SUBTITLES)
+      .then(r => r.json())
+      .then((d: CombinedSubtitleData) => setSubtitleData(d))
+      .catch(() => {})
   }, [])
 
-  const subtitleData = preloaded[avatar.subtitlesUrl] ?? undefined
+  // Track which segment (avatar) is active based on video currentTime
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video || !subtitleData?.segments) return
+
+    const onTimeUpdate = () => {
+      const t = video.currentTime
+      const segments = subtitleData.segments
+      for (let i = segments.length - 1; i >= 0; i--) {
+        if (t >= segments[i].start) {
+          if (i !== activeIndex) setActiveIndex(i)
+          break
+        }
+      }
+    }
+
+    video.addEventListener('timeupdate', onTimeUpdate)
+    return () => video.removeEventListener('timeupdate', onTimeUpdate)
+  }, [subtitleData, activeIndex])
+
   const { data, visibleCount, speaking, energy, loopCount } = useVideoSubtitles(
     videoRef,
-    subtitleData
+    subtitleData ?? undefined
   )
 
   const [browserLang, setBrowserLang] = useState('en')
@@ -150,13 +155,11 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
   }, [browserLang, data?.duration, avatar.translations])
 
   const displayWords = isTranslatedLoop ? translatedWords : data?.words
-  // During transition, force subtitles to fade out
-  const effectiveVisibleCount = transitioning ? 0 : visibleCount
 
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-black">
-      {/* Video/Image background layer */}
-      <HeroVideo ref={videoRef} avatars={avatars} activeIndex={activeIndex} onIndexChange={setActiveIndex} onTransitionStart={() => setTransitioning(true)} onTransitionEnd={() => setTransitioning(false)} />
+      {/* Single combined video */}
+      <HeroVideo ref={videoRef} src={HERO_VIDEO} />
 
       {/* Gradient overlays for text readability */}
       <div className="absolute inset-0 z-10 pointer-events-none">
@@ -202,7 +205,7 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
       {/* Subtitles — synced to video */}
       <div className="absolute z-20 left-0 right-0" style={{ top: '52%' }}>
         <div className="flex justify-center px-6">
-          <HeroSubtitles words={displayWords} visibleCount={effectiveVisibleCount} />
+          <HeroSubtitles words={displayWords} visibleCount={visibleCount} />
         </div>
       </div>
 
@@ -211,6 +214,25 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
         <div className="w-[60%] max-w-[400px] sm:w-[50%] sm:max-w-[500px] lg:w-[40%] lg:max-w-[600px] h-16">
           <HeroWaveform videoRef={videoRef} speaking={speaking} energy={energy} />
         </div>
+      </div>
+
+      {/* Avatar dots */}
+      <div className="absolute z-30 left-1/2 -translate-x-1/2 flex gap-2" style={{ top: '74%' }}>
+        {avatars.map((a, i) => (
+          <button
+            key={a.name}
+            onClick={() => {
+              const seg = subtitleData?.segments[i]
+              if (seg && videoRef.current) {
+                videoRef.current.currentTime = seg.start
+              }
+            }}
+            className={`w-2 h-2 rounded-full transition-all duration-500 ${
+              i === activeIndex ? 'bg-white/90 scale-125' : 'bg-white/40 hover:bg-white/60'
+            }`}
+            aria-label={`Show ${a.name}`}
+          />
+        ))}
       </div>
 
       {/* CTA */}
