@@ -66,7 +66,7 @@ export default function NewAvatarPage() {
   const [imageMode, setImageMode] = useState<'upload' | 'generate'>('upload')
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
-  const [appearance, setAppearance] = useState('Young Japanese woman in her late 20s, long dark hair, warm smile, casual-chic outfit, natural makeup')
+  const [appearance, setAppearance] = useState('Young Japanese woman in her late 20s, long dark hair, warm genuine smile, wearing a cream knit sweater. Mid-chest portrait shot on iPhone 15 Pro, f/1.8 aperture. Outdoors in a park during golden hour, soft warm backlight with gentle bokeh from trees behind. Skin has natural texture and pores, no retouching. Shallow depth of field, eye-level angle, relaxed confident posture.')
   const [selectedModel, setSelectedModel] = useState('juggernaut-pro-flux')
   const [candidates, setCandidates] = useState<string[]>([])
   const [selectedAnchor, setSelectedAnchor] = useState<number>(-1)
@@ -586,11 +586,11 @@ export default function NewAvatarPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              <HelpTip>Describe a real person. Include age, ethnicity, hair, clothing, vibe. The more specific, the more realistic.</HelpTip>
+              <HelpTip>Describe a real person as if describing a photo: age, ethnicity, hair, clothing, shot type (mid-chest, headshot), camera (iPhone, DSLR), lighting (golden hour, overcast), background (park, cafe, street). The more specific, the more photorealistic. Tab to accept the default, then swap gender/race/features.</HelpTip>
               <textarea
                 value={appearance}
                 onChange={e => setAppearance(e.target.value)}
-                placeholder="e.g., Young Japanese woman in her late 20s, long dark hair, warm smile, casual-chic outfit, natural makeup"
+                placeholder="e.g., Young Japanese woman in her late 20s, long dark hair, warm smile, cream knit sweater. Mid-chest portrait on iPhone 15 Pro, golden hour, park background with soft bokeh..."
                 rows={4}
                 className="w-full px-4 py-3 rounded-xl bg-card border border-glass-border focus:outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none"
               />
