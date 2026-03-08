@@ -66,7 +66,7 @@ export default function NewAvatarPage() {
   const [imageMode, setImageMode] = useState<'upload' | 'generate'>('upload')
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null)
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
-  const [appearance, setAppearance] = useState('')
+  const [appearance, setAppearance] = useState('Young Japanese woman in her late 20s, long dark hair, warm smile, casual-chic outfit, natural makeup')
   const [selectedModel, setSelectedModel] = useState('juggernaut-pro-flux')
   const [candidates, setCandidates] = useState<string[]>([])
   const [selectedAnchor, setSelectedAnchor] = useState<number>(-1)
