@@ -128,12 +128,11 @@ export default function AvatarsList({ avatars: initial }: { avatars: Avatar[] })
               {/* Select checkbox */}
               <button
                 onClick={e => { e.stopPropagation(); toggle(avatar.id) }}
-                className={`absolute top-2 left-2 w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${
+                className={`absolute top-2 left-2 w-7 h-7 rounded-md border-2 flex items-center justify-center transition-all ${
                   selected.has(avatar.id)
                     ? 'bg-red-500 border-red-500'
-                    : 'border-white/30 bg-black/30 backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:!opacity-100'
+                    : 'border-white/60 bg-black/50 backdrop-blur-sm'
                 }`}
-                style={{ opacity: selected.has(avatar.id) ? 1 : undefined }}
               >
                 {selected.has(avatar.id) && (
                   <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
