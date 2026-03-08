@@ -128,10 +128,10 @@ export default function AvatarsList({ avatars: initial }: { avatars: Avatar[] })
               {/* Select checkbox */}
               <button
                 onClick={e => { e.stopPropagation(); toggle(avatar.id) }}
-                className={`absolute top-2 left-2 w-7 h-7 rounded-md border-2 flex items-center justify-center transition-all ${
+                className={`absolute top-2 left-2 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
                   selected.has(avatar.id)
-                    ? 'bg-red-500 border-red-500'
-                    : 'border-white/60 bg-black/50 backdrop-blur-sm'
+                    ? 'bg-red-500 border-white'
+                    : 'border-white bg-white/40 backdrop-blur-sm'
                 }`}
               >
                 {selected.has(avatar.id) && (
