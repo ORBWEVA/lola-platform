@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import Link from 'next/link'
-import Image from 'next/image'
+import AvatarsList from './avatars-list'
 import { validImageUrl } from '@/lib/utils/images'
 
 export default async function AvatarsListPage() {
@@ -11,66 +10,14 @@ export default async function AvatarsListPage() {
 
   const { data: avatars } = await supabase
     .from('avatars')
-    .select('*')
+    .select('id, name, slug, tagline, anchor_image_url, is_published, session_count')
     .eq('creator_id', user.id)
     .order('created_at', { ascending: false })
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Avatars</h1>
-        <Link href="/creator/avatars/new" className="px-4 py-2 rounded-xl gradient-btn text-sm font-medium">
-          + New Avatar
-        </Link>
-      </div>
+  const cleaned = (avatars || []).map(a => ({
+    ...a,
+    anchor_image_url: validImageUrl(a.anchor_image_url),
+  }))
 
-      {(!avatars || avatars.length === 0) ? (
-        <div className="glass rounded-2xl p-8 text-center">
-          <p className="text-muted">No avatars yet.</p>
-          <Link href="/creator/avatars/new" className="inline-block mt-4 text-indigo-400 hover:underline">
-            Create your first avatar →
-          </Link>
-        </div>
-      ) : (
-        <div className="grid sm:grid-cols-2 gap-4">
-          {avatars.map(avatar => {
-            const anchorUrl = validImageUrl(avatar.anchor_image_url)
-            return (
-            <div key={avatar.id} className="glass rounded-2xl overflow-hidden">
-              <div className="h-32 relative">
-                {anchorUrl ? (
-                  <Image src={anchorUrl} alt={avatar.name} fill className="object-cover" />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-emerald-900 flex items-center justify-center">
-                    <span className="text-3xl font-bold text-white/30">{avatar.name?.charAt(0)}</span>
-                  </div>
-                )}
-                <div className="absolute top-2 right-2">
-                  <span className={`text-xs px-2 py-1 rounded-full ${avatar.is_published ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-500/20 text-gray-400'}`}>
-                    {avatar.is_published ? 'Published' : 'Draft'}
-                  </span>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold">{avatar.name}</h3>
-                <p className="text-xs text-muted">{avatar.tagline}</p>
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-xs text-muted">{avatar.session_count ?? 0} sessions</span>
-                  <div className="flex items-center gap-3">
-                    <Link href={`/creator/avatars/${avatar.id}`} className="text-xs text-muted hover:text-foreground transition-colors">
-                      Edit
-                    </Link>
-                    <Link href={`/avatar/${avatar.slug}`} className="text-xs text-indigo-400 hover:underline">
-                      View →
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
+  return <AvatarsList avatars={cleaned} />
 }
