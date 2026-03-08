@@ -36,13 +36,16 @@ export default function PublishedActions({ profileUrl, sessionUrl, caption, anch
   const downloadImage = async () => {
     if (!selectedImage) return
     try {
-      const res = await fetch(selectedImage)
+      // Proxy through our API to avoid CORS on external URLs
+      const res = await fetch(`/api/avatars/download?url=${encodeURIComponent(selectedImage)}`)
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
       a.download = 'avatar-post.jpg'
+      document.body.appendChild(a)
       a.click()
+      document.body.removeChild(a)
       URL.revokeObjectURL(url)
     } catch {
       window.open(selectedImage, '_blank')
