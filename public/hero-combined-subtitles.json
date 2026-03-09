@@ -1,5 +1,5 @@
 {
-  "duration": 39.307,
+  "duration": 39.807,
   "words": [
     {
       "word": "I'm",
@@ -303,68 +303,68 @@
     },
     {
       "word": "I'm",
-      "start": 31.55,
-      "end": 32.33
+      "start": 32.05,
+      "end": 32.83
     },
     {
       "word": "Sara.",
-      "start": 32.33,
-      "end": 32.65
+      "start": 32.83,
+      "end": 33.15
     },
     {
       "word": "Pick",
-      "start": 33.27,
-      "end": 33.27
+      "start": 33.77,
+      "end": 33.77
     },
     {
       "word": "a",
-      "start": 33.27,
-      "end": 33.93
+      "start": 33.77,
+      "end": 34.43
     },
     {
       "word": "language,",
-      "start": 33.93,
-      "end": 33.93
+      "start": 34.43,
+      "end": 34.43
     },
     {
       "word": "any",
-      "start": 34.33,
-      "end": 34.57
+      "start": 34.83,
+      "end": 35.07
     },
     {
       "word": "language",
-      "start": 34.57,
-      "end": 34.93
+      "start": 35.07,
+      "end": 35.43
     },
     {
       "word": "—",
-      "start": 34.93,
-      "end": 34.99
+      "start": 35.43,
+      "end": 35.49
     },
     {
       "word": "I'll",
-      "start": 34.99,
-      "end": 35.27
-    },
-    {
-      "word": "keep",
-      "start": 35.27,
-      "end": 35.45
-    },
-    {
-      "word": "up.",
-      "start": 35.45,
+      "start": 35.49,
       "end": 35.77
     },
     {
+      "word": "keep",
+      "start": 35.77,
+      "end": 35.95
+    },
+    {
+      "word": "up.",
+      "start": 35.95,
+      "end": 36.27
+    },
+    {
       "word": "Let's",
-      "start": 36.45,
-      "end": 36.71
+      "start": 36.95,
+      "end": 37.21
     },
     {
       "word": "talk.",
-      "start": 36.71,
-      "end": 37.01
+      "start": 37.21,
+      "end": 37.51
     }
   ],
   "segments": [
@@ -607,7 +607,7 @@
     {
       "name": "alex-rivera",
       "start": 22.96,
-      "end": 31.55,
+      "end": 32.05,
       "words": [
         {
           "word": "I'm",
@@ -698,73 +698,73 @@
     },
     {
       "name": "sara",
-      "start": 31.55,
-      "end": 39.31,
+      "start": 32.05,
+      "end": 39.81,
       "words": [
         {
           "word": "I'm",
-          "start": 31.55,
-          "end": 32.33
+          "start": 32.05,
+          "end": 32.83
         },
         {
           "word": "Sara.",
-          "start": 32.33,
-          "end": 32.65
+          "start": 32.83,
+          "end": 33.15
         },
         {
           "word": "Pick",
-          "start": 33.27,
-          "end": 33.27
+          "start": 33.77,
+          "end": 33.77
         },
         {
           "word": "a",
-          "start": 33.27,
-          "end": 33.93
+          "start": 33.77,
+          "end": 34.43
         },
         {
           "word": "language,",
-          "start": 33.93,
-          "end": 33.93
+          "start": 34.43,
+          "end": 34.43
         },
         {
           "word": "any",
-          "start": 34.33,
-          "end": 34.57
+          "start": 34.83,
+          "end": 35.07
         },
         {
           "word": "language",
-          "start": 34.57,
-          "end": 34.93
+          "start": 35.07,
+          "end": 35.43
         },
         {
           "word": "—",
-          "start": 34.93,
-          "end": 34.99
+          "start": 35.43,
+          "end": 35.49
         },
         {
           "word": "I'll",
-          "start": 34.99,
-          "end": 35.27
-        },
-        {
-          "word": "keep",
-          "start": 35.27,
-          "end": 35.45
-        },
-        {
-          "word": "up.",
-          "start": 35.45,
+          "start": 35.49,
           "end": 35.77
         },
         {
+          "word": "keep",
+          "start": 35.77,
+          "end": 35.95
+        },
+        {
+          "word": "up.",
+          "start": 35.95,
+          "end": 36.27
+        },
+        {
           "word": "Let's",
-          "start": 36.45,
-          "end": 36.71
+          "start": 36.95,
+          "end": 37.21
         },
         {
           "word": "talk.",
-          "start": 36.71,
-          "end": 37.01
+          "start": 37.21,
+          "end": 37.51
         }
       ]
     }
