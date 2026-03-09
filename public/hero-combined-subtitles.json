@@ -1,5 +1,5 @@
 {
-  "duration": 41.9,
+  "duration": 41.90,
   "words": [
     { "word": "I'm", "start": 0.0, "end": 0.7 },
     { "word": "Emma.", "start": 0.7, "end": 0.88 },
@@ -101,7 +101,7 @@
     {
       "name": "sakura-sensei",
       "start": 7.12,
-      "end": 14.32,
+      "end": 15.32,
       "words": [
         { "word": "I'm", "start": 8.62, "end": 9.14 },
         { "word": "Sakura.", "start": 9.14, "end": 9.54 },
@@ -123,8 +123,8 @@
     },
     {
       "name": "coach-marcus",
-      "start": 14.32,
-      "end": 22.77,
+      "start": 15.32,
+      "end": 23.77,
       "words": [
         { "word": "I'm", "start": 15.82, "end": 16.52 },
         { "word": "Marcus.", "start": 16.52, "end": 16.92 },
@@ -142,8 +142,8 @@
     },
     {
       "name": "alex-rivera",
-      "start": 22.77,
-      "end": 31.59,
+      "start": 23.77,
+      "end": 32.59,
       "words": [
         { "word": "I'm", "start": 24.27, "end": 25.19 },
         { "word": "Alex.", "start": 25.19, "end": 25.63 },
@@ -166,8 +166,8 @@
     },
     {
       "name": "sara",
-      "start": 31.59,
-      "end": 41.9,
+      "start": 32.59,
+      "end": 41.90,
       "words": [
         { "word": "I'm", "start": 33.09, "end": 33.87 },
         { "word": "Sara.", "start": 33.87, "end": 34.19 },
