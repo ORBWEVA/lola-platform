@@ -140,11 +140,11 @@ export default function SlideMenu({ isLoggedIn }: Props) {
                 </svg>
               </button>
               {langOpen && (
-                <div className="absolute right-0 top-full mt-1 py-1 rounded-lg border border-white/[0.08] min-w-[120px]" style={{ background: 'rgba(10, 10, 26, 0.95)' }}>
+                <div className="absolute right-0 top-full mt-1 py-1 rounded-lg border border-white/[0.08] min-w-[120px] z-[60]" style={{ background: 'rgba(10, 10, 26, 0.95)' }} onClick={(e) => e.stopPropagation()}>
                   {locales.map((loc) => (
                     <button
                       key={loc.code}
-                      onClick={() => { setLangOpen(false); switchLocale(loc.code) }}
+                      onClick={(e) => { e.stopPropagation(); setLangOpen(false); switchLocale(loc.code) }}
                       className={`flex items-center gap-2.5 w-full px-3 py-2 text-xs transition-colors ${
                         currentLocale === loc.code
                           ? 'text-white bg-white/10'
