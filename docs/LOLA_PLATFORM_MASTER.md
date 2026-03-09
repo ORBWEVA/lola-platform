@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.1 — 2026-03-08
+# LoLA Platform Master Document v1.2 — 2026-03-09
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.2 | 2026-03-09 | Claude Code | Image persistence pipeline: generated images now auto-upload to Supabase Storage (permanent URLs instead of expiring Together.ai URLs). Social links editor on creator dashboard (Instagram handle editable from avatar edit page). Session fallback to anchor image when scene images are broken. CORS proxy for image downloads. Dual-layer crossfade video transitions on landing carousel. Hackathon demo video assembled + submitted. Vercel deployment live with full env vars + Google OAuth. |
 | v1.1 | 2026-03-08 | Claude Code | Immersive landing page redesign: full-screen Sara hero video, localized subtitles with alternating loops, animated waveform, monochrome greyscale for all non-landing pages, animated conic-gradient border traces on cards, dark/light mode system (dark default), always-dark slide menu with minimal toggle, text-only marketing pages, avatar video prompt doc |
 | v1.0 | 2026-03-07 | Claude Code | Initial master document creation from HACKATHON_BUILD_SPEC.md |
 
@@ -169,8 +170,13 @@ All API routes live under `/app/api/`.
 | Route | Method | Auth | Purpose |
 |-------|--------|------|---------|
 | `/api/realtime` | POST | Required | Generate OpenAI Realtime API ephemeral token with domain-adaptive system instruction |
-| `/api/avatars/generate` | POST | Required (creator) | Trigger FLUX image generation via n8n webhook |
+| `/api/avatars/generate` | POST | Required (creator) | Generate avatar images via FLUX Kontext Pro (Together AI), auto-persist to Supabase Storage |
+| `/api/avatars/generate/poll` | POST | Required (creator) | Poll KIE.ai async image generation jobs |
+| `/api/avatars/upload` | POST | Required (creator) | Upload anchor image to Supabase Storage |
+| `/api/avatars/enhance` | POST | Required (creator) | Enhance uploaded anchor image |
+| `/api/avatars/caption` | POST | Required (creator) | Generate social captions for avatar |
 | `/api/avatars/publish` | POST | Required (creator) | Trigger social media publish via n8n + Blotato |
+| `/api/avatars/download` | GET | None | CORS proxy for downloading cross-origin images |
 | `/api/checkout` | POST | Required | Create Stripe Checkout session for credit purchase |
 | `/api/sessions` | PATCH | Required | Save session duration + transcript data |
 | `/api/profile` | PATCH | Required | Update user profile data |
@@ -193,7 +199,7 @@ All API routes live under `/app/api/`.
 |------|---------|--------|
 | OpenAI Realtime API (gpt-4o-realtime-preview) | Real-time voice conversations via WebRTC | Direct (ephemeral token from `/api/realtime`) |
 | OpenAI GPT-4o | Social captions, domain-specific content generation | Via n8n |
-| FLUX Juggernaut Pro (RunDiffusion/Juggernaut-pro-flux) | Avatar portrait + lifestyle scene generation | Via Together AI (in n8n and scripts) |
+| FLUX Kontext Pro (black-forest-labs/FLUX.1-Kontext-pro) | Avatar portrait + lifestyle scene generation | Direct via Together AI (`/api/avatars/generate`), auto-persisted to Supabase Storage |
 | Claude Code | Development agent | Direct |
 
 ### n8n Workflows
@@ -207,15 +213,17 @@ All API routes live under `/app/api/`.
 
 ```
 Creator clicks "Generate"
-  -> POST n8n.orbweva.cloud/webhook/generate-avatar
-  -> Step 1: Generate 4 anchor candidates (~$0.16)
-  -> Step 2: Return candidates, creator picks anchor
-  -> Step 3: Generate 6 scene variations with anchor reference (~$0.24)
-  -> Step 4: Quality check via GPT-4o Vision (optional)
-  -> Step 5: Upload to Supabase Storage
-  -> Step 6: Notify creator
-  Total: ~$0.40, ~15-20 seconds
+  -> POST /api/avatars/generate (server-side, Together AI direct)
+  -> Step 1: Generate 4 anchor candidates via FLUX Kontext Pro
+  -> Step 2: Each image auto-persisted to Supabase Storage (permanent URLs)
+  -> Step 3: Return permanent URLs, creator picks anchor
+  -> Step 4: Generate 6 scene variations with anchor reference
+  -> Step 5: Each scene auto-persisted to Supabase Storage
+  -> Step 6: Return permanent scene URLs
+  Total: ~$0.40, ~30-60 seconds (includes storage upload)
 ```
+
+**Key**: Images are persisted to Supabase Storage immediately after generation. Together.ai URLs are temporary (~hours), so the `persistToStorage()` function in the generate route fetches each image and uploads to the `avatars` bucket before returning URLs to the client. Falls back to temp URL if upload fails.
 
 ### Social Publishing Pipeline
 
@@ -255,7 +263,7 @@ Location: `lib/coaching/`
 | Database | Supabase PostgreSQL + RLS | Project: `udftjfjfxyvghngqywth` (LoLA2) |
 | Storage | Supabase Storage | Avatar images bucket |
 | Voice AI | OpenAI Realtime API | `gpt-4o-realtime-preview` via WebRTC |
-| Image Gen | FLUX Juggernaut Pro | Via Together AI (RunDiffusion/Juggernaut-pro-flux) |
+| Image Gen | FLUX Kontext Pro | Via Together AI (black-forest-labs/FLUX.1-Kontext-pro), auto-persisted to Supabase Storage |
 | Content AI | OpenAI GPT-4o | Via n8n |
 | Orchestration | n8n | Self-hosted at `n8n.orbweva.cloud` |
 | Social Publishing | Blotato API | Via n8n, 9 platforms from one API call |
@@ -418,7 +426,10 @@ created_at TIMESTAMPTZ DEFAULT now()
 | 11 | Design System (monochrome, animated borders, dark/light) | Complete |
 | 12 | Avatar Video Generation (5 avatars, landscape + portrait) | In Progress |
 | 13 | Multi-Avatar Carousel + Portrait Video Support | Pending |
-| 14 | Demo Video + Submission | Pending |
+| 14 | Demo Video + Submission | Complete |
+| 15 | Image Persistence Pipeline (Supabase Storage) | Complete |
+| 16 | Social Links Editor (Creator Dashboard) | Complete |
+| 17 | Vercel Deployment + Google OAuth | Complete |
 
 ### Post-Hackathon Backlog
 
@@ -525,9 +536,10 @@ n8n handles ALL AI tool orchestration. This is deliberate — models and tools c
 
 ### Together AI
 
-- Used for FLUX Juggernaut Pro image generation
-- API key referenced in `scripts/regen-flux.mjs`
-- Called from n8n workflows and local scripts
+- Used for FLUX Kontext Pro image generation (`black-forest-labs/FLUX.1-Kontext-pro`)
+- Called directly from `/api/avatars/generate` route (not via n8n)
+- **Important**: Together.ai image URLs expire after hours — all generated images are auto-persisted to Supabase Storage
+- API key: `TOGETHER_API_KEY` env var
 
 ### Blotato
 
