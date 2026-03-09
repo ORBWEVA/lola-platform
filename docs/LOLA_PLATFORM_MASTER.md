@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.6 — 2026-03-09
+# LoLA Platform Master Document v1.7 — 2026-03-10
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.7 | 2026-03-10 | Claude Code | Full platform i18n with next-intl (EN/JA/KO): cookie-based locale detection from Accept-Language header, manual language switcher in slide menu, all UI strings extracted to message files (20+ components), localized metadata via generateMetadata(), domain preset openers localized (JA/KO) for all 6 domains, voice sample and voice compare APIs accept locale param for multilingual greetings. No URL restructuring (localePrefix: 'never'). |
 | v1.6 | 2026-03-09 | Claude Code | DT Full exercise — visible session value: enhanced transcript page with stats/report card/system messages/event logging, structured JSON session reports (topics, key moment, next focus) via upgraded GPT-4o-mini prompt with response_format json_object, voice sample generation on avatar profiles (OpenAI TTS → Supabase Storage, play button on profile page), "View Transcript" links from SessionSummary and session history, JSON-aware summary display across analytics and history pages. Migration 011 adds voice_sample_url column. |
 | v1.5 | 2026-03-09 | Claude Code | Platform-wide DT audit gap closers: creator analytics page (per-avatar session count, avg rating, rating distribution, recent feedback + session summaries), fix callback credit bug (INSERT on first signup only, not upsert that overwrites credits on re-auth), compute avatar rating from real feedback_rating data instead of static DB value, session count from completed sessions. |
 | v1.4 | 2026-03-09 | Claude Code | Voice session architecture overhaul: server-side credit enforcement (duration computed from started_at, not client), session lifecycle states (pending/active/completed/failed/expired), stale session cleanup (pending >5min, active >2hr auto-expired), reconnection reuse of session IDs, transcript save on tab close via sendBeacon, Whisper transcription error feedback in transcript, session_events observability table with event logging across all routes, first-time vs returning user context in system prompt, cross-session continuity via GPT-4o-mini session summarization into session_notes, post-session feedback UI (1/3/5 rating + text). DT audit gap closure targeting 20+/25. |
