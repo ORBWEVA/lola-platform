@@ -72,10 +72,6 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
       setPanelOpen(true)
       panelAutoCloseRef.current = setTimeout(() => setPanelOpen(false), 5000)
     }
-    // Re-open briefly on each new message if panel is closed
-    if (transcript.length > 0 && hasAutoOpenedRef.current && !panelOpen) {
-      // Don't auto-reopen after user manually closed
-    }
     return () => {
       if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
     }
@@ -109,16 +105,12 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
     const sid = sessionIdRef.current
     if (!sid || !startTimeRef.current) return
 
-    const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
-    const creditsUsed = Math.max(Math.ceil(elapsed / 60), 1)
     try {
       await fetch('/api/sessions', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sessionId: sid,
-          durationSeconds: elapsed,
-          creditsUsed,
           transcript: transcriptRef.current,
         }),
       })

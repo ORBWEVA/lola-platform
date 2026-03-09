@@ -99,17 +99,26 @@ export async function POST(request: Request) {
   }
 
   // Query session history for this user+avatar pair
-  const { data: previousSessions } = await supabase
-    .from('sessions')
-    .select('id, session_notes')
-    .eq('user_id', user.id)
-    .eq('avatar_id', avatarId)
-    .eq('status', 'completed')
-    .order('ended_at', { ascending: false })
-    .limit(3)
+  const [{ count: totalSessionCount }, { data: recentSessions }] = await Promise.all([
+    supabase
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .eq('avatar_id', avatarId)
+      .eq('status', 'completed'),
+    supabase
+      .from('sessions')
+      .select('session_notes')
+      .eq('user_id', user.id)
+      .eq('avatar_id', avatarId)
+      .eq('status', 'completed')
+      .not('session_notes', 'is', null)
+      .order('ended_at', { ascending: false })
+      .limit(3),
+  ])
 
-  const previousSessionCount = previousSessions?.length ?? 0
-  const previousNotes = (previousSessions || [])
+  const previousSessionCount = totalSessionCount ?? 0
+  const previousNotes = (recentSessions || [])
     .map(s => s.session_notes)
     .filter((n): n is string => !!n)
 

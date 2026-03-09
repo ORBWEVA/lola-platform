@@ -123,7 +123,12 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
 
       {/* Recent sessions */}
       <div>
-        <h2 className="text-lg font-semibold mb-4">Recent Sessions</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Recent Sessions</h2>
+          <Link href="/dashboard/sessions" className="text-sm text-muted hover:text-foreground transition-colors">
+            View all →
+          </Link>
+        </div>
         {(!sessions || sessions.length === 0) ? (
           <p className="text-muted text-sm">No sessions yet. Try talking to an avatar!</p>
         ) : (
