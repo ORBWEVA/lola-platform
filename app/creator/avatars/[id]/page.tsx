@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/client'
 import { DOMAIN_PRESETS } from '@/lib/coaching/domains'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { validImageUrl, filterExpiredUrls } from '@/lib/utils/images'
 
@@ -26,6 +27,8 @@ export default function EditAvatarPage() {
   const router = useRouter()
   const params = useParams()
   const supabase = createClient()
+  const t = useTranslations('creator')
+  const tc = useTranslations('common')
 
   const [avatar, setAvatar] = useState<AvatarData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,7 +99,7 @@ export default function EditAvatarPage() {
     if (error) {
       setErrorMsg(error.message)
     } else {
-      setSuccessMsg('Avatar updated.')
+      setSuccessMsg(t('avatarUpdated'))
       setAvatar(prev => prev ? { ...prev, name, slug, tagline, personality_traits: personality, domain, is_published: isPublished, social_links: instagram.trim() ? { instagram: instagram.trim() } : null } : prev)
     }
     setSaving(false)
@@ -186,14 +189,14 @@ export default function EditAvatarPage() {
   return (
     <div className="max-w-lg mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Edit Avatar</h1>
+        <h1 className="text-2xl font-bold">{t('editAvatar')}</h1>
         <a
           href={`/avatar/${avatar.slug}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-xs text-indigo-400 hover:underline"
         >
-          View profile →
+          {t('viewProfile')} →
         </a>
       </div>
 
@@ -215,7 +218,7 @@ export default function EditAvatarPage() {
           disabled={regenerating}
           className="w-full py-3 rounded-xl border border-amber-500/30 text-amber-300 text-sm font-medium hover:bg-amber-500/10 transition-colors disabled:opacity-50"
         >
-          {regenerating ? 'Regenerating images...' : 'Regenerate Expired Images'}
+          {regenerating ? t('regenerating') : t('regenerateImages')}
         </button>
       )}
 
@@ -233,7 +236,7 @@ export default function EditAvatarPage() {
 
       <div className="space-y-4">
         <div>
-          <label className="text-xs font-medium text-muted block mb-1">Name</label>
+          <label className="text-xs font-medium text-muted block mb-1">{t('name')}</label>
           <input
             value={name}
             onChange={e => setName(e.target.value)}
@@ -242,7 +245,7 @@ export default function EditAvatarPage() {
         </div>
 
         <div>
-          <label className="text-xs font-medium text-muted block mb-1">Tagline</label>
+          <label className="text-xs font-medium text-muted block mb-1">{t('tagline')}</label>
           <input
             value={tagline}
             onChange={e => setTagline(e.target.value)}
@@ -251,7 +254,7 @@ export default function EditAvatarPage() {
         </div>
 
         <div>
-          <label className="text-xs font-medium text-muted block mb-1">Personality</label>
+          <label className="text-xs font-medium text-muted block mb-1">{t('personality')}</label>
           <input
             value={personality}
             onChange={e => setPersonality(e.target.value)}
@@ -260,7 +263,7 @@ export default function EditAvatarPage() {
         </div>
 
         <div>
-          <label className="text-xs font-medium text-muted block mb-1">Domain</label>
+          <label className="text-xs font-medium text-muted block mb-1">{t('domain')}</label>
           <div className="grid grid-cols-2 gap-2">
             {Object.values(DOMAIN_PRESETS).map(p => (
               <button
@@ -285,11 +288,11 @@ export default function EditAvatarPage() {
           >
             <span className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${isPublished ? 'left-5' : 'left-1'}`} />
           </button>
-          <span className="text-sm">{isPublished ? 'Published' : 'Draft'}</span>
+          <span className="text-sm">{isPublished ? t('published') : t('draft')}</span>
         </div>
 
         <div>
-          <label className="text-xs font-medium text-muted block mb-1">Instagram Handle</label>
+          <label className="text-xs font-medium text-muted block mb-1">{t('instagram')}</label>
           <div className="relative">
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted text-sm">@</span>
             <input
@@ -306,7 +309,7 @@ export default function EditAvatarPage() {
           const validScenes = filterExpiredUrls(avatar.scene_images || [])
           return validScenes.length > 0 ? (
             <div>
-              <label className="text-xs font-medium text-muted block mb-2">Scene Images</label>
+              <label className="text-xs font-medium text-muted block mb-2">{t('sceneImages')}</label>
               <div className="grid grid-cols-3 gap-2">
                 {validScenes.map((url, i) => (
                   <div key={i} className="rounded-xl overflow-hidden relative aspect-square">
@@ -317,7 +320,7 @@ export default function EditAvatarPage() {
             </div>
           ) : avatar.scene_images && avatar.scene_images.length > 0 ? (
             <div className="glass no-trace rounded-xl p-3">
-              <p className="text-xs text-amber-300">Scene images have expired. Regenerate them from the avatar creation flow.</p>
+              <p className="text-xs text-amber-300">{t('sceneExpired')}</p>
             </div>
           ) : null
         })()}
@@ -327,14 +330,14 @@ export default function EditAvatarPage() {
             onClick={() => router.push('/creator/avatars')}
             className="flex-1 py-3 rounded-xl glass font-medium hover:bg-white/10 transition-colors"
           >
-            Back
+            {tc('back')}
           </button>
           <button
             onClick={save}
             disabled={!name.trim() || saving}
             className="flex-1 py-3 rounded-xl gradient-btn font-medium disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save Changes'}
+            {saving ? t('saving') : t('saveChanges')}
           </button>
         </div>
 
@@ -346,7 +349,7 @@ export default function EditAvatarPage() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
           </svg>
-          Choose Voice
+          {t('chooseVoice')}
         </button>
 
         {/* Share to social */}
@@ -362,7 +365,7 @@ export default function EditAvatarPage() {
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
-            Share to Social Media
+            {t('shareToSocial')}
           </button>
         )}
       </div>

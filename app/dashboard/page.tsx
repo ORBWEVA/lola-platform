@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Suspense } from 'react'
 import { BuyCreditsButton } from './buy-credits-button'
+import { getTranslations } from 'next-intl/server'
 
 function DashboardSkeleton() {
   return (
@@ -43,6 +44,8 @@ function DashboardSkeleton() {
 
 async function DashboardContent({ purchased }: { purchased?: string }) {
   const supabase = await createClient()
+  const t = await getTranslations('dashboard')
+  const tCommon = await getTranslations('common')
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
@@ -64,13 +67,13 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, {profile?.display_name || 'there'}</h1>
+        <h1 className="text-2xl font-bold">{t('welcome', { name: profile?.display_name || 'there' })}</h1>
       </div>
 
       {/* Purchase confirmation */}
       {purchased && (
         <div className="glass no-trace rounded-2xl p-4 border border-emerald-500/30 bg-emerald-500/5">
-          <p className="text-emerald-400 font-medium">+{purchased} credits added to your account!</p>
+          <p className="text-emerald-400 font-medium">{t('creditsAdded', { amount: purchased })}</p>
         </div>
       )}
 
@@ -78,21 +81,21 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
       <div className="grid grid-cols-3 gap-4">
         <div className="stat-card rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold text-emerald-400">{profile?.credits ?? 0}</p>
-          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">Credits</p>
+          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">{tCommon('credits')}</p>
         </div>
         <div className="stat-card rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold">{sessions?.length ?? 0}</p>
-          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">Sessions</p>
+          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">{tCommon('sessions')}</p>
         </div>
         <div className="stat-card rounded-2xl p-5 text-center">
           <p className="text-3xl font-bold">{totalMinutes}</p>
-          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">Minutes</p>
+          <p className="text-xs text-muted mt-1.5 uppercase tracking-wider">{tCommon('minutes')}</p>
         </div>
       </div>
 
       {/* Buy Credits */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Buy Credits</h2>
+        <h2 className="text-lg font-semibold">{t('buyCredits')}</h2>
         <div className="grid grid-cols-3 gap-3">
           <BuyCreditsButton pack="starter" credits={30} price="$4.99" />
           <BuyCreditsButton pack="popular" credits={100} price="$12.99" label="Popular" />
@@ -104,18 +107,18 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
       <div className="glass rounded-2xl p-5">
         {profile?.onboarding_complete ? (
           <>
-            <h3 className="font-semibold">Coaching personalized</h3>
-            <p className="text-sm text-muted mt-1">Your sessions adapt to your learning style.</p>
+            <h3 className="font-semibold">{t('coachingPersonalized')}</h3>
+            <p className="text-sm text-muted mt-1">{t('coachingDesc')}</p>
             <Link href="/dashboard/quiz" className="inline-block mt-3 text-sm text-indigo-400 hover:underline">
-              Retake quiz →
+              {t('retakeQuiz')} →
             </Link>
           </>
         ) : (
           <>
-            <h3 className="font-semibold">Want better coaching?</h3>
-            <p className="text-sm text-muted mt-1">Take a 30-second quiz to personalize your experience.</p>
+            <h3 className="font-semibold">{t('wantBetter')}</h3>
+            <p className="text-sm text-muted mt-1">{t('quizDesc')}</p>
             <Link href="/dashboard/quiz" className="inline-block mt-3 text-sm text-indigo-400 hover:underline">
-              Take the quiz →
+              {t('takeQuiz')} →
             </Link>
           </>
         )}
@@ -124,13 +127,13 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
       {/* Recent sessions */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Recent Sessions</h2>
+          <h2 className="text-lg font-semibold">{t('recentSessions')}</h2>
           <Link href="/dashboard/sessions" className="text-sm text-muted hover:text-foreground transition-colors">
-            View all →
+            {t('viewAll')} →
           </Link>
         </div>
         {(!sessions || sessions.length === 0) ? (
-          <p className="text-muted text-sm">No sessions yet. Try talking to an avatar!</p>
+          <p className="text-muted text-sm">{t('noSessions')}</p>
         ) : (
           <div className="space-y-3">
             {sessions.map(session => {
@@ -148,7 +151,7 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{avatar?.name ?? 'Unknown'}</p>
+                    <p className="font-medium text-sm truncate">{avatar?.name ?? tCommon('unknown')}</p>
                     <p className="text-xs text-muted">
                       {Math.floor((session.duration_seconds || 0) / 60)}m —{' '}
                       {new Date(session.started_at).toLocaleDateString()}
@@ -159,7 +162,7 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
                       href={`/session/${avatar.slug}`}
                       className="text-xs px-3 py-1.5 rounded-lg bg-indigo-600/30 text-indigo-300 hover:bg-indigo-600/50 transition-colors flex-shrink-0"
                     >
-                      Talk again
+                      {t('talkAgain')}
                     </Link>
                   )}
                 </div>

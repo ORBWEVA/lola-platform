@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 
 interface Props {
@@ -13,13 +14,14 @@ interface Props {
   userRole: string
 }
 
-const RATING_OPTIONS = [
-  { value: 1 as const, label: 'Not great' },
-  { value: 3 as const, label: 'Okay' },
-  { value: 5 as const, label: 'Loved it' },
-]
-
 export default function SessionSummary({ sessionId, avatarName, avatarSlug, duration, creditsUsed, transcriptCount, userRole }: Props) {
+  const t = useTranslations('summary')
+  const RATING_OPTIONS = [
+    { value: 1 as const, label: t('notGreat') },
+    { value: 3 as const, label: t('okay') },
+    { value: 5 as const, label: t('lovedIt') },
+  ]
+
   const minutes = Math.floor(duration / 60)
   const seconds = duration % 60
 
@@ -59,28 +61,28 @@ export default function SessionSummary({ sessionId, avatarName, avatarSlug, dura
         </div>
 
         <div>
-          <h2 className="text-xl font-bold">Session Complete</h2>
-          <p className="text-muted mt-1">with {avatarName}</p>
+          <h2 className="text-xl font-bold">{t('sessionComplete')}</h2>
+          <p className="text-muted mt-1">{t('withAvatar', { name: avatarName })}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <div className="glass rounded-2xl p-3">
             <p className="text-lg font-bold">{minutes}:{seconds.toString().padStart(2, '0')}</p>
-            <p className="text-xs text-muted">Duration</p>
+            <p className="text-xs text-muted">{t('duration')}</p>
           </div>
           <div className="glass rounded-2xl p-3">
             <p className="text-lg font-bold">{creditsUsed}</p>
-            <p className="text-xs text-muted">Credits</p>
+            <p className="text-xs text-muted">{t('creditsUsed')}</p>
           </div>
           <div className="glass rounded-2xl p-3">
             <p className="text-lg font-bold">{transcriptCount}</p>
-            <p className="text-xs text-muted">Messages</p>
+            <p className="text-xs text-muted">{t('messages')}</p>
           </div>
         </div>
 
         {!feedbackSent ? (
           <div className="space-y-3">
-            <p className="text-sm text-muted">How was your session?</p>
+            <p className="text-sm text-muted">{t('howWasSession')}</p>
             <div className="grid grid-cols-3 gap-3">
               {RATING_OPTIONS.map((opt) => (
                 <button
@@ -101,7 +103,7 @@ export default function SessionSummary({ sessionId, avatarName, avatarSlug, dura
                 <textarea
                   value={feedbackText}
                   onChange={(e) => setFeedbackText(e.target.value)}
-                  placeholder="Any other feedback? (optional)"
+                  placeholder={t('optionalFeedback')}
                   rows={3}
                   className="w-full rounded-xl glass bg-transparent px-4 py-3 text-sm placeholder:text-muted resize-none focus:outline-none focus:ring-1 focus:ring-indigo-400"
                 />
@@ -110,13 +112,13 @@ export default function SessionSummary({ sessionId, avatarName, avatarSlug, dura
                   disabled={feedbackLoading}
                   className="w-full px-4 py-3 rounded-xl gradient-btn font-medium disabled:opacity-50"
                 >
-                  {feedbackLoading ? 'Sending...' : 'Submit'}
+                  {feedbackLoading ? t('sending') : t('submit')}
                 </button>
               </>
             )}
           </div>
         ) : (
-          <p className="text-sm text-muted">Thanks for your feedback!</p>
+          <p className="text-sm text-muted">{t('thankYou')}</p>
         )}
 
         <div className="space-y-3 pt-2">
@@ -124,19 +126,19 @@ export default function SessionSummary({ sessionId, avatarName, avatarSlug, dura
             href={`/dashboard/transcripts/${sessionId}`}
             className="block w-full px-4 py-3 rounded-xl gradient-btn text-center font-medium"
           >
-            View Transcript
+            {t('viewTranscript')}
           </Link>
           <Link
             href={`/avatar/${avatarSlug}`}
             className="block w-full px-4 py-3 rounded-xl glass text-center font-medium hover:bg-white/10 transition-colors"
           >
-            Back to {avatarName}
+            {t('backTo', { name: avatarName })}
           </Link>
           <Link
             href={userRole === 'creator' ? '/creator' : '/dashboard'}
             className="block text-center text-sm text-muted hover:text-foreground transition-colors"
           >
-            {userRole === 'creator' ? 'Creator Studio' : 'My Dashboard'}
+            {userRole === 'creator' ? t('creatorStudio') : t('myDashboard')}
           </Link>
         </div>
       </div>

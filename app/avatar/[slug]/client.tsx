@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { getDomainPreset } from '@/lib/coaching/domains'
 
 interface Avatar {
@@ -35,6 +36,7 @@ interface Props {
 }
 
 export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Props) {
+  const t = useTranslations('avatarProfile')
   const preset = getDomainPreset(avatar.domain)
   const sessionUrl = isLoggedIn ? `/session/${avatar.slug}` : `/login?next=/session/${avatar.slug}`
   const [panelOpen, setPanelOpen] = useState(false)
@@ -109,7 +111,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
         <button
           onClick={() => setPanelOpen(true)}
           className="p-2 rounded-full bg-black/40 backdrop-blur-sm text-white/80 hover:text-white transition-colors"
-          aria-label="View details"
+          aria-label={t('viewDetails')}
         >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="4" y1="6" x2="20" y2="6" />
@@ -134,7 +136,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
               className={`w-12 h-12 rounded-full backdrop-blur-md border border-white/20 flex items-center justify-center transition-all hover:scale-110 ${
                 isPlaying ? 'bg-white/25 border-white/40' : 'bg-white/10 hover:bg-white/20'
               }`}
-              aria-label={isPlaying ? 'Stop preview' : 'Preview voice'}
+              aria-label={isPlaying ? t('stopPreview') : t('previewVoice')}
             >
               {isPlaying ? (
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -151,7 +153,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
           <Link
             href={sessionUrl}
             className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all hover:scale-110 group"
-            aria-label={`Talk to ${avatar.name}`}
+            aria-label={t('talkTo', { name: avatar.name })}
           >
             <svg className="w-7 h-7 text-white group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
@@ -180,7 +182,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
           <button
             onClick={close}
             className="p-2 text-white/50 hover:text-white transition-colors"
-            aria-label="Close panel"
+            aria-label={t('closePanel')}
           >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
@@ -199,7 +201,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
                 <span className="text-amber-400">{'★'.repeat(Math.round(avatar.rating))}</span>
                 <span className="text-white/70">{avatar.rating}</span>
               </div>
-              <span>{avatar.session_count} sessions</span>
+              <span>{t('sessions', { count: avatar.session_count })}</span>
             </div>
           </div>
 
@@ -209,13 +211,13 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
             onClick={close}
             className="block w-full py-4 rounded-xl gradient-btn text-center text-lg font-semibold"
           >
-            Talk to {avatar.name}
+            {t('talkTo', { name: avatar.name })}
           </Link>
 
           {/* Gallery — only show images that are valid URLs (not expired API URLs) */}
           {avatar.scene_images?.filter(img => img.startsWith('http') && !img.includes('api.together')).length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">Gallery</h3>
+              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">{t('gallery')}</h3>
               <div className="grid grid-cols-2 gap-2">
                 {avatar.scene_images.filter(img => img.startsWith('http') && !img.includes('api.together')).map((img, i) => (
                   <div key={i} className="rounded-lg overflow-hidden ring-1 ring-white/10">
@@ -236,7 +238,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
           {/* Products */}
           {products.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">Products</h3>
+              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">{t('products')}</h3>
               <div className="space-y-2">
                 {products.map(product => (
                   <a
@@ -264,7 +266,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
           {/* Social links */}
           {displaySocialLinks.length > 0 && (
             <div>
-              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">Connect</h3>
+              <h3 className="text-xs font-medium text-white/40 mb-3 uppercase tracking-wider">{t('connect')}</h3>
               <div className="flex gap-2">
                 {displaySocialLinks.map(([platform, url]) => (
                   url && (
@@ -286,7 +288,7 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
           {/* Footer */}
           <div className="pt-4 border-t border-white/[0.08]">
             <Link href="/" className="text-xs text-white/30 hover:text-white/60 transition-colors">
-              Powered by <span className="font-semibold">LoLA</span> — Create your own
+              {t('poweredBy', { brand: 'LoLA' })}
             </Link>
           </div>
         </div>

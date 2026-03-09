@@ -4,8 +4,11 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 function LoginInner() {
+  const t = useTranslations('login')
+  const tc = useTranslations('common')
   const router = useRouter()
   const searchParams = useSearchParams()
   const next = searchParams.get('next') || '/dashboard'
@@ -44,7 +47,7 @@ function LoginInner() {
           <h1 className="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-emerald-400 bg-clip-text text-transparent">
             LoLA
           </h1>
-          <p className="text-muted mt-2">Sign in to continue</p>
+          <p className="text-muted mt-2">{t('title')}</p>
         </div>
 
         <button
@@ -57,22 +60,22 @@ function LoginInner() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
           </svg>
-          Continue with Google
+          {t('continueGoogle')}
         </button>
 
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-white/10" />
-          <span className="text-sm text-muted">or</span>
+          <span className="text-sm text-muted">{tc('or')}</span>
           <div className="flex-1 h-px bg-white/10" />
         </div>
 
         {sent ? (
-          <p className="text-center text-emerald-400">Check your email for a magic link.</p>
+          <p className="text-center text-emerald-400">{t('checkEmail')}</p>
         ) : (
           <form onSubmit={signInWithEmail} className="space-y-3">
             <input
               type="email"
-              placeholder="Email address"
+              placeholder={t('emailPlaceholder')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -83,14 +86,14 @@ function LoginInner() {
               disabled={loading}
               className="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-emerald-600 font-medium hover:from-indigo-500 hover:to-emerald-500 transition-all disabled:opacity-50"
             >
-              {loading ? 'Sending...' : 'Send Magic Link'}
+              {loading ? t('sending') : t('sendMagicLink')}
             </button>
           </form>
         )}
 
         <p className="text-center text-sm text-muted">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-indigo-400 hover:underline">Sign up</Link>
+          {t('noAccount')}{' '}
+          <Link href="/signup" className="text-indigo-400 hover:underline">{t('signUp')}</Link>
         </p>
       </div>
     </div>

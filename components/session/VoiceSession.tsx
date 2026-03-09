@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import ImageCarousel from './ImageCarousel'
 import WaveformVisualizer from './WaveformVisualizer'
 import SessionTranscript, { type TranscriptEntry } from './SessionTranscript'
@@ -19,6 +20,7 @@ type SessionState = 'connecting' | 'active' | 'ended'
 type ErrorKind = 'mic_denied' | 'no_credits' | 'connection_lost' | 'session_failed' | null
 
 export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRole }: Props) {
+  const t = useTranslations('session')
   const [state, setState] = useState<SessionState>('connecting')
   const [error, setError] = useState<ErrorKind>(null)
   const [credits, setCredits] = useState(15)
@@ -416,19 +418,19 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
               <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4M12 1a3 3 0 00-3 3v4a3 3 0 006 0V4a3 3 0 00-3-3z" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold">Microphone Access Required</h2>
-          <p className="text-sm text-muted">LoLA needs your microphone for voice conversations. Please allow mic access in your browser settings and reload the page.</p>
+          <h2 className="text-lg font-bold">{t('micRequired')}</h2>
+          <p className="text-sm text-muted">{t('micDesc')}</p>
           <div className="glass rounded-xl p-3 text-xs text-muted text-left space-y-1">
-            <p className="font-medium text-foreground">How to enable:</p>
-            <p>1. Tap the lock/info icon in your browser address bar</p>
-            <p>2. Find &quot;Microphone&quot; and set it to &quot;Allow&quot;</p>
-            <p>3. Reload this page</p>
+            <p className="font-medium text-foreground">{t('howToEnable')}</p>
+            <p>{t('micStep1')}</p>
+            <p>{t('micStep2')}</p>
+            <p>{t('micStep3')}</p>
           </div>
           <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
-            Reload Page
+            {t('reloadPage')}
           </button>
           <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
-            Back to profile
+            {t('backToProfile')}
           </a>
         </div>
       </div>
@@ -444,13 +446,13 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold">No Credits Remaining</h2>
-          <p className="text-sm text-muted">You need credits to start a voice session. Each minute of conversation costs 1 credit.</p>
+          <h2 className="text-lg font-bold">{t('noCredits')}</h2>
+          <p className="text-sm text-muted">{t('noCreditsDesc')}</p>
           <a href="/api/checkout?pack=starter" className="block w-full py-3 rounded-xl gradient-btn font-medium text-center">
-            Buy Credits
+            {t('buyCredits')}
           </a>
           <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
-            Back to profile
+            {t('backToProfile')}
           </a>
         </div>
       </div>
@@ -466,13 +468,13 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
               <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636a9 9 0 11-12.728 0M12 9v4m0 4h.01" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold">Connection Lost</h2>
-          <p className="text-sm text-muted">The voice connection dropped after multiple reconnection attempts. This can happen with unstable networks.</p>
+          <h2 className="text-lg font-bold">{t('connectionLost')}</h2>
+          <p className="text-sm text-muted">{t('connectionLostDesc')}</p>
           <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
-            Try Again
+            {t('tryAgain')}
           </button>
           <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
-            Back to profile
+            {t('backToProfile')}
           </a>
         </div>
       </div>
@@ -488,13 +490,13 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-lg font-bold">Session Failed</h2>
-          <p className="text-sm text-muted">Something went wrong starting the voice session. Please try again.</p>
+          <h2 className="text-lg font-bold">{t('sessionFailed')}</h2>
+          <p className="text-sm text-muted">{t('sessionFailedDesc')}</p>
           <button onClick={() => window.location.reload()} className="w-full py-3 rounded-xl gradient-btn font-medium">
-            Try Again
+            {t('tryAgain')}
           </button>
           <a href={`/avatar/${avatarSlug}`} className="block text-sm text-muted hover:text-foreground transition-colors">
-            Back to profile
+            {t('backToProfile')}
           </a>
         </div>
       </div>
@@ -523,8 +525,8 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-indigo-900/20 to-emerald-900/20">
             <div className="text-center space-y-3 px-8">
               <div className="w-10 h-10 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-white/60 text-sm">Connecting to {avatarName}...</p>
-              <p className="text-xs text-white/40 mt-2">Just speak naturally — {avatarName} is multilingual and adapts to you.</p>
+              <p className="text-white/60 text-sm">{t('connecting', { name: avatarName })}</p>
+              <p className="text-xs text-white/40 mt-2">{t('speakNaturally', { name: avatarName })}</p>
             </div>
           </div>
         ) : (
@@ -571,7 +573,7 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
           onClick={() => setShowHint(false)}
           className="absolute z-20 bottom-36 left-6 right-6 backdrop-blur-md bg-black/40 rounded-xl p-3 text-xs text-white/60 text-center animate-pulse border border-white/10"
         >
-          Just start talking — {avatarName} will respond. Speak any language. Tap to dismiss.
+          {t('startTalking', { name: avatarName })}
         </button>
       )}
 
@@ -591,7 +593,7 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
             if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
           }}
           className="p-3 rounded-full backdrop-blur-md bg-white/10 border border-white/10 text-white/70 hover:text-white hover:bg-white/20 transition-colors"
-          aria-label={panelOpen ? 'Hide transcript' : 'Show transcript'}
+          aria-label={panelOpen ? t('hideTranscript') : t('showTranscript')}
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -626,14 +628,14 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10"
           style={{ paddingTop: 'max(0.75rem, env(safe-area-inset-top))' }}
         >
-          <span className="text-sm font-medium text-white/80">Transcript</span>
+          <span className="text-sm font-medium text-white/80">{t('transcript')}</span>
           <button
             onClick={() => {
               setPanelOpen(false)
               if (panelAutoCloseRef.current) clearTimeout(panelAutoCloseRef.current)
             }}
             className="p-1.5 text-white/40 hover:text-white transition-colors"
-            aria-label="Close transcript"
+            aria-label={t('closeTranscript')}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Exo_2, Space_Mono, Noto_Sans_JP } from "next/font/google";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import "./globals.css";
 
 const exo2 = Exo_2({
@@ -26,13 +28,16 @@ export const metadata: Metadata = {
   description: "Build a photorealistic AI avatar that posts to social media and has real-time voice conversations with anyone who clicks.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
+    <html lang={locale} data-theme="dark" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
@@ -46,7 +51,9 @@ export default function RootLayout({
       <body
         className={`${exo2.variable} ${spaceMono.variable} ${notoSansJP.variable} antialiased bg-background text-foreground`}
       >
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

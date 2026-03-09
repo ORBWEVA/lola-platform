@@ -1,34 +1,28 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'How It Works — LoLA',
-  description: 'Three steps to your AI avatar: create, publish, engage. Build a photorealistic AI avatar that posts to social media and coaches in real-time.',
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata')
+  return {
+    title: t('howItWorksTitle'),
+    description: t('howItWorksDescription'),
+  }
 }
 
-const steps = [
-  {
-    step: '01',
-    title: 'Create Avatar',
-    desc: "Describe your avatar's personality, expertise, and visual appearance. Our AI generates photorealistic images in seconds using FLUX Kontext Pro, ensuring character consistency across all content.",
-  },
-  {
-    step: '02',
-    title: 'Auto-Post to Social',
-    desc: 'One click publishes AI-generated content to 9 platforms via Blotato. AI writes contextual captions, selects optimal posting times, and maintains your avatar\'s unique voice across channels.',
-  },
-  {
-    step: '03',
-    title: 'Users Engage',
-    desc: "Anyone who clicks gets a real-time adaptive voice conversation powered by OpenAI's Realtime API. Your avatar coaches, sells, and supports — adapting to each individual in real-time.",
-  },
-]
+export default async function HowItWorksPage() {
+  const t = await getTranslations('howItWorks')
 
-export default function HowItWorksPage() {
+  const steps = [
+    { step: '01', title: t('step1Title'), desc: t('step1Desc') },
+    { step: '02', title: t('step2Title'), desc: t('step2Desc') },
+    { step: '03', title: t('step3Title'), desc: t('step3Desc') },
+  ]
+
   return (
     <div>
       <div className="text-center mb-16">
-        <p className="text-sm font-medium text-[var(--muted)] mb-3 uppercase tracking-wider">How it works</p>
-        <h1 className="text-4xl md:text-5xl font-bold">Three steps to your AI avatar</h1>
+        <p className="text-sm font-medium text-[var(--muted)] mb-3 uppercase tracking-wider">{t('label')}</p>
+        <h1 className="text-4xl md:text-5xl font-bold">{t('title')}</h1>
       </div>
 
       <div className="space-y-6">

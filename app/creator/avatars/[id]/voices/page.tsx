@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 
 interface VoiceSample {
   voice: string
@@ -26,6 +27,7 @@ export default function VoiceComparePage() {
   const router = useRouter()
   const params = useParams()
   const supabase = createClient()
+  const t = useTranslations('creator')
 
   const [avatarName, setAvatarName] = useState('')
   const [currentVoice, setCurrentVoice] = useState('')
@@ -119,7 +121,7 @@ export default function VoiceComparePage() {
       setMsg(error.message)
     } else {
       setCurrentVoice(selected)
-      setMsg(`Voice updated to "${selected}". Regenerating voice preview...`)
+      setMsg(t('voiceUpdated', { voice: selected }))
 
       // Also regenerate the voice sample with the new voice
       await fetch('/api/avatars/voice-sample', {
@@ -127,7 +129,7 @@ export default function VoiceComparePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ avatarId: params.id }),
       })
-      setMsg(`Voice updated to "${selected}" and preview regenerated.`)
+      setMsg(t('voiceUpdatedPreview', { voice: selected }))
     }
     setSaving(false)
   }
@@ -143,18 +145,18 @@ export default function VoiceComparePage() {
   return (
     <div className="max-w-lg mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Voice Selection</h1>
+        <h1 className="text-2xl font-bold">{t('voiceSelection')}</h1>
         <button
           onClick={() => router.push(`/creator/avatars/${params.id}`)}
           className="text-xs text-white/50 hover:text-white"
         >
-          Back to edit
+          {t('backToEdit')}
         </button>
       </div>
 
       <p className="text-sm text-white/50">
-        Choose the best voice for <span className="text-white font-medium">{avatarName}</span>.
-        Current: <span className="text-indigo-400">{currentVoice}</span>
+        {t('chooseVoiceFor', { name: avatarName })}{' '}
+        {t('currentVoice')}: <span className="text-indigo-400">{currentVoice}</span>
       </p>
 
       {msg && (
@@ -169,7 +171,7 @@ export default function VoiceComparePage() {
           disabled={generating}
           className="w-full py-4 rounded-xl gradient-btn font-medium disabled:opacity-50"
         >
-          {generating ? 'Generating 10 voice samples...' : 'Generate Voice Samples'}
+          {generating ? t('generatingSamples') : t('generateSamples')}
         </button>
       ) : (
         <div className="space-y-2">
@@ -207,7 +209,7 @@ export default function VoiceComparePage() {
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">{voice}</span>
                   {voice === currentVoice && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-white/50">current</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-white/50">{t('currentVoice').toLowerCase()}</span>
                   )}
                 </div>
                 <p className="text-xs text-white/40">{VOICE_DESCRIPTIONS[voice] || ''}</p>
@@ -230,12 +232,12 @@ export default function VoiceComparePage() {
           disabled={saving}
           className="w-full py-3 rounded-xl gradient-btn font-medium disabled:opacity-50"
         >
-          {saving ? 'Saving...' : `Set voice to "${selected}"`}
+          {saving ? t('saving') : t('setVoice', { voice: selected })}
         </button>
       )}
 
       {generating && (
-        <p className="text-xs text-white/30 text-center">This takes ~15 seconds for all 10 voices...</p>
+        <p className="text-xs text-white/30 text-center">{t('generatingWait')}</p>
       )}
     </div>
   )

@@ -2,20 +2,24 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 
 interface Props {
   isLoggedIn?: boolean
 }
 
-const menuItems = [
-  { label: 'How It Works', href: '/how-it-works' },
-  { label: 'Features', href: '/features' },
-  { label: 'Pricing', href: '/pricing' },
-]
+const locales = [
+  { code: 'en', label: 'EN' },
+  { code: 'ja', label: '日本語' },
+  { code: 'ko', label: '한국어' },
+] as const
 
 export default function SlideMenu({ isLoggedIn }: Props) {
+  const t = useTranslations('nav')
+  const tc = useTranslations('common')
   const [open, setOpen] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [currentLocale, setCurrentLocale] = useState('en')
 
   useEffect(() => {
     const stored = localStorage.getItem('lola-theme') as 'dark' | 'light' | null
@@ -23,6 +27,8 @@ export default function SlideMenu({ isLoggedIn }: Props) {
       setTheme(stored)
       document.documentElement.setAttribute('data-theme', stored)
     }
+    const match = document.cookie.match(/NEXT_LOCALE=(\w+)/)
+    if (match) setCurrentLocale(match[1])
   }, [])
 
   const toggleTheme = () => {
@@ -43,14 +49,25 @@ export default function SlideMenu({ isLoggedIn }: Props) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, close])
 
+  const switchLocale = (locale: string) => {
+    document.cookie = `NEXT_LOCALE=${locale};path=/;max-age=31536000`
+    window.location.reload()
+  }
+
+  const menuItems = [
+    { label: t('howItWorks'), href: '/how-it-works' },
+    { label: t('features'), href: '/features' },
+    { label: t('pricing'), href: '/pricing' },
+  ]
+
   const allItems = [
     ...menuItems,
     ...(isLoggedIn
       ? [
-          { label: 'Create Avatar', href: '/creator/avatars/new' },
-          { label: 'Dashboard', href: '/dashboard' },
+          { label: t('createAvatar'), href: '/creator/avatars/new' },
+          { label: t('dashboard'), href: '/dashboard' },
         ]
-      : [{ label: 'Sign In', href: '/login' }]),
+      : [{ label: tc('signIn'), href: '/login' }]),
   ]
 
   return (
@@ -139,6 +156,33 @@ export default function SlideMenu({ isLoggedIn }: Props) {
               </li>
             ))}
           </ul>
+
+          {/* Language switcher */}
+          <div className="mt-6 pt-4 border-t border-white/[0.08]">
+            <div className="flex items-center gap-2 px-4 mb-3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              <span className="text-xs text-white/40 uppercase tracking-wider">{t('language')}</span>
+            </div>
+            <div className="flex gap-2 px-4">
+              {locales.map((loc) => (
+                <button
+                  key={loc.code}
+                  onClick={() => switchLocale(loc.code)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    currentLocale === loc.code
+                      ? 'bg-white/10 text-white'
+                      : 'text-white/40 hover:text-white/70 hover:bg-white/5'
+                  }`}
+                >
+                  {loc.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </nav>
 
       </div>
