@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logSessionEvent } from '@/lib/events'
 
-export async function PATCH(request: Request) {
+export async function POST(request: Request) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -10,7 +10,20 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { sessionId, transcript } = await request.json()
+  // sendBeacon sends as text/plain — parse manually
+  let body: { sessionId?: string; transcript?: { role: string; content: string }[] }
+  try {
+    const text = await request.text()
+    body = JSON.parse(text)
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 })
+  }
+
+  const { sessionId, transcript } = body
+
+  if (!sessionId) {
+    return NextResponse.json({ error: 'sessionId required' }, { status: 400 })
+  }
 
   // Read session to get started_at and avatar_id
   const { data: session } = await supabase
@@ -43,9 +56,9 @@ export async function PATCH(request: Request) {
     .eq('user_id', user.id)
 
   // Save transcript entries
-  if (transcript?.length > 0) {
+  if (transcript && transcript.length > 0) {
     await supabase.from('transcript_entries').insert(
-      transcript.map((entry: { role: string; content: string }, i: number) => ({
+      transcript.map((entry, i) => ({
         session_id: sessionId,
         role: entry.role,
         content: entry.content,
@@ -69,63 +82,12 @@ export async function PATCH(request: Request) {
     })
   }
 
-  // Log event
   logSessionEvent(supabase, {
     sessionId,
     userId: user.id,
-    eventType: 'session.ended',
-    metadata: { serverDuration, creditsUsed, transcriptLength: transcript?.length ?? 0 },
+    eventType: 'session.transcript_saved',
+    metadata: { transcriptLength: transcript?.length ?? 0, via: 'sendBeacon' },
   })
-
-  // Generate session summary in background (non-blocking)
-  if (transcript?.length > 2) {
-    summarizeSession(supabase, sessionId, transcript).catch(e =>
-      console.error('[sessions] Summary generation failed:', e)
-    )
-  }
 
   return NextResponse.json({ success: true })
-}
-
-const summarizeSession = async (
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  sessionId: string,
-  transcript: { role: string; content: string }[]
-) => {
-  const condensed = transcript
-    .filter(e => e.role !== 'system')
-    .map(e => `${e.role === 'user' ? 'User' : 'Avatar'}: ${e.content}`)
-    .join('\n')
-    .slice(0, 2000)
-
-  const res = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: 'Summarize this voice session in 2-3 sentences. Focus on what was discussed, any progress made, and the user\'s mood/engagement. Be concise.',
-        },
-        { role: 'user', content: condensed },
-      ],
-      max_tokens: 150,
-    }),
-  })
-
-  if (!res.ok) return
-
-  const data = await res.json()
-  const summary = data.choices?.[0]?.message?.content
-
-  if (summary) {
-    await supabase
-      .from('sessions')
-      .update({ session_notes: summary })
-      .eq('id', sessionId)
-  }
 }

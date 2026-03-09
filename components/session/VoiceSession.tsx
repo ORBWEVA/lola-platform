@@ -51,6 +51,20 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
   useEffect(() => { sessionIdRef.current = sessionId }, [sessionId])
   useEffect(() => { transcriptRef.current = transcript }, [transcript])
 
+  // Save transcript on tab close via sendBeacon
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const sid = sessionIdRef.current
+      if (!sid || !startTimeRef.current || stateRef.current === 'ended') return
+      navigator.sendBeacon('/api/sessions/end', JSON.stringify({
+        sessionId: sid,
+        transcript: transcriptRef.current,
+      }))
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
   // Auto-open transcript panel on first message, auto-close after 5s
   useEffect(() => {
     if (transcript.length > 0 && !hasAutoOpenedRef.current) {
@@ -132,11 +146,14 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
         }
         streamRef.current = stream
 
-        // Get ephemeral token
+        // Get ephemeral token (pass sessionId for reconnection)
         const res = await fetch('/api/realtime', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ avatarId }),
+          body: JSON.stringify({
+            avatarId,
+            ...(sessionIdRef.current ? { sessionId: sessionIdRef.current } : {}),
+          }),
         })
 
         if (!res.ok) {
@@ -175,6 +192,15 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
               stream.getTracks().forEach(t => t.stop())
               if (!cancelled) connect()
             } else {
+              // Mark session as failed before ending
+              fetch('/api/sessions/fail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  sessionId: sessionIdRef.current,
+                  reason: `Connection ${pc.connectionState} after ${reconnectAttemptsRef.current} reconnect attempts`,
+                }),
+              }).catch(() => {})
               setError('connection_lost')
               endSession()
             }
@@ -211,7 +237,6 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
             const event = JSON.parse(e.data)
 
             if (event.type === 'response.audio_transcript.delta') {
-              // Avatar speaking
               setSpeaking('avatar')
             }
 
@@ -230,6 +255,13 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
               }
             }
 
+            // Transcription errors (Step 1.6)
+            if (event.type === 'input_audio_transcription.failed' || event.type === 'error') {
+              const msg = event.error?.message || event.message || 'Audio processing error'
+              console.warn('[whisper] Transcription error:', msg)
+              setTranscript(prev => [...prev, { role: 'system', content: `Transcription issue: ${msg}` }])
+            }
+
             if (event.type === 'input_audio_buffer.speech_started') {
               setSpeaking('user')
             }
@@ -241,6 +273,13 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
         }
 
         dc.onopen = () => {
+          // Mark session as active
+          fetch('/api/sessions/activate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: data.sessionId }),
+          }).catch(() => {})
+
           // Configure session
           dc.send(JSON.stringify({
             type: 'session.update',
@@ -277,6 +316,11 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
 
         if (!sdpRes.ok) {
           console.error('OpenAI SDP exchange failed:', sdpRes.status)
+          fetch('/api/sessions/fail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: data.sessionId, reason: `SDP exchange failed: ${sdpRes.status}` }),
+          }).catch(() => {})
           if (!cancelled) {
             setError('session_failed')
             setState('ended')
@@ -474,6 +518,7 @@ export default function VoiceSession({ avatarId, avatarName, avatarSlug, userRol
         creditsUsed={Math.ceil(duration / 60)}
         transcriptCount={transcript.length}
         userRole={userRole}
+        sessionId={sessionId}
       />
     )
   }

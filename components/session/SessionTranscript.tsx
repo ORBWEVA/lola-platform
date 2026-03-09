@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 
 export interface TranscriptEntry {
-  role: 'user' | 'model'
+  role: 'user' | 'model' | 'system'
   content: string
 }
 
@@ -42,20 +42,29 @@ export default function SessionTranscript({ entries, avatarName }: Props) {
       {entries.map((entry, i) => (
         <div
           key={i}
-          className={`flex ${entry.role === 'user' ? 'justify-end' : 'justify-start'}`}
+          className={`flex ${
+            entry.role === 'system' ? 'justify-center' :
+            entry.role === 'user' ? 'justify-end' : 'justify-start'
+          }`}
         >
-          <div
-            className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
-              entry.role === 'user'
-                ? 'bg-indigo-600/30 text-indigo-100 rounded-br-md'
-                : 'glass rounded-bl-md'
-            }`}
-          >
-            <span className="text-xs text-muted block mb-0.5">
-              {entry.role === 'user' ? 'You' : avatarName}
-            </span>
-            {entry.content}
-          </div>
+          {entry.role === 'system' ? (
+            <div className="max-w-[90%] px-3 py-1.5 text-xs text-muted italic text-center">
+              {entry.content}
+            </div>
+          ) : (
+            <div
+              className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
+                entry.role === 'user'
+                  ? 'bg-indigo-600/30 text-indigo-100 rounded-br-md'
+                  : 'glass rounded-bl-md'
+              }`}
+            >
+              <span className="text-xs text-muted block mb-0.5">
+                {entry.role === 'user' ? 'You' : avatarName}
+              </span>
+              {entry.content}
+            </div>
+          )}
         </div>
       ))}
     </div>

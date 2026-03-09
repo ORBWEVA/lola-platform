@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { buildSystemInstruction } from '@/lib/coaching/instructions'
+import { logSessionEvent } from '@/lib/events'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -10,7 +11,67 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { avatarId } = await request.json()
+  const { avatarId, sessionId: existingSessionId } = await request.json()
+
+  // --- Stale session cleanup ---
+  const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString()
+  const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+
+  // Expire stale pending sessions (older than 5 min)
+  await supabase
+    .from('sessions')
+    .update({ status: 'expired', ended_at: new Date().toISOString() })
+    .eq('user_id', user.id)
+    .eq('status', 'pending')
+    .lt('created_at', fiveMinAgo)
+
+  // Expire stale active sessions (older than 2 hours) and deduct credits
+  const { data: staleSessions } = await supabase
+    .from('sessions')
+    .select('id, started_at, avatar_id')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .lt('created_at', twoHoursAgo)
+
+  if (staleSessions && staleSessions.length > 0) {
+    const now = new Date()
+    for (const stale of staleSessions) {
+      const startedAt = stale.started_at ? new Date(stale.started_at) : new Date(twoHoursAgo)
+      const duration = Math.floor((now.getTime() - startedAt.getTime()) / 1000)
+      const credits = Math.max(Math.ceil(duration / 60), 1)
+
+      await supabase
+        .from('sessions')
+        .update({
+          status: 'expired',
+          ended_at: now.toISOString(),
+          duration_seconds: duration,
+          credits_used: credits,
+        })
+        .eq('id', stale.id)
+
+      await supabase.rpc('deduct_credits', {
+        p_user_id: user.id,
+        p_amount: credits,
+      })
+    }
+  }
+
+  // --- Reconnection: reuse existing session if valid ---
+  let sessionId: string | undefined
+  if (existingSessionId) {
+    const { data: existing } = await supabase
+      .from('sessions')
+      .select('id, avatar_id')
+      .eq('id', existingSessionId)
+      .eq('user_id', user.id)
+      .in('status', ['pending', 'active'])
+      .single()
+
+    if (existing) {
+      sessionId = existing.id
+    }
+  }
 
   // Load avatar
   const { data: avatar } = await supabase
@@ -37,6 +98,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'No credits remaining' }, { status: 402 })
   }
 
+  // Query session history for this user+avatar pair
+  const { data: previousSessions } = await supabase
+    .from('sessions')
+    .select('id, session_notes')
+    .eq('user_id', user.id)
+    .eq('avatar_id', avatarId)
+    .eq('status', 'completed')
+    .order('ended_at', { ascending: false })
+    .limit(3)
+
+  const previousSessionCount = previousSessions?.length ?? 0
+  const previousNotes = (previousSessions || [])
+    .map(s => s.session_notes)
+    .filter((n): n is string => !!n)
+
   // Build system instruction
   const instruction = buildSystemInstruction(
     {
@@ -51,19 +127,29 @@ export async function POST(request: Request) {
     {
       profileWeights: profile.profile_data?.weights,
       nativeLanguage: profile.profile_data?.nativeLanguage,
+      sessionContext: {
+        isFirstSession: previousSessionCount === 0,
+        previousSessionCount,
+        userName: profile.profile_data?.name,
+        previousNotes: previousNotes.length > 0 ? previousNotes : undefined,
+      },
     }
   )
 
-  // Create session record
-  const { data: session } = await supabase
-    .from('sessions')
-    .insert({
-      user_id: user.id,
-      avatar_id: avatarId,
-      profile_data: profile.profile_data || {},
-    })
-    .select('id')
-    .single()
+  // Create session record (unless reusing an existing one)
+  if (!sessionId) {
+    const { data: session } = await supabase
+      .from('sessions')
+      .insert({
+        user_id: user.id,
+        avatar_id: avatarId,
+        profile_data: profile.profile_data || {},
+      })
+      .select('id')
+      .single()
+
+    sessionId = session?.id
+  }
 
   // Get ephemeral token from OpenAI
   const openaiRes = await fetch('https://api.openai.com/v1/realtime/sessions', {
@@ -88,8 +174,20 @@ export async function POST(request: Request) {
 
   const openaiData = await openaiRes.json()
 
+  // Log session init event
+  logSessionEvent(supabase, {
+    sessionId,
+    userId: user.id,
+    eventType: 'session.init',
+    metadata: {
+      avatarId,
+      isReconnect: !!existingSessionId,
+      previousSessionCount,
+    },
+  })
+
   return NextResponse.json({
-    sessionId: session?.id,
+    sessionId,
     ephemeralKey: openaiData.client_secret?.value,
     avatarName: avatar.name,
     voiceId: avatar.voice_id || 'shimmer',

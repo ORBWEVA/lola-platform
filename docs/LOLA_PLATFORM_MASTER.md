@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.3 — 2026-03-09
+# LoLA Platform Master Document v1.4 — 2026-03-09
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.4 | 2026-03-09 | Claude Code | Voice session architecture overhaul: server-side credit enforcement (duration computed from started_at, not client), session lifecycle states (pending/active/completed/failed/expired), stale session cleanup (pending >5min, active >2hr auto-expired), reconnection reuse of session IDs, transcript save on tab close via sendBeacon, Whisper transcription error feedback in transcript, session_events observability table with event logging across all routes, first-time vs returning user context in system prompt, cross-session continuity via GPT-4o-mini session summarization into session_notes, post-session feedback UI (1/3/5 rating + text). DT audit gap closure targeting 20+/25. |
 | v1.3 | 2026-03-09 | Claude Code | Landing hero video: single combined MP4 with 5 avatars (Emma, Sakura, Marcus, Alex, Sara), 1.5s freeze-frame crossfade pre-pads on all non-first clips, word-level subtitle sync with cumulative acrossfade drift corrections (+0.12s Marcus, +0.22s Alex, +0.30s Sara), BGM reduced to 20%, segment boundaries decoupled from xfade offsets for smooth subtitle transitions. |
 | v1.2 | 2026-03-09 | Claude Code | Image persistence pipeline: generated images now auto-upload to Supabase Storage (permanent URLs instead of expiring Together.ai URLs). Social links editor on creator dashboard (Instagram handle editable from avatar edit page). Session fallback to anchor image when scene images are broken. CORS proxy for image downloads. Dual-layer crossfade video transitions on landing carousel. Hackathon demo video assembled + submitted. Vercel deployment live with full env vars + Google OAuth. |
 | v1.1 | 2026-03-08 | Claude Code | Immersive landing page redesign: full-screen Sara hero video, localized subtitles with alternating loops, animated waveform, monochrome greyscale for all non-landing pages, animated conic-gradient border traces on cards, dark/light mode system (dark default), always-dark slide menu with minimal toggle, text-only marketing pages, avatar video prompt doc |
@@ -179,7 +180,11 @@ All API routes live under `/app/api/`.
 | `/api/avatars/publish` | POST | Required (creator) | Trigger social media publish via n8n + Blotato |
 | `/api/avatars/download` | GET | None | CORS proxy for downloading cross-origin images |
 | `/api/checkout` | POST | Required | Create Stripe Checkout session for credit purchase |
-| `/api/sessions` | PATCH | Required | Save session duration + transcript data |
+| `/api/sessions` | PATCH | Required | End session: server-side duration/credit computation, transcript save, GPT-4o-mini session summary |
+| `/api/sessions/activate` | POST | Required | Mark session as active (called on WebRTC dc.onopen) |
+| `/api/sessions/fail` | POST | Required | Mark session as failed with reason |
+| `/api/sessions/end` | POST | Required | sendBeacon target for tab-close transcript save |
+| `/api/sessions/feedback` | POST | Required | Save post-session feedback (rating 1/3/5 + text) |
 | `/api/profile` | PATCH | Required | Update user profile data |
 | `/api/webhooks/stripe` | POST | Stripe signature | Handle Stripe payment + subscription webhooks |
 
@@ -305,8 +310,12 @@ user_id UUID -> profiles
 avatar_id UUID -> avatars
 profile_label TEXT
 profile_data JSONB  -- coaching profile used for this session
+status TEXT NOT NULL DEFAULT 'pending'  -- 'pending' | 'active' | 'completed' | 'failed' | 'expired'
 duration_seconds INT
 credits_used INT DEFAULT 0
+session_notes TEXT  -- GPT-4o-mini generated summary after session ends
+feedback_rating INT  -- 1 (not great) | 3 (okay) | 5 (loved it)
+feedback_text TEXT
 started_at TIMESTAMPTZ DEFAULT now()
 ended_at TIMESTAMPTZ
 ```
@@ -315,10 +324,21 @@ ended_at TIMESTAMPTZ
 ```sql
 id BIGINT GENERATED
 session_id UUID -> sessions
-role TEXT ('user' | 'model')
+role TEXT ('user' | 'model' | 'system')  -- system for transcription errors
 content TEXT
 seq INT
 created_at TIMESTAMPTZ DEFAULT now()
+```
+
+#### session_events
+```sql
+id BIGINT GENERATED
+session_id UUID -> sessions (nullable)
+user_id UUID -> profiles
+event_type TEXT NOT NULL  -- 'session.init' | 'session.activated' | 'session.ended' | 'session.failed' | 'session.transcript_saved'
+metadata JSONB DEFAULT '{}'
+created_at TIMESTAMPTZ DEFAULT now()
+-- Indexes: event_type, session_id
 ```
 
 #### avatars

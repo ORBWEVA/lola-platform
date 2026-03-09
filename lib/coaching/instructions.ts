@@ -12,9 +12,17 @@ interface AvatarConfig {
   systemInstructionOverride?: string
 }
 
+interface SessionContext {
+  isFirstSession: boolean
+  previousSessionCount: number
+  userName?: string
+  previousNotes?: string[]
+}
+
 interface UserContext {
   profileWeights?: Record<string, number>
   nativeLanguage?: string
+  sessionContext?: SessionContext
 }
 
 export const buildSystemInstruction = (
@@ -85,6 +93,26 @@ export const buildSystemInstruction = (
   parts.push('- If the user mixes languages, match their pattern naturally.')
   parts.push('- Never ask "what language do you want to speak?" — just follow the user\'s lead.')
   parts.push('- When the user switches language mid-conversation, acknowledge the switch naturally in the NEW language and continue the conversation in that language.')
+
+  // Session context
+  if (user.sessionContext) {
+    const ctx = user.sessionContext
+    parts.push('\nSESSION CONTEXT:')
+    if (ctx.userName) {
+      parts.push(`- The user's name is ${ctx.userName}.`)
+    }
+    if (ctx.isFirstSession) {
+      parts.push('- This is the user\'s FIRST session with you. Introduce yourself warmly and help them feel comfortable.')
+    } else {
+      parts.push(`- The user has had ${ctx.previousSessionCount} previous session${ctx.previousSessionCount === 1 ? '' : 's'} with you. Greet them like a friend returning.`)
+    }
+    if (ctx.previousNotes && ctx.previousNotes.length > 0) {
+      parts.push('\nPREVIOUS SESSION CONTEXT (use naturally, don\'t recite):')
+      for (const note of ctx.previousNotes) {
+        parts.push(`- ${note}`)
+      }
+    }
+  }
 
   // Behavioral rules
   parts.push('\nBEHAVIORAL RULES:')
