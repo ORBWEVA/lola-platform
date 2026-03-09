@@ -4,6 +4,7 @@ import { buildSystemInstruction } from '@/lib/coaching/instructions'
 import { logSessionEvent } from '@/lib/events'
 
 export async function POST(request: Request) {
+  try {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -147,7 +148,7 @@ export async function POST(request: Request) {
 
   // Create session record (unless reusing an existing one)
   if (!sessionId) {
-    const { data: session } = await supabase
+    const { data: session, error: sessionError } = await supabase
       .from('sessions')
       .insert({
         user_id: user.id,
@@ -156,6 +157,11 @@ export async function POST(request: Request) {
       })
       .select('id')
       .single()
+
+    if (sessionError) {
+      console.error('[realtime] Session insert error:', sessionError)
+      return NextResponse.json({ error: 'Failed to create session' }, { status: 500 })
+    }
 
     sessionId = session?.id
   }
@@ -204,4 +210,8 @@ export async function POST(request: Request) {
     anchorImage: avatar.anchor_image_url,
     domain: avatar.domain,
   })
+  } catch (err) {
+    console.error('[realtime] Unhandled error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }
