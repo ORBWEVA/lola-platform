@@ -8,6 +8,7 @@ import SignOutButton from '@/components/SignOutButton'
 const TABS = [
   { href: '/creator', label: 'Overview', exact: true },
   { href: '/creator/avatars', label: 'Avatars' },
+  { href: '/creator/analytics', label: 'Analytics' },
   { href: '/creator/products', label: 'Products' },
 ]
 

@@ -21,16 +21,30 @@ function CallbackInner() {
         return
       }
 
-      // Ensure profile has LoLA fields set
+      // Ensure profile exists — only set credits on first signup
       const displayName = session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || 'User'
-      await supabase
+      const { data: existing } = await supabase
         .from('profiles')
-        .upsert({
-          id: session.user.id,
-          display_name: displayName,
-          role: 'learner',
-          credits: 15,
-        }, { onConflict: 'id', ignoreDuplicates: false })
+        .select('id')
+        .eq('id', session.user.id)
+        .single()
+
+      if (!existing) {
+        await supabase
+          .from('profiles')
+          .insert({
+            id: session.user.id,
+            display_name: displayName,
+            role: 'learner',
+            credits: 15,
+          })
+      } else {
+        // Update display name on re-auth (in case they changed it in Google)
+        await supabase
+          .from('profiles')
+          .update({ display_name: displayName })
+          .eq('id', session.user.id)
+      }
 
       router.push(next)
     }

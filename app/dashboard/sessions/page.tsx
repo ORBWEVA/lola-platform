@@ -121,7 +121,7 @@ export default async function SessionHistoryPage() {
                   </div>
                 </div>
 
-                {(session.feedback_rating || session.session_notes) && (
+                {(session.feedback_rating || session.session_notes || msgCount > 0) && (
                   <div className="border-t border-[var(--glass-border)] pt-3 space-y-1">
                     {session.feedback_rating && (
                       <p className="text-sm">
@@ -129,12 +129,25 @@ export default async function SessionHistoryPage() {
                         {RATING_LABELS[session.feedback_rating] ?? session.feedback_rating}
                       </p>
                     )}
-                    {session.session_notes && (
-                      <p className="text-sm text-muted truncate">
-                        {session.session_notes.length > 100
-                          ? `${session.session_notes.slice(0, 100)}...`
-                          : session.session_notes}
-                      </p>
+                    {session.session_notes && (() => {
+                      let displayText = session.session_notes
+                      try {
+                        const parsed = JSON.parse(session.session_notes)
+                        if (parsed.summary) displayText = parsed.summary
+                      } catch { /* plain text */ }
+                      return (
+                        <p className="text-sm text-muted truncate">
+                          {displayText.length > 100 ? `${displayText.slice(0, 100)}...` : displayText}
+                        </p>
+                      )
+                    })()}
+                    {msgCount > 0 && (
+                      <Link
+                        href={`/dashboard/transcripts/${session.id}`}
+                        className="inline-block text-xs text-indigo-400 hover:underline mt-1"
+                      >
+                        View transcript →
+                      </Link>
                     )}
                   </div>
                 )}

@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.4 — 2026-03-09
+# LoLA Platform Master Document v1.6 — 2026-03-09
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,8 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.6 | 2026-03-09 | Claude Code | DT Full exercise — visible session value: enhanced transcript page with stats/report card/system messages/event logging, structured JSON session reports (topics, key moment, next focus) via upgraded GPT-4o-mini prompt with response_format json_object, voice sample generation on avatar profiles (OpenAI TTS → Supabase Storage, play button on profile page), "View Transcript" links from SessionSummary and session history, JSON-aware summary display across analytics and history pages. Migration 011 adds voice_sample_url column. |
+| v1.5 | 2026-03-09 | Claude Code | Platform-wide DT audit gap closers: creator analytics page (per-avatar session count, avg rating, rating distribution, recent feedback + session summaries), fix callback credit bug (INSERT on first signup only, not upsert that overwrites credits on re-auth), compute avatar rating from real feedback_rating data instead of static DB value, session count from completed sessions. |
 | v1.4 | 2026-03-09 | Claude Code | Voice session architecture overhaul: server-side credit enforcement (duration computed from started_at, not client), session lifecycle states (pending/active/completed/failed/expired), stale session cleanup (pending >5min, active >2hr auto-expired), reconnection reuse of session IDs, transcript save on tab close via sendBeacon, Whisper transcription error feedback in transcript, session_events observability table with event logging across all routes, first-time vs returning user context in system prompt, cross-session continuity via GPT-4o-mini session summarization into session_notes, post-session feedback UI (1/3/5 rating + text). DT audit gap closure targeting 20+/25. |
 | v1.3 | 2026-03-09 | Claude Code | Landing hero video: single combined MP4 with 5 avatars (Emma, Sakura, Marcus, Alex, Sara), 1.5s freeze-frame crossfade pre-pads on all non-first clips, word-level subtitle sync with cumulative acrossfade drift corrections (+0.12s Marcus, +0.22s Alex, +0.30s Sara), BGM reduced to 20%, segment boundaries decoupled from xfade offsets for smooth subtitle transitions. |
 | v1.2 | 2026-03-09 | Claude Code | Image persistence pipeline: generated images now auto-upload to Supabase Storage (permanent URLs instead of expiring Together.ai URLs). Social links editor on creator dashboard (Instagram handle editable from avatar edit page). Session fallback to anchor image when scene images are broken. CORS proxy for image downloads. Dual-layer crossfade video transitions on landing carousel. Hackathon demo video assembled + submitted. Vercel deployment live with full env vars + Google OAuth. |
@@ -179,6 +181,7 @@ All API routes live under `/app/api/`.
 | `/api/avatars/caption` | POST | Required (creator) | Generate social captions for avatar |
 | `/api/avatars/publish` | POST | Required (creator) | Trigger social media publish via n8n + Blotato |
 | `/api/avatars/download` | GET | None | CORS proxy for downloading cross-origin images |
+| `/api/avatars/voice-sample` | POST | Required (creator) | Generate TTS voice greeting sample via OpenAI, store in Supabase Storage |
 | `/api/checkout` | POST | Required | Create Stripe Checkout session for credit purchase |
 | `/api/sessions` | PATCH | Required | End session: server-side duration/credit computation, transcript save, GPT-4o-mini session summary |
 | `/api/sessions/activate` | POST | Required | Mark session as active (called on WebRTC dc.onopen) |
@@ -359,6 +362,7 @@ knowledge_base JSONB
 system_instruction_override TEXT
 social_links JSONB  -- { instagram, x, youtube, tiktok, linkedin }
 is_published BOOLEAN DEFAULT false
+voice_sample_url TEXT  -- pre-generated TTS greeting for profile preview
 session_count INT DEFAULT 0
 rating DECIMAL(2,1) DEFAULT 5.0
 created_at TIMESTAMPTZ DEFAULT now()

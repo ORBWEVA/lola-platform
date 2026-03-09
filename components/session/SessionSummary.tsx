@@ -121,14 +121,20 @@ export default function SessionSummary({ sessionId, avatarName, avatarSlug, dura
 
         <div className="space-y-3 pt-2">
           <Link
-            href={`/avatar/${avatarSlug}`}
+            href={`/dashboard/transcripts/${sessionId}`}
             className="block w-full px-4 py-3 rounded-xl gradient-btn text-center font-medium"
+          >
+            View Transcript
+          </Link>
+          <Link
+            href={`/avatar/${avatarSlug}`}
+            className="block w-full px-4 py-3 rounded-xl glass text-center font-medium hover:bg-white/10 transition-colors"
           >
             Back to {avatarName}
           </Link>
           <Link
             href={userRole === 'creator' ? '/creator' : '/dashboard'}
-            className="block w-full px-4 py-3 rounded-xl glass text-center font-medium hover:bg-white/10 transition-colors"
+            className="block text-center text-sm text-muted hover:text-foreground transition-colors"
           >
             {userRole === 'creator' ? 'Creator Studio' : 'My Dashboard'}
           </Link>

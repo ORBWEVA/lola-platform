@@ -109,11 +109,18 @@ const summarizeSession = async (
       messages: [
         {
           role: 'system',
-          content: 'Summarize this voice session in 2-3 sentences. Focus on what was discussed, any progress made, and the user\'s mood/engagement. Be concise.',
+          content: `Analyze this voice session and return a JSON object with these fields:
+- "summary": 2-3 sentence summary of what was discussed and any progress made
+- "topics": array of 2-5 specific topics or skills covered (short phrases)
+- "keyMoment": one standout moment where the user made progress or showed engagement (1 sentence, or null if none)
+- "nextFocus": one suggested area to focus on in the next session (1 sentence, or null if unclear)
+
+Return ONLY valid JSON, no markdown fencing.`,
         },
         { role: 'user', content: condensed },
       ],
-      max_tokens: 150,
+      max_tokens: 300,
+      response_format: { type: 'json_object' },
     }),
   })
 

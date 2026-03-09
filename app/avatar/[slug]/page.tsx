@@ -44,14 +44,33 @@ export default async function AvatarProfilePage({ params }: Props) {
 
   if (!avatar) notFound()
 
-  const { data: products } = await supabase
-    .from('creator_products')
-    .select('*')
-    .eq('avatar_id', avatar.id)
-    .eq('is_active', true)
-    .order('sort_order')
+  const [{ data: products }, { data: { user } }, { data: feedbackRows }, { count: completedCount }] = await Promise.all([
+    supabase
+      .from('creator_products')
+      .select('*')
+      .eq('avatar_id', avatar.id)
+      .eq('is_active', true)
+      .order('sort_order'),
+    supabase.auth.getUser(),
+    supabase
+      .from('sessions')
+      .select('feedback_rating')
+      .eq('avatar_id', avatar.id)
+      .eq('status', 'completed')
+      .not('feedback_rating', 'is', null),
+    supabase
+      .from('sessions')
+      .select('id', { count: 'exact', head: true })
+      .eq('avatar_id', avatar.id)
+      .eq('status', 'completed'),
+  ])
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // Compute average rating from feedback, fall back to DB default
+  const ratings = (feedbackRows || []).map(r => r.feedback_rating).filter((r): r is number => r !== null)
+  const computedRating = ratings.length > 0
+    ? Math.round((ratings.reduce((s, r) => s + r, 0) / ratings.length) * 10) / 10
+    : avatar.rating
+  const computedSessionCount = completedCount ?? avatar.session_count
 
   const preset = getDomainPreset(avatar.domain)
   const jsonLd = {
@@ -72,7 +91,7 @@ export default async function AvatarProfilePage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <AvatarProfileClient
-        avatar={avatar}
+        avatar={{ ...avatar, rating: computedRating, session_count: computedSessionCount }}
         products={products || []}
         isLoggedIn={!!user}
       />

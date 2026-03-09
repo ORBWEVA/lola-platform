@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { getDomainPreset } from '@/lib/coaching/domains'
 
 interface Avatar {
@@ -15,6 +15,7 @@ interface Avatar {
   session_count: number
   rating: number
   social_links: Record<string, string> | null
+  voice_sample_url?: string | null
 }
 
 interface Product {
@@ -37,8 +38,30 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
   const preset = getDomainPreset(avatar.domain)
   const sessionUrl = isLoggedIn ? `/session/${avatar.slug}` : `/login?next=/session/${avatar.slug}`
   const [panelOpen, setPanelOpen] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   const close = useCallback(() => setPanelOpen(false), [])
+
+  const playVoiceSample = useCallback((e: React.MouseEvent) => {
+    if (!avatar.voice_sample_url) return
+    e.preventDefault()
+    e.stopPropagation()
+
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      setIsPlaying(false)
+      return
+    }
+
+    const audio = new Audio(avatar.voice_sample_url)
+    audioRef.current = audio
+    audio.onended = () => setIsPlaying(false)
+    audio.onerror = () => setIsPlaying(false)
+    audio.play()
+    setIsPlaying(true)
+  }, [avatar.voice_sample_url, isPlaying])
 
   useEffect(() => {
     if (!panelOpen) return
@@ -103,8 +126,28 @@ export default function AvatarProfileClient({ avatar, products, isLoggedIn }: Pr
         <h1 className="text-4xl md:text-5xl font-bold text-white">{avatar.name}</h1>
         <p className="text-white/60 text-lg mt-1 max-w-md">{avatar.tagline || preset.label}</p>
 
-        {/* Mic CTA — just the icon */}
-        <div className="mt-6">
+        {/* CTA buttons */}
+        <div className="mt-6 flex items-center gap-3">
+          {avatar.voice_sample_url && (
+            <button
+              onClick={playVoiceSample}
+              className={`w-12 h-12 rounded-full backdrop-blur-md border border-white/20 flex items-center justify-center transition-all hover:scale-110 ${
+                isPlaying ? 'bg-white/25 border-white/40' : 'bg-white/10 hover:bg-white/20'
+              }`}
+              aria-label={isPlaying ? 'Stop preview' : 'Preview voice'}
+            >
+              {isPlaying ? (
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <rect x="6" y="4" width="4" height="16" rx="1" />
+                  <rect x="14" y="4" width="4" height="16" rx="1" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              )}
+            </button>
+          )}
           <Link
             href={sessionUrl}
             className="w-16 h-16 rounded-full bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all hover:scale-110 group"

@@ -41,6 +41,7 @@ export default function EditAvatarPage() {
   const [domain, setDomain] = useState('')
   const [isPublished, setIsPublished] = useState(false)
   const [instagram, setInstagram] = useState('')
+  const [generatingVoice, setGeneratingVoice] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -337,6 +338,38 @@ export default function EditAvatarPage() {
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
+
+        {/* Generate voice sample */}
+        <button
+          onClick={async () => {
+            if (!avatar) return
+            setGeneratingVoice(true)
+            setErrorMsg(null)
+            try {
+              const res = await fetch('/api/avatars/voice-sample', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ avatarId: avatar.id }),
+              })
+              if (!res.ok) {
+                const data = await res.json()
+                setErrorMsg(data.error || 'Voice sample generation failed')
+              } else {
+                setSuccessMsg('Voice sample generated! Visitors can preview it on the profile page.')
+              }
+            } catch {
+              setErrorMsg('Voice sample generation failed — check your connection.')
+            }
+            setGeneratingVoice(false)
+          }}
+          disabled={generatingVoice}
+          className="w-full py-3 rounded-xl glass font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+          {generatingVoice ? 'Generating...' : 'Generate Voice Preview'}
+        </button>
 
         {/* Share to social */}
         {isPublished && (
