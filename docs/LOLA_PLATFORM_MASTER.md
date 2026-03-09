@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.2 — 2026-03-09
+# LoLA Platform Master Document v1.3 — 2026-03-09
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.3 | 2026-03-09 | Claude Code | Landing hero video: single combined MP4 with 5 avatars (Emma, Sakura, Marcus, Alex, Sara), 1.5s freeze-frame crossfade pre-pads on all non-first clips, word-level subtitle sync with cumulative acrossfade drift corrections (+0.12s Marcus, +0.22s Alex, +0.30s Sara), BGM reduced to 20%, segment boundaries decoupled from xfade offsets for smooth subtitle transitions. |
 | v1.2 | 2026-03-09 | Claude Code | Image persistence pipeline: generated images now auto-upload to Supabase Storage (permanent URLs instead of expiring Together.ai URLs). Social links editor on creator dashboard (Instagram handle editable from avatar edit page). Session fallback to anchor image when scene images are broken. CORS proxy for image downloads. Dual-layer crossfade video transitions on landing carousel. Hackathon demo video assembled + submitted. Vercel deployment live with full env vars + Google OAuth. |
 | v1.1 | 2026-03-08 | Claude Code | Immersive landing page redesign: full-screen Sara hero video, localized subtitles with alternating loops, animated waveform, monochrome greyscale for all non-landing pages, animated conic-gradient border traces on cards, dark/light mode system (dark default), always-dark slide menu with minimal toggle, text-only marketing pages, avatar video prompt doc |
 | v1.0 | 2026-03-07 | Claude Code | Initial master document creation from HACKATHON_BUILD_SPEC.md |
@@ -424,8 +425,8 @@ created_at TIMESTAMPTZ DEFAULT now()
 | 9 | Stripe Integration | Complete |
 | 10 | Landing Page (immersive full-screen redesign) | Complete |
 | 11 | Design System (monochrome, animated borders, dark/light) | Complete |
-| 12 | Avatar Video Generation (5 avatars, landscape + portrait) | In Progress |
-| 13 | Multi-Avatar Carousel + Portrait Video Support | Pending |
+| 12 | Avatar Video Generation (5 avatars, landscape + portrait) | Complete |
+| 13 | Multi-Avatar Hero Video (combined MP4, freeze-frame crossfades, subtitle sync) | Complete |
 | 14 | Demo Video + Submission | Complete |
 | 15 | Image Persistence Pipeline (Supabase Storage) | Complete |
 | 16 | Social Links Editor (Creator Dashboard) | Complete |
