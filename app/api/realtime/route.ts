@@ -95,10 +95,13 @@ export async function POST(request: Request) {
     .eq('id', user.id)
     .single()
 
+  console.log('[realtime] profile:', { credits: profile?.credits, hasProfile: !!profile })
+
   if (!profile || profile.credits <= 0) {
     return NextResponse.json({ error: 'No credits remaining' }, { status: 402 })
   }
 
+  console.log('[realtime] step: history query')
   // Query session history for this user+avatar pair
   const [{ count: totalSessionCount }, { data: recentSessions }] = await Promise.all([
     supabase
@@ -123,6 +126,7 @@ export async function POST(request: Request) {
     .map(s => s.session_notes)
     .filter((n): n is string => !!n)
 
+  console.log('[realtime] step: build instruction')
   // Build system instruction
   const instruction = buildSystemInstruction(
     {
@@ -166,6 +170,7 @@ export async function POST(request: Request) {
     sessionId = session?.id
   }
 
+  console.log('[realtime] step: openai token')
   // Get ephemeral token from OpenAI
   const openaiRes = await fetch('https://api.openai.com/v1/realtime/sessions', {
     method: 'POST',
