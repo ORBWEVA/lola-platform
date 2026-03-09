@@ -170,26 +170,29 @@ export async function POST(request: Request) {
     sessionId = session?.id
   }
 
-  console.log('[realtime] step: openai token')
+  console.log('[realtime] step: openai token, key exists:', !!process.env.OPENAI_API_KEY, 'key prefix:', process.env.OPENAI_API_KEY?.slice(0, 7))
   // Get ephemeral token from OpenAI
+  const openaiBody = {
+    model: 'gpt-4o-realtime-preview-2024-12-17',
+    voice: avatar.voice_id || 'shimmer',
+    instructions: instruction,
+    temperature: 0.7,
+  }
   const openaiRes = await fetch('https://api.openai.com/v1/realtime/sessions', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      model: 'gpt-4o-realtime-preview',
-      voice: avatar.voice_id || 'shimmer',
-      instructions: instruction,
-      temperature: 0.7,
-    }),
+    body: JSON.stringify(openaiBody),
   })
+
+  console.log('[realtime] openai status:', openaiRes.status)
 
   if (!openaiRes.ok) {
     const err = await openaiRes.text()
-    console.error('OPENAI_FAIL status=' + openaiRes.status + ' body=' + err.slice(0, 200))
-    return NextResponse.json({ error: 'Failed to create voice session', detail: err.slice(0, 200) }, { status: 500 })
+    console.error('[realtime] OPENAI ERR:', err.slice(0, 300))
+    return NextResponse.json({ error: 'Failed to create voice session', openaiStatus: openaiRes.status, detail: err.slice(0, 500) }, { status: 500 })
   }
 
   const openaiData = await openaiRes.json()
