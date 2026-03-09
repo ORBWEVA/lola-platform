@@ -86,8 +86,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Avatar not found' }, { status: 404 })
   }
 
-  console.log('[realtime] Avatar loaded:', { id: avatar.id, name: avatar.name, slug: avatar.slug, voice_id: avatar.voice_id })
-
   // Load user profile for coaching weights
   const { data: profile } = await supabase
     .from('profiles')
@@ -95,13 +93,10 @@ export async function POST(request: Request) {
     .eq('id', user.id)
     .single()
 
-  console.log('[realtime] profile:', { credits: profile?.credits, hasProfile: !!profile })
-
   if (!profile || profile.credits <= 0) {
     return NextResponse.json({ error: 'No credits remaining' }, { status: 402 })
   }
 
-  console.log('[realtime] step: history query')
   // Query session history for this user+avatar pair
   const [{ count: totalSessionCount }, { data: recentSessions }] = await Promise.all([
     supabase
@@ -126,7 +121,6 @@ export async function POST(request: Request) {
     .map(s => s.session_notes)
     .filter((n): n is string => !!n)
 
-  console.log('[realtime] step: build instruction')
   // Build system instruction
   const instruction = buildSystemInstruction(
     {
@@ -170,11 +164,20 @@ export async function POST(request: Request) {
     sessionId = session?.id
   }
 
-  console.log('[realtime] step: openai token, key exists:', !!process.env.OPENAI_API_KEY, 'key prefix:', process.env.OPENAI_API_KEY?.slice(0, 7))
+  // Realtime API only supports a subset of voices — map TTS-only voices to closest match
+  const REALTIME_VOICES = new Set(['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse', 'marin', 'cedar'])
+  const TTS_TO_REALTIME: Record<string, string> = {
+    nova: 'shimmer',
+    onyx: 'echo',
+    fable: 'ballad',
+  }
+  const rawVoice = avatar.voice_id || 'shimmer'
+  const voice = REALTIME_VOICES.has(rawVoice) ? rawVoice : (TTS_TO_REALTIME[rawVoice] || 'shimmer')
+
   // Get ephemeral token from OpenAI
   const openaiBody = {
     model: 'gpt-4o-realtime-preview-2024-12-17',
-    voice: avatar.voice_id || 'shimmer',
+    voice,
     instructions: instruction,
     temperature: 0.7,
   }
@@ -187,12 +190,10 @@ export async function POST(request: Request) {
     body: JSON.stringify(openaiBody),
   })
 
-  console.log('[realtime] openai status:', openaiRes.status)
-
   if (!openaiRes.ok) {
     const err = await openaiRes.text()
-    console.error('[realtime] OPENAI ERR:', err.slice(0, 300))
-    return NextResponse.json({ error: 'Failed to create voice session', openaiStatus: openaiRes.status, detail: err.slice(0, 500) }, { status: 500 })
+    console.error('[realtime] OpenAI error:', openaiRes.status, err.slice(0, 300))
+    return NextResponse.json({ error: 'Failed to create voice session', detail: err.slice(0, 300) }, { status: 500 })
   }
 
   const openaiData = await openaiRes.json()
