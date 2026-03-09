@@ -9,15 +9,16 @@ interface Props {
 }
 
 const locales = [
-  { code: 'en', label: 'EN' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' },
+  { code: 'en', flag: '🇬🇧', label: 'EN' },
+  { code: 'ja', flag: '🇯🇵', label: '日本語' },
+  { code: 'ko', flag: '🇰🇷', label: '한국어' },
 ] as const
 
 export default function SlideMenu({ isLoggedIn }: Props) {
   const t = useTranslations('nav')
   const tc = useTranslations('common')
   const [open, setOpen] = useState(false)
+  const [langOpen, setLangOpen] = useState(false)
   const [theme, setTheme] = useState<'dark' | 'light'>('dark')
   const [currentLocale, setCurrentLocale] = useState('en')
 
@@ -38,7 +39,7 @@ export default function SlideMenu({ isLoggedIn }: Props) {
     document.documentElement.setAttribute('data-theme', next)
   }
 
-  const close = useCallback(() => setOpen(false), [])
+  const close = useCallback(() => { setOpen(false); setLangOpen(false) }, [])
 
   useEffect(() => {
     if (!open) return
@@ -100,7 +101,7 @@ export default function SlideMenu({ isLoggedIn }: Props) {
         }`}
         style={{ background: 'rgba(10, 10, 26, 0.95)' }}
       >
-        {/* Top bar: theme toggle (left) + close (right) */}
+        {/* Top bar: theme toggle (left) + lang + close (right) */}
         <div className="flex items-center justify-between p-4">
           <button
             onClick={toggleTheme}
@@ -125,16 +126,49 @@ export default function SlideMenu({ isLoggedIn }: Props) {
               </svg>
             )}
           </button>
-          <button
-            onClick={close}
-            className="p-2 text-white/50 hover:text-white transition-colors"
-            aria-label="Close menu"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+          <div className="flex items-center gap-1">
+            {/* Language — flag + chevron dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setLangOpen(!langOpen)}
+                className="flex items-center gap-1.5 p-2 text-white/60 hover:text-white transition-colors"
+                aria-label="Change language"
+              >
+                <span className="text-base leading-none">{locales.find(l => l.code === currentLocale)?.flag ?? '🇬🇧'}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`transition-transform ${langOpen ? 'rotate-180' : ''}`}>
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {langOpen && (
+                <div className="absolute right-0 top-full mt-1 py-1 rounded-lg border border-white/[0.08] min-w-[120px]" style={{ background: 'rgba(10, 10, 26, 0.95)' }}>
+                  {locales.map((loc) => (
+                    <button
+                      key={loc.code}
+                      onClick={() => { setLangOpen(false); switchLocale(loc.code) }}
+                      className={`flex items-center gap-2.5 w-full px-3 py-2 text-xs transition-colors ${
+                        currentLocale === loc.code
+                          ? 'text-white bg-white/10'
+                          : 'text-white/50 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      <span className="text-sm leading-none">{loc.flag}</span>
+                      <span>{loc.label}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button
+              onClick={close}
+              className="p-2 text-white/50 hover:text-white transition-colors"
+              aria-label="Close menu"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Nav items */}
@@ -157,32 +191,6 @@ export default function SlideMenu({ isLoggedIn }: Props) {
             ))}
           </ul>
 
-          {/* Language switcher */}
-          <div className="mt-6 pt-4 border-t border-white/[0.08]">
-            <div className="flex items-center gap-2 px-4 mb-3">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="2" y1="12" x2="22" y2="12" />
-                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-              </svg>
-              <span className="text-xs text-white/40 uppercase tracking-wider">{t('language')}</span>
-            </div>
-            <div className="flex gap-2 px-4">
-              {locales.map((loc) => (
-                <button
-                  key={loc.code}
-                  onClick={() => switchLocale(loc.code)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
-                    currentLocale === loc.code
-                      ? 'bg-white/10 text-white'
-                      : 'text-white/40 hover:text-white/70 hover:bg-white/5'
-                  }`}
-                >
-                  {loc.label}
-                </button>
-              ))}
-            </div>
-          </div>
         </nav>
 
       </div>
