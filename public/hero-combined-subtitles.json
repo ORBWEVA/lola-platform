@@ -1,5 +1,5 @@
 {
-  "duration": 28.8,
+  "duration": 36.7,
   "words": [
     {
       "word": "I'm",
@@ -73,300 +73,300 @@
     },
     {
       "word": "I'm",
-      "start": 5.139,
-      "end": 5.659
+      "start": 7.3,
+      "end": 7.82
     },
     {
       "word": "Sakura",
-      "start": 5.659,
-      "end": 6.059
+      "start": 7.82,
+      "end": 8.22
     },
     {
       "word": "Whether",
-      "start": 6.419,
-      "end": 6.619
+      "start": 8.58,
+      "end": 8.78
     },
     {
       "word": "it's",
-      "start": 6.619,
-      "end": 6.959
+      "start": 8.78,
+      "end": 9.12
     },
     {
       "word": "Japanese",
-      "start": 6.959,
-      "end": 7.359
+      "start": 9.12,
+      "end": 9.52
     },
     {
       "word": "or",
-      "start": 7.359,
-      "end": 7.759
+      "start": 9.52,
+      "end": 9.92
     },
     {
       "word": "any",
-      "start": 7.759,
-      "end": 8.119
+      "start": 9.92,
+      "end": 10.28
     },
     {
       "word": "language",
-      "start": 8.119,
-      "end": 8.599
+      "start": 10.28,
+      "end": 10.76
     },
     {
       "word": "I'll",
-      "start": 8.919,
-      "end": 9.159
+      "start": 11.08,
+      "end": 11.32
     },
     {
       "word": "meet",
-      "start": 9.159,
-      "end": 9.339
+      "start": 11.32,
+      "end": 11.5
     },
     {
       "word": "you",
-      "start": 9.339,
-      "end": 9.559
+      "start": 11.5,
+      "end": 11.72
     },
     {
       "word": "where",
-      "start": 9.559,
-      "end": 9.779
+      "start": 11.72,
+      "end": 11.94
     },
     {
       "word": "you",
-      "start": 9.779,
-      "end": 10.039
+      "start": 11.94,
+      "end": 12.2
     },
     {
       "word": "are",
-      "start": 10.039,
-      "end": 10.279
+      "start": 12.2,
+      "end": 12.44
     },
     {
       "word": "Let's",
-      "start": 10.939,
-      "end": 11.259
+      "start": 13.1,
+      "end": 13.42
     },
     {
       "word": "begin",
-      "start": 11.259,
-      "end": 11.519
+      "start": 13.42,
+      "end": 13.68
     },
     {
       "word": "I'm",
-      "start": 10.444,
-      "end": 11.144
+      "start": 14.18,
+      "end": 14.88
     },
     {
       "word": "Marcus",
-      "start": 11.144,
-      "end": 11.544
+      "start": 14.88,
+      "end": 15.28
     },
     {
       "word": "Your",
-      "start": 12.124,
-      "end": 12.344
+      "start": 15.86,
+      "end": 16.08
     },
     {
       "word": "goals",
-      "start": 12.344,
-      "end": 12.764
+      "start": 16.08,
+      "end": 16.5
     },
     {
       "word": "Your",
-      "start": 13.464,
-      "end": 13.744
+      "start": 17.2,
+      "end": 17.48
     },
     {
       "word": "pace",
-      "start": 13.744,
-      "end": 14.144
+      "start": 17.48,
+      "end": 17.88
     },
     {
       "word": "Your",
-      "start": 14.724,
-      "end": 14.924
+      "start": 18.46,
+      "end": 18.66
     },
     {
       "word": "language",
-      "start": 14.924,
-      "end": 15.384
+      "start": 18.66,
+      "end": 19.12
     },
     {
       "word": "Let's",
-      "start": 16.164,
-      "end": 16.504
+      "start": 19.9,
+      "end": 20.24
     },
     {
       "word": "get",
-      "start": 16.504,
-      "end": 16.624
+      "start": 20.24,
+      "end": 20.36
     },
     {
       "word": "to",
-      "start": 16.624,
-      "end": 17.024
+      "start": 20.36,
+      "end": 20.76
     },
     {
       "word": "work",
-      "start": 17.024,
-      "end": 17.084
+      "start": 20.76,
+      "end": 20.82
     },
     {
       "word": "I'm",
-      "start": 15.944,
-      "end": 16.864
+      "start": 21.32,
+      "end": 22.24
     },
     {
       "word": "Alex",
-      "start": 16.864,
-      "end": 17.304
+      "start": 22.24,
+      "end": 22.68
     },
     {
       "word": "I",
-      "start": 17.804,
-      "end": 17.964
+      "start": 23.18,
+      "end": 23.34
     },
     {
       "word": "help",
-      "start": 17.964,
-      "end": 18.124
+      "start": 23.34,
+      "end": 23.5
     },
     {
       "word": "you",
-      "start": 18.124,
-      "end": 18.424
+      "start": 23.5,
+      "end": 23.8
     },
     {
       "word": "find",
-      "start": 18.424,
-      "end": 18.544
+      "start": 23.8,
+      "end": 23.92
     },
     {
       "word": "exactly",
-      "start": 18.544,
-      "end": 19.224
+      "start": 23.92,
+      "end": 24.6
     },
     {
       "word": "what",
-      "start": 19.224,
-      "end": 19.424
+      "start": 24.6,
+      "end": 24.8
     },
     {
       "word": "you",
-      "start": 19.424,
-      "end": 19.704
+      "start": 24.8,
+      "end": 25.08
     },
     {
       "word": "need",
-      "start": 19.704,
-      "end": 19.904
+      "start": 25.08,
+      "end": 25.28
     },
     {
       "word": "in",
-      "start": 19.904,
-      "end": 20.544
+      "start": 25.28,
+      "end": 25.92
     },
     {
       "word": "any",
-      "start": 20.544,
-      "end": 21.004
+      "start": 25.92,
+      "end": 26.38
     },
     {
       "word": "language",
-      "start": 21.004,
-      "end": 21.424
+      "start": 26.38,
+      "end": 26.8
     },
     {
       "word": "Let's",
-      "start": 22.224,
-      "end": 22.464
+      "start": 27.6,
+      "end": 27.84
     },
     {
       "word": "figure",
-      "start": 22.464,
-      "end": 22.604
+      "start": 27.84,
+      "end": 27.98
     },
     {
       "word": "it",
-      "start": 22.604,
-      "end": 22.784
+      "start": 27.98,
+      "end": 28.16
     },
     {
       "word": "out",
-      "start": 22.784,
-      "end": 22.924
+      "start": 28.16,
+      "end": 28.3
     },
     {
       "word": "I'm",
-      "start": 21.003,
-      "end": 21.783
+      "start": 28.8,
+      "end": 29.58
     },
     {
       "word": "Sara.",
-      "start": 21.783,
-      "end": 22.103
+      "start": 29.58,
+      "end": 29.9
     },
     {
       "word": "Pick",
-      "start": 22.723,
-      "end": 22.723
+      "start": 30.52,
+      "end": 30.52
     },
     {
       "word": "a",
-      "start": 22.723,
-      "end": 23.383
+      "start": 30.52,
+      "end": 31.18
     },
     {
       "word": "language,",
-      "start": 23.383,
-      "end": 23.383
+      "start": 31.18,
+      "end": 31.18
     },
     {
       "word": "any",
-      "start": 23.783,
-      "end": 24.023
+      "start": 31.58,
+      "end": 31.82
     },
     {
       "word": "language",
-      "start": 24.023,
-      "end": 24.383
+      "start": 31.82,
+      "end": 32.18
     },
     {
       "word": "\u2014",
-      "start": 24.383,
-      "end": 24.443
+      "start": 32.18,
+      "end": 32.24
     },
     {
       "word": "I'll",
-      "start": 24.443,
-      "end": 24.723
+      "start": 32.24,
+      "end": 32.52
     },
     {
       "word": "keep",
-      "start": 24.723,
-      "end": 24.903
+      "start": 32.52,
+      "end": 32.7
     },
     {
       "word": "up.",
-      "start": 24.903,
-      "end": 25.223
+      "start": 32.7,
+      "end": 33.02
     },
     {
       "word": "Let's",
-      "start": 25.903,
-      "end": 26.163
+      "start": 33.7,
+      "end": 33.96
     },
     {
       "word": "talk.",
-      "start": 26.163,
-      "end": 26.463
+      "start": 33.96,
+      "end": 34.26
     }
   ],
   "segments": [
     {
       "name": "emma-lindgren",
       "start": 0.0,
-      "end": 5.139,
+      "end": 7.3,
       "words": [
         {
           "word": "I'm",
@@ -442,319 +442,319 @@
     },
     {
       "name": "sakura-sensei",
-      "start": 5.139,
-      "end": 10.444,
+      "start": 7.3,
+      "end": 14.18,
       "words": [
         {
           "word": "I'm",
-          "start": 5.139,
-          "end": 5.659
+          "start": 7.3,
+          "end": 7.82
         },
         {
           "word": "Sakura",
-          "start": 5.659,
-          "end": 6.059
+          "start": 7.82,
+          "end": 8.22
         },
         {
           "word": "Whether",
-          "start": 6.419,
-          "end": 6.619
+          "start": 8.58,
+          "end": 8.78
         },
         {
           "word": "it's",
-          "start": 6.619,
-          "end": 6.959
+          "start": 8.78,
+          "end": 9.12
         },
         {
           "word": "Japanese",
-          "start": 6.959,
-          "end": 7.359
+          "start": 9.12,
+          "end": 9.52
         },
         {
           "word": "or",
-          "start": 7.359,
-          "end": 7.759
+          "start": 9.52,
+          "end": 9.92
         },
         {
           "word": "any",
-          "start": 7.759,
-          "end": 8.119
+          "start": 9.92,
+          "end": 10.28
         },
         {
           "word": "language",
-          "start": 8.119,
-          "end": 8.599
+          "start": 10.28,
+          "end": 10.76
         },
         {
           "word": "I'll",
-          "start": 8.919,
-          "end": 9.159
+          "start": 11.08,
+          "end": 11.32
         },
         {
           "word": "meet",
-          "start": 9.159,
-          "end": 9.339
+          "start": 11.32,
+          "end": 11.5
         },
         {
           "word": "you",
-          "start": 9.339,
-          "end": 9.559
+          "start": 11.5,
+          "end": 11.72
         },
         {
           "word": "where",
-          "start": 9.559,
-          "end": 9.779
+          "start": 11.72,
+          "end": 11.94
         },
         {
           "word": "you",
-          "start": 9.779,
-          "end": 10.039
+          "start": 11.94,
+          "end": 12.2
         },
         {
           "word": "are",
-          "start": 10.039,
-          "end": 10.279
+          "start": 12.2,
+          "end": 12.44
         },
         {
           "word": "Let's",
-          "start": 10.939,
-          "end": 11.259
+          "start": 13.1,
+          "end": 13.42
         },
         {
           "word": "begin",
-          "start": 11.259,
-          "end": 11.519
+          "start": 13.42,
+          "end": 13.68
         }
       ]
     },
     {
       "name": "coach-marcus",
-      "start": 10.444,
-      "end": 15.944,
+      "start": 14.18,
+      "end": 21.32,
       "words": [
         {
           "word": "I'm",
-          "start": 10.444,
-          "end": 11.144
+          "start": 14.18,
+          "end": 14.88
         },
         {
           "word": "Marcus",
-          "start": 11.144,
-          "end": 11.544
+          "start": 14.88,
+          "end": 15.28
         },
         {
           "word": "Your",
-          "start": 12.124,
-          "end": 12.344
+          "start": 15.86,
+          "end": 16.08
         },
         {
           "word": "goals",
-          "start": 12.344,
-          "end": 12.764
+          "start": 16.08,
+          "end": 16.5
         },
         {
           "word": "Your",
-          "start": 13.464,
-          "end": 13.744
+          "start": 17.2,
+          "end": 17.48
         },
         {
           "word": "pace",
-          "start": 13.744,
-          "end": 14.144
+          "start": 17.48,
+          "end": 17.88
         },
         {
           "word": "Your",
-          "start": 14.724,
-          "end": 14.924
+          "start": 18.46,
+          "end": 18.66
         },
         {
           "word": "language",
-          "start": 14.924,
-          "end": 15.384
+          "start": 18.66,
+          "end": 19.12
         },
         {
           "word": "Let's",
-          "start": 16.164,
-          "end": 16.504
+          "start": 19.9,
+          "end": 20.24
         },
         {
           "word": "get",
-          "start": 16.504,
-          "end": 16.624
+          "start": 20.24,
+          "end": 20.36
         },
         {
           "word": "to",
-          "start": 16.624,
-          "end": 17.024
+          "start": 20.36,
+          "end": 20.76
         },
         {
           "word": "work",
-          "start": 17.024,
-          "end": 17.084
+          "start": 20.76,
+          "end": 20.82
         }
       ]
     },
     {
       "name": "alex-rivera",
-      "start": 15.944,
-      "end": 21.003,
+      "start": 21.32,
+      "end": 28.8,
       "words": [
         {
           "word": "I'm",
-          "start": 15.944,
-          "end": 16.864
+          "start": 21.32,
+          "end": 22.24
         },
         {
           "word": "Alex",
-          "start": 16.864,
-          "end": 17.304
+          "start": 22.24,
+          "end": 22.68
         },
         {
           "word": "I",
-          "start": 17.804,
-          "end": 17.964
+          "start": 23.18,
+          "end": 23.34
         },
         {
           "word": "help",
-          "start": 17.964,
-          "end": 18.124
+          "start": 23.34,
+          "end": 23.5
         },
         {
           "word": "you",
-          "start": 18.124,
-          "end": 18.424
+          "start": 23.5,
+          "end": 23.8
         },
         {
           "word": "find",
-          "start": 18.424,
-          "end": 18.544
+          "start": 23.8,
+          "end": 23.92
         },
         {
           "word": "exactly",
-          "start": 18.544,
-          "end": 19.224
+          "start": 23.92,
+          "end": 24.6
         },
         {
           "word": "what",
-          "start": 19.224,
-          "end": 19.424
+          "start": 24.6,
+          "end": 24.8
         },
         {
           "word": "you",
-          "start": 19.424,
-          "end": 19.704
+          "start": 24.8,
+          "end": 25.08
         },
         {
           "word": "need",
-          "start": 19.704,
-          "end": 19.904
+          "start": 25.08,
+          "end": 25.28
         },
         {
           "word": "in",
-          "start": 19.904,
-          "end": 20.544
+          "start": 25.28,
+          "end": 25.92
         },
         {
           "word": "any",
-          "start": 20.544,
-          "end": 21.004
+          "start": 25.92,
+          "end": 26.38
         },
         {
           "word": "language",
-          "start": 21.004,
-          "end": 21.424
+          "start": 26.38,
+          "end": 26.8
         },
         {
           "word": "Let's",
-          "start": 22.224,
-          "end": 22.464
+          "start": 27.6,
+          "end": 27.84
         },
         {
           "word": "figure",
-          "start": 22.464,
-          "end": 22.604
+          "start": 27.84,
+          "end": 27.98
         },
         {
           "word": "it",
-          "start": 22.604,
-          "end": 22.784
+          "start": 27.98,
+          "end": 28.16
         },
         {
           "word": "out",
-          "start": 22.784,
-          "end": 22.924
+          "start": 28.16,
+          "end": 28.3
         }
       ]
     },
     {
       "name": "sara",
-      "start": 21.003,
-      "end": 28.741,
+      "start": 28.8,
+      "end": 36.538,
       "words": [
         {
           "word": "I'm",
-          "start": 21.003,
-          "end": 21.783
+          "start": 28.8,
+          "end": 29.58
         },
         {
           "word": "Sara.",
-          "start": 21.783,
-          "end": 22.103
+          "start": 29.58,
+          "end": 29.9
         },
         {
           "word": "Pick",
-          "start": 22.723,
-          "end": 22.723
+          "start": 30.52,
+          "end": 30.52
         },
         {
           "word": "a",
-          "start": 22.723,
-          "end": 23.383
+          "start": 30.52,
+          "end": 31.18
         },
         {
           "word": "language,",
-          "start": 23.383,
-          "end": 23.383
+          "start": 31.18,
+          "end": 31.18
         },
         {
           "word": "any",
-          "start": 23.783,
-          "end": 24.023
+          "start": 31.58,
+          "end": 31.82
         },
         {
           "word": "language",
-          "start": 24.023,
-          "end": 24.383
+          "start": 31.82,
+          "end": 32.18
         },
         {
           "word": "\u2014",
-          "start": 24.383,
-          "end": 24.443
+          "start": 32.18,
+          "end": 32.24
         },
         {
           "word": "I'll",
-          "start": 24.443,
-          "end": 24.723
+          "start": 32.24,
+          "end": 32.52
         },
         {
           "word": "keep",
-          "start": 24.723,
-          "end": 24.903
+          "start": 32.52,
+          "end": 32.7
         },
         {
           "word": "up.",
-          "start": 24.903,
-          "end": 25.223
+          "start": 32.7,
+          "end": 33.02
         },
         {
           "word": "Let's",
-          "start": 25.903,
-          "end": 26.163
+          "start": 33.7,
+          "end": 33.96
         },
         {
           "word": "talk.",
-          "start": 26.163,
-          "end": 26.463
+          "start": 33.96,
+          "end": 34.26
         }
       ]
     }
