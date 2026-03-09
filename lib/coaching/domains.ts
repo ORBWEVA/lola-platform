@@ -3,7 +3,7 @@ export interface SceneTemplate {
   prompt: string
 }
 
-export type OpenAIVoice = 'alloy' | 'ash' | 'ballad' | 'coral' | 'echo' | 'sage' | 'shimmer' | 'verse'
+export type OpenAIVoice = 'alloy' | 'ash' | 'ballad' | 'coral' | 'echo' | 'sage' | 'shimmer' | 'verse' | 'marin' | 'cedar'
 
 export interface DomainPreset {
   id: string

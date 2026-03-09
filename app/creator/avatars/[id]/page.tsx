@@ -41,7 +41,6 @@ export default function EditAvatarPage() {
   const [domain, setDomain] = useState('')
   const [isPublished, setIsPublished] = useState(false)
   const [instagram, setInstagram] = useState('')
-  const [generatingVoice, setGeneratingVoice] = useState(false)
 
   useEffect(() => {
     const load = async () => {
@@ -339,36 +338,15 @@ export default function EditAvatarPage() {
           </button>
         </div>
 
-        {/* Generate voice sample */}
+        {/* Voice selection */}
         <button
-          onClick={async () => {
-            if (!avatar) return
-            setGeneratingVoice(true)
-            setErrorMsg(null)
-            try {
-              const res = await fetch('/api/avatars/voice-sample', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ avatarId: avatar.id }),
-              })
-              if (!res.ok) {
-                const data = await res.json()
-                setErrorMsg(data.error || 'Voice sample generation failed')
-              } else {
-                setSuccessMsg('Voice sample generated! Visitors can preview it on the profile page.')
-              }
-            } catch {
-              setErrorMsg('Voice sample generation failed — check your connection.')
-            }
-            setGeneratingVoice(false)
-          }}
-          disabled={generatingVoice}
-          className="w-full py-3 rounded-xl glass font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+          onClick={() => router.push(`/creator/avatars/${avatar.id}/voices`)}
+          className="w-full py-3 rounded-xl glass font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2 text-sm"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M8 5v14l11-7z" />
+            <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
           </svg>
-          {generatingVoice ? 'Generating...' : 'Generate Voice Preview'}
+          Choose Voice
         </button>
 
         {/* Share to social */}
