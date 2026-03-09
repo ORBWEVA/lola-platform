@@ -188,8 +188,8 @@ export async function POST(request: Request) {
 
   if (!openaiRes.ok) {
     const err = await openaiRes.text()
-    console.error('OpenAI session error:', err)
-    return NextResponse.json({ error: 'Failed to create voice session' }, { status: 500 })
+    console.error('OPENAI_FAIL status=' + openaiRes.status + ' body=' + err.slice(0, 200))
+    return NextResponse.json({ error: 'Failed to create voice session', detail: err.slice(0, 200) }, { status: 500 })
   }
 
   const openaiData = await openaiRes.json()
