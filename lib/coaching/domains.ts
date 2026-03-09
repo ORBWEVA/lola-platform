@@ -12,6 +12,7 @@ export interface DomainPreset {
   defaultVoice: OpenAIVoice
   conversationMode: 'coaching' | 'sales' | 'support' | 'freeform'
   defaultOpener: string
+  defaultOpeners?: Partial<Record<string, string>>
   l1PatternsEnabled: boolean
   principleEmphasis: string[]
   suggestedPersonalities: string[]
@@ -35,6 +36,10 @@ export const DOMAIN_PRESETS: Record<string, DomainPreset> = {
     defaultVoice: 'shimmer',
     conversationMode: 'coaching',
     defaultOpener: "Hey! I'm {name}. I'm multilingual, so speak in whatever language feels natural — I'll follow your lead. What would you like to practice today?",
+    defaultOpeners: {
+      ja: 'こんにちは！{name}です。どの言語でも大丈夫ですよ。今日は何を練習しましょうか？',
+      ko: '안녕하세요! {name}입니다. 편한 언어로 말씀해 주세요. 오늘은 무엇을 연습할까요?',
+    },
     l1PatternsEnabled: true,
     principleEmphasis: ['growth_mindset', 'emotional_state', 'cognitive_load', 'spacing'],
     suggestedPersonalities: ['warm and patient', 'energetic and playful', 'precise and methodical', 'casual and friendly', 'encouraging', 'humorous', 'culturally aware', 'adaptive'],
@@ -51,6 +56,10 @@ export const DOMAIN_PRESETS: Record<string, DomainPreset> = {
     defaultVoice: 'echo',
     conversationMode: 'coaching',
     defaultOpener: "Hey! I'm {name}. I speak multiple languages, so just talk however feels natural. Ready to work on your goals today?",
+    defaultOpeners: {
+      ja: 'こんにちは！{name}です。どの言語でもOKですよ。今日の目標に取り組みましょう！',
+      ko: '안녕하세요! {name}입니다. 편한 언어로 말씀하세요. 오늘 목표를 향해 시작할까요?',
+    },
     l1PatternsEnabled: false,
     principleEmphasis: ['progressive_challenge', 'autonomy_choice', 'positive_framing', 'sensory_engagement'],
     suggestedPersonalities: ['high-energy motivator', 'calm and mindful', 'tough love coach', 'science-focused', 'empathetic listener', 'disciplined', 'holistic wellness', 'competitive'],
@@ -67,6 +76,10 @@ export const DOMAIN_PRESETS: Record<string, DomainPreset> = {
     defaultVoice: 'alloy',
     conversationMode: 'sales',
     defaultOpener: "Hi! I'm {name}. I'm multilingual — feel free to chat in any language. I'd love to help you find exactly what you need. What are you working on?",
+    defaultOpeners: {
+      ja: 'こんにちは！{name}です。どの言語でもお気軽にどうぞ。ぴったりのものを見つけるお手伝いをしますね。',
+      ko: '안녕하세요! {name}입니다. 어떤 언어든 편하게 말씀하세요. 필요한 것을 찾는 데 도움드리겠습니다.',
+    },
     l1PatternsEnabled: false,
     principleEmphasis: ['rapport_anchoring', 'meta_model', 'autonomy_choice', 'retrieval_practice'],
     suggestedPersonalities: ['consultative advisor', 'enthusiastic recommender', 'no-pressure guide', 'expert curator', 'persuasive', 'analytical', 'relationship-builder', 'solution-oriented'],
@@ -83,6 +96,10 @@ export const DOMAIN_PRESETS: Record<string, DomainPreset> = {
     defaultVoice: 'ash',
     conversationMode: 'coaching',
     defaultOpener: "Hey, I'm {name}. I speak several languages, so whatever's comfortable for you. What's the biggest challenge you're facing right now?",
+    defaultOpeners: {
+      ja: '{name}です。どの言語でも大丈夫ですよ。今一番の課題は何ですか？',
+      ko: '{name}입니다. 편한 언어로 말씀하세요. 지금 가장 큰 과제는 무엇인가요?',
+    },
     l1PatternsEnabled: false,
     principleEmphasis: ['meta_model', 'progressive_challenge', 'retrieval_practice', 'cognitive_load'],
     suggestedPersonalities: ['Socratic questioner', 'straight-talking advisor', 'empathetic strategist', 'data-driven analyst', 'visionary thinker', 'accountability partner', 'calm under pressure', 'inspirational'],
@@ -99,6 +116,10 @@ export const DOMAIN_PRESETS: Record<string, DomainPreset> = {
     defaultVoice: 'sage',
     conversationMode: 'support',
     defaultOpener: "Hi! I'm {name}. I can help in multiple languages — just speak naturally. How can I help you today?",
+    defaultOpeners: {
+      ja: 'こんにちは！{name}です。多言語対応ですので、お気軽にお話しください。今日はどのようなご用件ですか？',
+      ko: '안녕하세요! {name}입니다. 다국어 지원이 가능합니다. 오늘 어떻게 도와드릴까요?',
+    },
     l1PatternsEnabled: false,
     principleEmphasis: ['emotional_state', 'cognitive_load', 'rapport_anchoring', 'positive_framing'],
     suggestedPersonalities: ['warm and empathetic', 'quick and efficient', 'thorough explainer', 'proactive problem-solver', 'patient', 'reassuring', 'detail-oriented', 'solution-focused'],
@@ -115,6 +136,10 @@ export const DOMAIN_PRESETS: Record<string, DomainPreset> = {
     defaultVoice: 'alloy',
     conversationMode: 'freeform',
     defaultOpener: "Hey! I'm {name}. I'm multilingual, so chat in whatever language you like. What's on your mind?",
+    defaultOpeners: {
+      ja: 'こんにちは！{name}です。どの言語でもOKですよ。何かお話ししましょう！',
+      ko: '안녕하세요! {name}입니다. 어떤 언어든 편하게 말씀하세요. 무엇이든 이야기해 보세요!',
+    },
     l1PatternsEnabled: false,
     principleEmphasis: [],
     suggestedPersonalities: ['friendly', 'professional', 'witty', 'knowledgeable', 'empathetic', 'creative', 'direct', 'thoughtful'],
@@ -129,3 +154,6 @@ export const getScenesForDomain = (domain: string): SceneTemplate[] => {
 
 export const getDomainPreset = (domain: string): DomainPreset =>
   DOMAIN_PRESETS[domain] ?? DOMAIN_PRESETS.custom
+
+export const getLocalizedOpener = (preset: DomainPreset, locale: string): string =>
+  preset.defaultOpeners?.[locale] ?? preset.defaultOpener

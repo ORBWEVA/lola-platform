@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 
 interface VoiceSample {
   voice: string
@@ -28,6 +28,7 @@ export default function VoiceComparePage() {
   const params = useParams()
   const supabase = createClient()
   const t = useTranslations('creator')
+  const locale = useLocale()
 
   const [avatarName, setAvatarName] = useState('')
   const [currentVoice, setCurrentVoice] = useState('')
@@ -70,7 +71,7 @@ export default function VoiceComparePage() {
       const res = await fetch('/api/avatars/voice-compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatarId: params.id }),
+        body: JSON.stringify({ avatarId: params.id, locale }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -127,7 +128,7 @@ export default function VoiceComparePage() {
       await fetch('/api/avatars/voice-sample', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ avatarId: params.id }),
+        body: JSON.stringify({ avatarId: params.id, locale }),
       })
       setMsg(t('voiceUpdatedPreview', { voice: selected }))
     }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getDomainPreset } from '@/lib/coaching/domains'
+import { getDomainPreset, getLocalizedOpener } from '@/lib/coaching/domains'
 
 const REALTIME_VOICES = ['alloy', 'ash', 'ballad', 'coral', 'echo', 'sage', 'shimmer', 'verse', 'marin', 'cedar'] as const
 
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { avatarId, voices } = await request.json()
+  const { avatarId, voices, locale } = await request.json()
 
   // Allow filtering to specific voices, or generate all
   const targetVoices = voices?.length ? voices : REALTIME_VOICES
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
   }
 
   const preset = getDomainPreset(avatar.domain)
-  const greeting = preset.defaultOpener.replace('{name}', avatar.name)
+  const greeting = getLocalizedOpener(preset, locale || 'en').replace('{name}', avatar.name)
   const sampleText = greeting.split(/[.!?]/)[0] + '!'
 
   // Generate TTS for each voice in parallel

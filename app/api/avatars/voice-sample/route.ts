@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getDomainPreset } from '@/lib/coaching/domains'
+import { getDomainPreset, getLocalizedOpener } from '@/lib/coaching/domains'
 
 export async function POST(request: Request) {
   const supabase = await createClient()
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { avatarId } = await request.json()
+  const { avatarId, locale } = await request.json()
 
   // Load avatar (must be owned by this user)
   const { data: avatar } = await supabase
@@ -24,9 +24,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Avatar not found' }, { status: 404 })
   }
 
-  // Build greeting text
+  // Build greeting text (localized if locale provided)
   const preset = getDomainPreset(avatar.domain)
-  const greeting = preset.defaultOpener.replace('{name}', avatar.name)
+  const greeting = getLocalizedOpener(preset, locale || 'en').replace('{name}', avatar.name)
   // Use first sentence only for a short sample
   const sampleText = greeting.split(/[.!?]/)[0] + '!'
 
