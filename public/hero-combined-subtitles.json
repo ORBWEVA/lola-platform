@@ -1,5 +1,5 @@
 {
-  "duration": 40.854,
+  "duration": 39.622,
   "words": [
     {
       "word": "I'm",
@@ -303,68 +303,68 @@
     },
     {
       "word": "I'm",
-      "start": 33.09,
-      "end": 33.87
+      "start": 31.87,
+      "end": 32.65
     },
     {
       "word": "Sara.",
-      "start": 33.87,
-      "end": 34.19
+      "start": 32.65,
+      "end": 32.97
     },
     {
       "word": "Pick",
-      "start": 34.81,
-      "end": 34.81
+      "start": 33.59,
+      "end": 33.59
     },
     {
       "word": "a",
-      "start": 34.81,
-      "end": 35.47
+      "start": 33.59,
+      "end": 34.25
     },
     {
       "word": "language,",
-      "start": 35.47,
-      "end": 35.47
+      "start": 34.25,
+      "end": 34.25
     },
     {
       "word": "any",
-      "start": 35.87,
-      "end": 36.11
+      "start": 34.65,
+      "end": 34.89
     },
     {
       "word": "language",
-      "start": 36.11,
-      "end": 36.47
+      "start": 34.89,
+      "end": 35.25
     },
     {
       "word": "—",
-      "start": 36.47,
-      "end": 36.53
+      "start": 35.25,
+      "end": 35.31
     },
     {
       "word": "I'll",
-      "start": 36.53,
-      "end": 36.81
+      "start": 35.31,
+      "end": 35.59
     },
     {
       "word": "keep",
-      "start": 36.81,
-      "end": 36.99
+      "start": 35.59,
+      "end": 35.77
     },
     {
       "word": "up.",
-      "start": 36.99,
-      "end": 37.31
+      "start": 35.77,
+      "end": 36.09
     },
     {
       "word": "Let's",
-      "start": 37.99,
-      "end": 38.25
+      "start": 36.77,
+      "end": 37.03
     },
     {
       "word": "talk.",
-      "start": 38.25,
-      "end": 38.55
+      "start": 37.03,
+      "end": 37.33
     }
   ],
   "segments": [
@@ -607,7 +607,7 @@
     {
       "name": "alex-rivera",
       "start": 23.77,
-      "end": 32.59,
+      "end": 31.37,
       "words": [
         {
           "word": "I'm",
@@ -698,73 +698,73 @@
     },
     {
       "name": "sara",
-      "start": 32.59,
-      "end": 40.85,
+      "start": 31.37,
+      "end": 39.62,
       "words": [
         {
           "word": "I'm",
-          "start": 33.09,
-          "end": 33.87
+          "start": 31.87,
+          "end": 32.65
         },
         {
           "word": "Sara.",
-          "start": 33.87,
-          "end": 34.19
+          "start": 32.65,
+          "end": 32.97
         },
         {
           "word": "Pick",
-          "start": 34.81,
-          "end": 34.81
+          "start": 33.59,
+          "end": 33.59
         },
         {
           "word": "a",
-          "start": 34.81,
-          "end": 35.47
+          "start": 33.59,
+          "end": 34.25
         },
         {
           "word": "language,",
-          "start": 35.47,
-          "end": 35.47
+          "start": 34.25,
+          "end": 34.25
         },
         {
           "word": "any",
-          "start": 35.87,
-          "end": 36.11
+          "start": 34.65,
+          "end": 34.89
         },
         {
           "word": "language",
-          "start": 36.11,
-          "end": 36.47
+          "start": 34.89,
+          "end": 35.25
         },
         {
           "word": "—",
-          "start": 36.47,
-          "end": 36.53
+          "start": 35.25,
+          "end": 35.31
         },
         {
           "word": "I'll",
-          "start": 36.53,
-          "end": 36.81
+          "start": 35.31,
+          "end": 35.59
         },
         {
           "word": "keep",
-          "start": 36.81,
-          "end": 36.99
+          "start": 35.59,
+          "end": 35.77
         },
         {
           "word": "up.",
-          "start": 36.99,
-          "end": 37.31
+          "start": 35.77,
+          "end": 36.09
         },
         {
           "word": "Let's",
-          "start": 37.99,
-          "end": 38.25
+          "start": 36.77,
+          "end": 37.03
         },
         {
           "word": "talk.",
-          "start": 38.25,
-          "end": 38.55
+          "start": 37.03,
+          "end": 37.33
         }
       ]
     }
