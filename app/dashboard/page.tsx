@@ -98,8 +98,8 @@ async function DashboardContent({ purchased }: { purchased?: string }) {
         <h2 className="text-lg font-semibold">{t('buyCredits')}</h2>
         <div className="grid grid-cols-3 gap-3">
           <BuyCreditsButton pack="starter" credits={30} price="$4.99" />
-          <BuyCreditsButton pack="popular" credits={100} price="$12.99" label="Popular" />
-          <BuyCreditsButton pack="pro" credits={300} price="$29.99" label="Best Value" />
+          <BuyCreditsButton pack="popular" credits={100} price="$12.99" label={t('popular')} />
+          <BuyCreditsButton pack="pro" credits={300} price="$29.99" label={t('bestValue')} />
         </div>
       </div>
 

@@ -19,7 +19,11 @@
     "featuresTitle": "機能一覧 — LoLA",
     "featuresDescription": "適応型コーチング、SNS自動化、リアルタイム音声、クレジット課金など。",
     "howItWorksTitle": "使い方 — LoLA",
-    "howItWorksDescription": "数分でAIアバターを作成し、SNSに公開。誰でも会話を始められます。"
+    "howItWorksDescription": "数分でAIアバターを作成し、SNSに公開。誰でも会話を始められます。",
+    "termsTitle": "利用規約 — LoLA",
+    "termsDescription": "LoLA AIアバタープラットフォームの利用規約。ORBWEVA運営。",
+    "privacyTitle": "プライバシーポリシー — LoLA",
+    "privacyDescription": "LoLA AIアバタープラットフォームのプライバシーポリシー。データの取り扱いについて。"
   },
   "nav": {
     "howItWorks": "使い方",
@@ -228,5 +232,10 @@
     "summary": "概要",
     "talkAgain": "{name}ともう一度話す",
     "noMessages": "このセッションの記録はありません。"
+  },
+  "landing": {
+    "buildYours": "数分で作れます",
+    "createYourOwn": "自分だけのアバターを作る",
+    "orTalkTo": "{name}と話してみる"
   }
 }

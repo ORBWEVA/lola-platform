@@ -8,6 +8,7 @@ import HeroSubtitles from '@/components/landing/HeroSubtitles'
 import SlideMenu from '@/components/SlideMenu'
 import { useVideoSubtitles } from '@/lib/use-video-subtitles'
 import type { SubtitleWord, SubtitleData } from '@/lib/use-video-subtitles'
+import { useTranslations } from 'next-intl'
 
 const HERO_VIDEO = '/hero-combined.mp4'
 const HERO_SUBTITLES = '/hero-combined-subtitles.json'
@@ -103,6 +104,7 @@ interface UserInfo {
 }
 
 export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: boolean; userInfo: UserInfo | null }) {
+  const tLanding = useTranslations('landing')
   const [nudgeDismissed, setNudgeDismissed] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
   const videoRef = useRef<HTMLVideoElement | null>(null)
@@ -249,19 +251,19 @@ export default function LandingHero({ isLoggedIn, userInfo }: { isLoggedIn: bool
       <div className="absolute z-30 bottom-0 left-0 right-0 pb-[env(safe-area-inset-bottom,16px)] px-6 mb-8 sm:mb-12">
         <div className="flex flex-col items-center gap-4">
           <p className="text-sm text-white/50 tracking-widest uppercase font-light">
-            Build yours in minutes
+            {tLanding('buildYours')}
           </p>
           <Link
             href="/creator/avatars/new"
             className="px-10 py-3.5 rounded-full gradient-btn-lg text-sm font-medium text-white tracking-wide pulse-glow"
           >
-            Create Your Own
+            {tLanding('createYourOwn')}
           </Link>
           <Link
             href={`/avatar/${avatar.slug}`}
             className="text-xs text-white/40 hover:text-white/60 transition-colors"
           >
-            or talk to {avatar.name}
+            {tLanding('orTalkTo', { name: avatar.name })}
           </Link>
         </div>
       </div>

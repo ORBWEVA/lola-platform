@@ -19,7 +19,11 @@
     "featuresTitle": "Features — LoLA",
     "featuresDescription": "Adaptive coaching, social media automation, real-time voice, credit billing, and more.",
     "howItWorksTitle": "How It Works — LoLA",
-    "howItWorksDescription": "Create an AI avatar in minutes, publish to social, and let anyone talk to it."
+    "howItWorksDescription": "Create an AI avatar in minutes, publish to social, and let anyone talk to it.",
+    "termsTitle": "Terms of Service — LoLA",
+    "termsDescription": "Terms of Service for the LoLA AI avatar platform, operated by ORBWEVA.",
+    "privacyTitle": "Privacy Policy — LoLA",
+    "privacyDescription": "Privacy Policy for the LoLA AI avatar platform. Learn how we handle your data."
   },
   "nav": {
     "howItWorks": "How It Works",
@@ -228,5 +232,10 @@
     "summary": "Summary",
     "talkAgain": "Talk to {name} again",
     "noMessages": "No transcript available for this session."
+  },
+  "landing": {
+    "buildYours": "Build yours in minutes",
+    "createYourOwn": "Create Your Own",
+    "orTalkTo": "or talk to {name}"
   }
 }

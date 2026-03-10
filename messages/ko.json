@@ -19,7 +19,11 @@
     "featuresTitle": "기능 — LoLA",
     "featuresDescription": "적응형 코칭, SNS 자동화, 실시간 음성, 크레딧 과금 등 모든 기능.",
     "howItWorksTitle": "이용 방법 — LoLA",
-    "howItWorksDescription": "몇 분 만에 AI 아바타를 만들고, SNS에 게시하고, 누구나 대화를 시작할 수 있습니다."
+    "howItWorksDescription": "몇 분 만에 AI 아바타를 만들고, SNS에 게시하고, 누구나 대화를 시작할 수 있습니다.",
+    "termsTitle": "이용약관 — LoLA",
+    "termsDescription": "LoLA AI 아바타 플랫폼 이용약관. ORBWEVA 운영.",
+    "privacyTitle": "개인정보처리방침 — LoLA",
+    "privacyDescription": "LoLA AI 아바타 플랫폼의 개인정보처리방침. 데이터 처리 방식을 확인하세요."
   },
   "nav": {
     "howItWorks": "이용 방법",
@@ -228,5 +232,10 @@
     "summary": "요약",
     "talkAgain": "{name}와 다시 대화하기",
     "noMessages": "이 세션의 기록이 없습니다."
+  },
+  "landing": {
+    "buildYours": "몇 분 만에 만들기",
+    "createYourOwn": "나만의 아바타 만들기",
+    "orTalkTo": "{name}와 대화해 보기"
   }
 }

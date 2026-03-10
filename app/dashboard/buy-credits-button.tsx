@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export function BuyCreditsButton({
   pack,
@@ -14,6 +15,7 @@ export function BuyCreditsButton({
   label?: string
 }) {
   const [loading, setLoading] = useState(false)
+  const t = useTranslations('common')
 
   const handleBuy = async () => {
     setLoading(true)
@@ -48,9 +50,9 @@ export function BuyCreditsButton({
         </span>
       )}
       <p className="text-2xl font-bold">{credits}</p>
-      <p className="text-sm text-muted">credits</p>
+      <p className="text-sm text-muted">{t('credits')}</p>
       <p className="text-sm font-medium mt-1">{price}</p>
-      {loading && <p className="text-xs text-muted mt-1">Redirecting...</p>}
+      {loading && <p className="text-xs text-muted mt-1">{t('loading')}</p>}
     </button>
   )
 }
