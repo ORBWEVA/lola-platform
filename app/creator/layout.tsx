@@ -10,6 +10,7 @@ const TABS = [
   { href: '/creator/avatars', label: 'Avatars' },
   { href: '/creator/analytics', label: 'Analytics' },
   { href: '/creator/products', label: 'Products' },
+  { href: '/creator/billing', label: 'Billing' },
 ]
 
 export default function CreatorLayout({ children }: { children: React.ReactNode }) {

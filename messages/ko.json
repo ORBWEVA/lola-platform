@@ -196,7 +196,15 @@
     "avgRating": "평균 평점",
     "recentFeedback": "최근 피드백",
     "noFeedback": "아직 피드백이 없습니다.",
-    "sessionSummaries": "세션 요약"
+    "sessionSummaries": "세션 요약",
+    "subscribedTo": "{plan} 플랜에 가입했습니다!",
+    "currentPlan": "현재 플랜",
+    "renewsOn": "{date}에 갱신",
+    "mostPopular": "가장 인기",
+    "currentPlanLabel": "현재 플랜",
+    "redirecting": "리디렉션 중...",
+    "freePlanLabel": "무료 플랜",
+    "subscribeTo": "{plan}에 가입"
   },
   "avatarProfile": {
     "talkTo": "{name}와 대화하기",

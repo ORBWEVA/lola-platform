@@ -196,7 +196,15 @@
     "avgRating": "Avg Rating",
     "recentFeedback": "Recent Feedback",
     "noFeedback": "No feedback yet.",
-    "sessionSummaries": "Session Summaries"
+    "sessionSummaries": "Session Summaries",
+    "subscribedTo": "Subscribed to {plan} plan!",
+    "currentPlan": "Current plan",
+    "renewsOn": "Renews on {date}",
+    "mostPopular": "Most Popular",
+    "currentPlanLabel": "Current Plan",
+    "redirecting": "Redirecting...",
+    "freePlanLabel": "Free Plan",
+    "subscribeTo": "Subscribe to {plan}"
   },
   "avatarProfile": {
     "talkTo": "Talk to {name}",

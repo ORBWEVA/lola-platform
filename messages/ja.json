@@ -196,7 +196,15 @@
     "avgRating": "平均評価",
     "recentFeedback": "最近のフィードバック",
     "noFeedback": "フィードバックはまだありません。",
-    "sessionSummaries": "セッション概要"
+    "sessionSummaries": "セッション概要",
+    "subscribedTo": "{plan}プランに登録しました！",
+    "currentPlan": "現在のプラン",
+    "renewsOn": "{date}に更新",
+    "mostPopular": "一番人気",
+    "currentPlanLabel": "現在のプラン",
+    "redirecting": "リダイレクト中...",
+    "freePlanLabel": "無料プラン",
+    "subscribeTo": "{plan}に登録"
   },
   "avatarProfile": {
     "talkTo": "{name}と話す",

@@ -17,3 +17,22 @@ export const CREDIT_PACKS = {
 } as const
 
 export type CreditPackId = keyof typeof CREDIT_PACKS
+
+export const CREATOR_PLANS = {
+  creator: {
+    name: 'Creator',
+    priceId: 'price_1T9IPXP8nydEgWv7jKoAb29z',
+    price: 2900,
+    avatarLimit: 5,
+    features: ['5 avatars', 'Unlimited sessions', 'Social publishing', 'Custom branding', 'Priority support'],
+  },
+  pro: {
+    name: 'Pro',
+    priceId: 'price_1T9IPYP8nydEgWv7gu5ym8aS',
+    price: 9900,
+    avatarLimit: -1, // unlimited
+    features: ['Unlimited avatars', 'API access', 'White-label', 'Team accounts', 'Advanced analytics'],
+  },
+} as const
+
+export type CreatorPlanId = keyof typeof CREATOR_PLANS
