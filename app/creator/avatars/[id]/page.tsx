@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { validImageUrl, filterExpiredUrls } from '@/lib/utils/images'
+import SocialConnections from '@/components/creator/SocialConnections'
 
 interface AvatarData {
   id: string
@@ -69,7 +70,8 @@ export default function EditAvatarPage() {
       setPersonality(data.personality_traits || '')
       setDomain(data.domain || 'custom')
       setIsPublished(data.is_published)
-      setInstagram(data.social_links?.instagram || '')
+      const links = (data.social_links || {}) as Record<string, string>
+      setInstagram(links.instagram || '')
       setLoading(false)
     }
     load()
@@ -92,7 +94,6 @@ export default function EditAvatarPage() {
         personality_traits: personality,
         domain,
         is_published: isPublished,
-        social_links: instagram.trim() ? { instagram: instagram.trim() } : null,
       })
       .eq('id', avatar.id)
 
@@ -100,7 +101,7 @@ export default function EditAvatarPage() {
       setErrorMsg(error.message)
     } else {
       setSuccessMsg(t('avatarUpdated'))
-      setAvatar(prev => prev ? { ...prev, name, slug, tagline, personality_traits: personality, domain, is_published: isPublished, social_links: instagram.trim() ? { instagram: instagram.trim() } : null } : prev)
+      setAvatar(prev => prev ? { ...prev, name, slug, tagline, personality_traits: personality, domain, is_published: isPublished } : prev)
     }
     setSaving(false)
   }
@@ -291,17 +292,9 @@ export default function EditAvatarPage() {
           <span className="text-sm">{isPublished ? t('published') : t('draft')}</span>
         </div>
 
-        <div>
-          <label className="text-xs font-medium text-muted block mb-1">{t('instagram')}</label>
-          <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted text-sm">@</span>
-            <input
-              value={instagram}
-              onChange={e => setInstagram(e.target.value.replace(/^@/, ''))}
-              placeholder="yourhandle"
-              className="w-full pl-8 pr-4 py-3 rounded-xl bg-card border border-glass-border focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
-            />
-          </div>
+        {/* Social connections */}
+        <div className="border-t border-glass-border pt-4">
+          <SocialConnections compact />
         </div>
 
         {/* Scene images preview */}

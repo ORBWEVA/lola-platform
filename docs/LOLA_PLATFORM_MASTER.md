@@ -1,4 +1,4 @@
-# LoLA Platform Master Document v1.7 — 2026-03-10
+# LoLA Platform Master Document v1.8 — 2026-03-12
 
 > CLICKUP: skip — documentation task, no plan mirroring required.
 
@@ -8,6 +8,7 @@
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| v1.8 | 2026-03-12 | Claude Code | OAuth social connections: per-creator platform connections (X, LinkedIn, Pinterest, Bluesky, Instagram) with AES-256-GCM token encryption, OAuth connect/disconnect flows, direct social publishing (Path C), daily token refresh cron, social_connections table with RLS, SocialConnections UI component. New files: lib/crypto.ts, lib/social/, components/creator/SocialConnections.tsx, app/api/social/, app/api/cron/refresh-tokens, supabase/migrations/012_social_connections.sql. |
 | v1.7 | 2026-03-10 | Claude Code | Full platform i18n with next-intl (EN/JA/KO): cookie-based locale detection from Accept-Language header, manual language switcher in slide menu, all UI strings extracted to message files (20+ components), localized metadata via generateMetadata(), domain preset openers localized (JA/KO) for all 6 domains, voice sample and voice compare APIs accept locale param for multilingual greetings. No URL restructuring (localePrefix: 'never'). |
 | v1.6 | 2026-03-09 | Claude Code | DT Full exercise — visible session value: enhanced transcript page with stats/report card/system messages/event logging, structured JSON session reports (topics, key moment, next focus) via upgraded GPT-4o-mini prompt with response_format json_object, voice sample generation on avatar profiles (OpenAI TTS → Supabase Storage, play button on profile page), "View Transcript" links from SessionSummary and session history, JSON-aware summary display across analytics and history pages. Migration 011 adds voice_sample_url column. |
 | v1.5 | 2026-03-09 | Claude Code | Platform-wide DT audit gap closers: creator analytics page (per-avatar session count, avg rating, rating distribution, recent feedback + session summaries), fix callback credit bug (INSERT on first signup only, not upsert that overwrites credits on re-auth), compute avatar rating from real feedback_rating data instead of static DB value, session count from completed sessions. |
@@ -110,6 +111,22 @@ Step 5: Review & edit scene prompts -> generate 6 lifestyle scenes -> approve
 Step 6: Publish -> live profile page + social post triggered
 ```
 
+### Social Connections (OAuth)
+
+Creators connect their social accounts at the creator level (not per-avatar). Supported platforms:
+- **X (Twitter)**: OAuth 2.0 PKCE
+- **LinkedIn**: OAuth 2.0
+- **Pinterest**: OAuth 2.0
+- **Bluesky**: App password auth (no OAuth)
+- **Instagram**: Meta OAuth 2.0 (Phase 2)
+
+Publishing paths:
+- **Path A**: Blotato API via n8n (multi-platform, existing)
+- **Path B**: Manual download (always available)
+- **Path C**: Direct API publishing via stored OAuth tokens (new)
+
+Token security: AES-256-GCM encryption at rest (`lib/crypto.ts`), daily refresh cron (`/api/cron/refresh-tokens`).
+
 ### Key UX Decisions
 
 - Avatar profile pages are PUBLIC (no auth required to view)
@@ -183,6 +200,12 @@ All API routes live under `/app/api/`.
 | `/api/avatars/publish` | POST | Required (creator) | Trigger social media publish via n8n + Blotato |
 | `/api/avatars/download` | GET | None | CORS proxy for downloading cross-origin images |
 | `/api/avatars/voice-sample` | POST | Required (creator) | Generate TTS voice greeting sample via OpenAI, store in Supabase Storage |
+| `/api/social/connect/[platform]` | GET | Required (creator) | Initiate OAuth flow for social platform connection |
+| `/api/social/connect/bluesky` | POST | Required (creator) | Bluesky app password auth (non-OAuth) |
+| `/api/social/callback/[platform]` | GET | None (OAuth redirect) | Handle OAuth callback, store encrypted tokens |
+| `/api/social/status` | GET | Required (creator) | Return configured + connected platforms for UI |
+| `/api/social/deletion-callback` | POST | None | Meta data deletion callback endpoint |
+| `/api/cron/refresh-tokens` | GET | Vercel cron | Daily token refresh for expiring OAuth tokens (3am UTC) |
 | `/api/checkout` | POST | Required | Create Stripe Checkout session for credit purchase |
 | `/api/sessions` | PATCH | Required | End session: server-side duration/credit computation, transcript save, GPT-4o-mini session summary |
 | `/api/sessions/activate` | POST | Required | Mark session as active (called on WebRTC dc.onopen) |
@@ -276,7 +299,8 @@ Location: `lib/coaching/`
 | Image Gen | FLUX Kontext Pro | Via Together AI (black-forest-labs/FLUX.1-Kontext-pro), auto-persisted to Supabase Storage |
 | Content AI | OpenAI GPT-4o | Via n8n |
 | Orchestration | n8n | Self-hosted at `n8n.orbweva.cloud` |
-| Social Publishing | Blotato API | Via n8n, 9 platforms from one API call |
+| Social Publishing | Blotato API + Direct OAuth | Blotato via n8n (Path A), direct API publishing via OAuth tokens (Path C) |
+| Token Encryption | AES-256-GCM | `lib/crypto.ts`, ENCRYPTION_KEY env var (32-byte hex) |
 | Payments | Stripe | Credit purchases + creator subscriptions |
 | Deployment | Vercel | `lola-platform.vercel.app`, auto-deploy from main |
 
@@ -408,6 +432,23 @@ current_period_end TIMESTAMPTZ
 created_at TIMESTAMPTZ DEFAULT now()
 ```
 
+#### social_connections
+```sql
+id UUID PK
+creator_id UUID -> profiles (ON DELETE CASCADE)
+platform TEXT NOT NULL  -- 'x' | 'linkedin' | 'pinterest' | 'bluesky' | 'instagram'
+platform_user_id TEXT
+platform_username TEXT
+access_token TEXT NOT NULL  -- AES-256-GCM encrypted
+refresh_token TEXT  -- AES-256-GCM encrypted
+token_expires_at TIMESTAMPTZ
+scopes TEXT
+created_at TIMESTAMPTZ DEFAULT now()
+updated_at TIMESTAMPTZ DEFAULT now()
+UNIQUE(creator_id, platform)
+-- RLS: creators can read own connections only
+```
+
 #### content_library
 ```sql
 id UUID PK
@@ -456,6 +497,8 @@ created_at TIMESTAMPTZ DEFAULT now()
 | 15 | Image Persistence Pipeline (Supabase Storage) | Complete |
 | 16 | Social Links Editor (Creator Dashboard) | Complete |
 | 17 | Vercel Deployment + Google OAuth | Complete |
+
+| 18 | OAuth Social Connections (X, LinkedIn, Pinterest, Bluesky, Instagram) | Complete |
 
 ### Post-Hackathon Backlog
 
@@ -516,19 +559,23 @@ lola-platform/
     dashboard/                    # Learner dashboard
     creator/                      # Creator dashboard + avatar wizard
     api/                          # API routes (realtime, checkout, webhooks, etc.)
+      social/                     # OAuth connect/callback/status/deletion-callback routes
+      cron/                       # Vercel cron jobs (token refresh)
   components/
     session/                      # VoiceSession, ImageCarousel, Waveform, Transcript, CreditPill
     onboarding/                   # ProfileQuiz
     avatar/                       # AvatarHero, SceneGallery, ProductGrid
-    creator/                      # AvatarWizard, ImagePicker, SceneReview
+    creator/                      # AvatarWizard, ImagePicker, SceneReview, SocialConnections
     landing/                      # HeroVideo, HeroWaveform, HeroSubtitles
     SlideMenu.tsx                 # Always-dark slide-out nav with theme toggle
   lib/
     coaching/                     # 12 principles, profiles, instructions, domains, l1-patterns
+    crypto.ts                     # AES-256-GCM encrypt/decrypt for OAuth tokens
+    social/                       # Platform configs (platforms.ts), publishing functions (publish.ts)
     openai/realtime.ts
     stripe/client.ts, config.ts
     supabase/client.ts, server.ts, middleware.ts
-  supabase/migrations/            # SQL migrations (001-006)
+  supabase/migrations/            # SQL migrations (001-012)
   scripts/regen-flux.mjs          # Image regeneration script (Together AI)
   middleware.ts
 ```
@@ -570,8 +617,16 @@ n8n handles ALL AI tool orchestration. This is deliberate — models and tools c
 ### Blotato
 
 - Social media publishing API (9 platforms from one call)
-- Accessed via n8n social publisher workflow
+- Accessed via n8n social publisher workflow (Path A)
 - Requires Blotato API credentials in n8n
+
+### Direct Social Publishing (Path C)
+
+- Per-creator OAuth token storage with AES-256-GCM encryption
+- Platforms: X (OAuth 2.0 PKCE), LinkedIn (OAuth 2.0), Pinterest (OAuth 2.0), Bluesky (app password), Instagram (Meta OAuth, Phase 2)
+- Publishing via `lib/social/publish.ts` — per-platform API calls with stored tokens
+- Token refresh: `/api/cron/refresh-tokens` (Vercel cron, daily 3am UTC)
+- Env vars needed: `ENCRYPTION_KEY`, plus per-platform client ID/secret pairs
 
 ### Stripe
 

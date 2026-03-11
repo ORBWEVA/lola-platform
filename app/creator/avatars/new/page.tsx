@@ -5,6 +5,7 @@ import { DOMAIN_PRESETS, getDomainPreset, getScenesForDomain, type SceneTemplate
 import { useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import SocialPreviewCard from '@/components/creator/SocialPreviewCard'
+import SocialConnections from '@/components/creator/SocialConnections'
 
 type Step = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
@@ -14,24 +15,13 @@ function HelpTip({ children }: { children: React.ReactNode }) {
   )
 }
 
-function ComingSoonBadge() {
-  return (
-    <span className="text-[10px] px-2 py-0.5 rounded-full border border-amber-500/30 text-amber-400">Coming Soon</span>
-  )
-}
-
 const IMAGE_MODELS = [
   { id: 'juggernaut-pro-flux', label: 'Juggernaut Pro (Photorealistic)', default: true },
   { id: 'flux-schnell', label: 'FLUX.1 Schnell (Fast)' },
   { id: 'flux-kontext-pro', label: 'FLUX Kontext Pro (Best Consistency)' },
-]
-
-const SOCIAL_PLATFORMS = [
-  { id: 'instagram', label: 'Instagram', icon: 'IG', available: true },
-  { id: 'tiktok', label: 'TikTok', icon: 'TT', available: false },
-  { id: 'x', label: 'X (Twitter)', icon: 'X', available: false },
-  { id: 'youtube', label: 'YouTube', icon: 'YT', available: false },
-  { id: 'linkedin', label: 'LinkedIn', icon: 'LI', available: false },
+  { id: 'flux-1.1-pro-ultra', label: 'FLUX 1.1 Pro Ultra (2K Resolution)' },
+  { id: 'gpt-image-1.5', label: 'GPT Image 1.5 (Best Text Rendering)' },
+  { id: 'nanobanana', label: 'NanoBanana (AI Viral Ads)' },
 ]
 
 export default function NewAvatarPage() {
@@ -81,7 +71,6 @@ export default function NewAvatarPage() {
   const [selectedCaption, setSelectedCaption] = useState(0)
   const [customCaption, setCustomCaption] = useState('')
   const [postImageUrl, setPostImageUrl] = useState<string | null>(null)
-  const [socialConnections, setSocialConnections] = useState<Record<string, string>>({})
   const [blotatoKey, setBlotatoKey] = useState('')
 
   // ElevenLabs
@@ -277,7 +266,7 @@ export default function NewAvatarPage() {
       const baseSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
       const slug = `${baseSlug}-${Date.now().toString(36).slice(-4)}`
 
-      const socialLinks: Record<string, unknown> = { ...socialConnections }
+      const socialLinks: Record<string, unknown> = {}
       if (blotatoKey) socialLinks.blotato_api_key = blotatoKey
 
       const { data: avatar, error } = await supabase.from('avatars').insert({
@@ -792,53 +781,7 @@ export default function NewAvatarPage() {
         <div className="space-y-6">
           <h2 className="text-xl font-bold">Connect &amp; publish</h2>
 
-          {/* Social Platforms */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold">Social media</h3>
-            <HelpTip>Connect Instagram to share your avatar&apos;s content. After publishing, you&apos;ll get the post image + caption ready to share.</HelpTip>
-
-            <div className="glass rounded-xl p-3 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400 flex items-center justify-center text-xs font-bold text-white">IG</span>
-              <span className="text-sm font-medium">Instagram</span>
-              <input
-                value={socialConnections.instagram || ''}
-                onChange={e => setSocialConnections(prev => ({ ...prev, instagram: e.target.value }))}
-                placeholder="@username or profile URL"
-                className="flex-1 px-3 py-1.5 rounded-lg bg-background border border-glass-border focus:outline-none focus:ring-1 focus:ring-indigo-500/50 text-sm"
-              />
-            </div>
-
-            {/* Other platforms coming soon */}
-            <div className="space-y-2">
-              {SOCIAL_PLATFORMS.filter(p => !p.available).map(p => (
-                <div key={p.id} className="glass rounded-xl p-3 flex items-center justify-between opacity-50">
-                  <div className="flex items-center gap-3">
-                    <span className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-xs font-bold">{p.icon}</span>
-                    <span className="text-sm">{p.label}</span>
-                  </div>
-                  <ComingSoonBadge />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Blotato — optional premium auto-publish */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold">Auto-publish</h3>
-              <ComingSoonBadge />
-            </div>
-            <p className="text-xs text-muted">Connect Blotato to auto-publish to all 9 platforms at once. For now, you&apos;ll get your post image + caption ready to share manually.</p>
-          </div>
-
-          {/* Voice — Coming Soon */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold">Voice cloning</h3>
-              <ComingSoonBadge />
-            </div>
-            <HelpTip>Clone your own voice with ElevenLabs. For now, your avatar uses a high-quality OpenAI voice.</HelpTip>
-          </div>
+          <SocialConnections />
 
           {/* Publish */}
           <div className="glass rounded-xl p-4 text-left space-y-2">

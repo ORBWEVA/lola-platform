@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient as createServerClient } from '@/lib/supabase/server'
+import { createClient } from '@supabase/supabase-js'
+import type { PlatformId } from '@/lib/social/platforms'
+
+function getSupabaseAdmin() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!url || !key) throw new Error('Supabase service role env vars not configured')
+  return createClient(url, key)
+}
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
@@ -61,6 +70,30 @@ export async function POST(request: Request) {
     }
   }
 
-  // Path B: Manual share (no Blotato) — avatar is saved, user shares from published page
+  // Path C: Direct publish via social_connections
+  const admin = getSupabaseAdmin()
+  const { data: connections } = await admin
+    .from('social_connections')
+    .select('platform, access_token, refresh_token, platform_username')
+    .eq('creator_id', user.id)
+
+  if (connections && connections.length > 0) {
+    const { publishToAll } = await import('@/lib/social/publish')
+    const { decrypt } = await import('@/lib/crypto')
+
+    const decrypted = connections.map(c => ({
+      platform: c.platform as PlatformId,
+      access_token: decrypt(c.access_token),
+      refresh_token: c.refresh_token ? decrypt(c.refresh_token) : undefined,
+      platform_username: c.platform_username || undefined,
+    }))
+
+    const imageUrl = avatar.anchor_image_url || avatar.scene_images?.[0]
+    const results = await publishToAll(decrypted, caption || avatar.tagline || '', imageUrl)
+
+    return NextResponse.json({ success: true, directPublish: true, results })
+  }
+
+  // Path B: Manual share (no Blotato, no connections) — avatar is saved, user shares from published page
   return NextResponse.json({ success: true, autoPublished: false, slug: avatar.slug })
 }
